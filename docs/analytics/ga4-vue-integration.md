@@ -218,7 +218,7 @@ const routes = [
     name: 'home',
     component: Home,
     meta: {
-      title: 'Home | MANAPURAZA.COM',
+      title: 'Home | yamashitamana.to',
     },
   },
   {
@@ -226,7 +226,7 @@ const routes = [
     name: 'about',
     component: About,
     meta: {
-      title: 'About | MANAPURAZA.COM',
+      title: 'About | yamashitamana.to',
     },
   },
   // ...

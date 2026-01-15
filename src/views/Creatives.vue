@@ -194,8 +194,8 @@ const handleFilterChange = (category: 'all' | CreativeCategory): void => {
   useHead({
     title: computed(() => 
       locale.value === 'ja' 
-        ? 'Creatives - 作品集 | YAMASHITAMANA.TO'
-        : 'Creatives - Portfolio | YAMASHITAMANA.TO'
+        ? 'Creatives - 作品集 | yamashitamana.to'
+        : 'Creatives - Portfolio | yamashitamana.to'
     ),
     meta: [
       {
@@ -218,8 +218,8 @@ const handleFilterChange = (category: 'all' | CreativeCategory): void => {
         property: 'og:title',
         content: computed(() => 
           locale.value === 'ja' 
-            ? 'Creatives - 作品集 | YAMASHITAMANA.TO'
-            : 'Creatives - Portfolio | YAMASHITAMANA.TO'
+            ? 'Creatives - 作品集 | yamashitamana.to'
+            : 'Creatives - Portfolio | yamashitamana.to'
         )
       },
       {

@@ -454,8 +454,8 @@ const { locale } = useI18n();
 useHead({
   title: computed(() => 
     locale.value === 'ja' 
-      ? '日本語タイトル | MANAPURAZA.COM'
-      : 'English Title | MANAPURAZA.COM'
+      ? '日本語タイトル | yamashitamana.to'
+      : 'English Title | yamashitamana.to'
   ),
   meta: [
     {

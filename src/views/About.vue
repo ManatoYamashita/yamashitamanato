@@ -13,8 +13,8 @@ const { locale } = useI18n<{ message: string }, Locale>();
   useHead({
     title: computed(() => 
       locale.value === 'ja' 
-        ? '山下真和都(マナト) - About | YAMASHITAMANA.TO'
-        : 'Manato Yamashita - About | YAMASHITAMANA.TO'
+        ? '山下真和都(マナト) - About | yamashitamana.to'
+        : 'Manato Yamashita - About | yamashitamana.to'
     ),
     meta: [
       {
@@ -37,8 +37,8 @@ const { locale } = useI18n<{ message: string }, Locale>();
         property: 'og:title',
         content: computed(() => 
           locale.value === 'ja' 
-            ? '山下真和都(マナト) - About | YAMASHITAMANA.TO'
-            : 'Manato Yamashita - About | YAMASHITAMANA.TO'
+            ? '山下真和都(マナト) - About | yamashitamana.to'
+            : 'Manato Yamashita - About | yamashitamana.to'
         )
       },
       {

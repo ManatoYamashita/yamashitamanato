@@ -203,7 +203,7 @@ const handleClick = (data) => {
   "creatives": {
     "dev": {
       "manapuraza": {
-        "title": "MANAPURAZA.COM",
+        "title": "yamashitamana.to",
         "description": "Vue.js製のポートフォリオサイト"
       }
     }

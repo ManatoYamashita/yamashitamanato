@@ -1,4 +1,4 @@
-# MANAPURAZA.COM
+# yamashitamana.to
 
 > 山下マナトのWebポートフォリオSPA。Vue 3 + Vite、Three.js背景、Vue Router/i18nでja/en対応。主要ページ: `/`, `/about`, `/creatives`, `/contact`。
 

@@ -20,7 +20,7 @@ Google Analytics 4をGoogle Tag Manager (GTM)経由で設定するベストプ�
 ### 2. プロパティ設定
 
 **基本情報:**
-- **プロパティ名:** `MANAPURAZA.COM`
+- **プロパティ名:** `yamashitamana.to`
 - **レポートのタイムゾーン:** `日本`
 - **通貨:** `日本円（¥）`
 
@@ -38,7 +38,7 @@ Google Analytics 4をGoogle Tag Manager (GTM)経由で設定するベストプ�
 1. 「ウェブ」を選択
 2. 設定:
    - **ウェブサイトのURL:** `https://manapuraza.com`
-   - **ストリーム名:** `MANAPURAZA.COM - Web`
+   - **ストリーム名:** `yamashitamana.to - Web`
 3. 「ストリームを作成」をクリック
 
 ### 4. 測定IDの確認

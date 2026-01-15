@@ -322,8 +322,8 @@
   useHead({
     title: computed(() =>
       creative.value
-        ? `${t(creative.value.title)} | MANAPURAZA.COM`
-        : 'Not Found | MANAPURAZA.COM'
+        ? `${t(creative.value.title)} | yamashitamana.to`
+        : 'Not Found | yamashitamana.to'
     ),
     meta: [
       {
@@ -338,8 +338,8 @@
         property: 'og:title',
         content: computed(() =>
           creative.value
-            ? `${t(creative.value.title)} | MANAPURAZA.COM`
-            : 'Not Found | MANAPURAZA.COM'
+            ? `${t(creative.value.title)} | yamashitamana.to`
+            : 'Not Found | yamashitamana.to'
         )
       },
       {

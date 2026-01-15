@@ -13,8 +13,8 @@ const { t, locale } = useI18n<{ message: string }, Locale>();
   useHead({
     title: computed(() => 
       locale.value === 'ja' 
-        ? 'Contact - お問い合わせ | YAMASHITAMANA.TO'
-        : 'Contact | YAMASHITAMANA.TO'
+        ? 'Contact - お問い合わせ | yamashitamana.to'
+        : 'Contact | yamashitamana.to'
     ),
     meta: [
       {
@@ -37,8 +37,8 @@ const { t, locale } = useI18n<{ message: string }, Locale>();
         property: 'og:title',
         content: computed(() => 
           locale.value === 'ja' 
-            ? 'Contact - お問い合わせ | YAMASHITAMANA.TO'
-            : 'Contact | YAMASHITAMANA.TO'
+            ? 'Contact - お問い合わせ | yamashitamana.to'
+            : 'Contact | yamashitamana.to'
         )
       },
       {

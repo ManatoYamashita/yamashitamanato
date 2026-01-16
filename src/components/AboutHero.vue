@@ -67,7 +67,15 @@
   import Sns from '@/components/Sns.vue';
 
   const { t, locale } = useI18n<{ message: string }, Locale>();
-  const imageSrc = '/山下真和都(マナト).webp';
+
+  // 画像パスの配列
+  const imageOptions = [
+    '/山下真和都(マナト).webp',
+    '/山下真和都(マナト)2.webp'
+  ];
+
+  // ランダムに画像を選択
+  const imageSrc = imageOptions[Math.floor(Math.random() * imageOptions.length)];
   const externalProfileUrl = 'https://bento.me/ym/';
 
   const imageAlt = computed(() =>

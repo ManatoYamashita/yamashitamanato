@@ -680,7 +680,7 @@ onErrorCaptured(() => {
 }
 
 .logo-img-mobile {
-  width: 10rem;
+  width: 12rem;
 }
 
 /* モバイル下部メニュー */

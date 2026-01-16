@@ -304,23 +304,111 @@ body{height:100dvh;color:#111;line-height:normal;font-family:Inter,-apple-system
       autoplay
       muted
       playsinline
-      preload="auto"
+      preload="metadata"
+      disablePictureInPicture
+      disableRemotePlayback
       aria-label="yamashitamana.to loading animation"
+      aria-hidden="true"
     >
       <source src="/logo.webm" type="video/webm">
       <source src="/logo.mp4" type="video/mp4">
       <img src="/icon_white.webp" alt="yamashitamana.to icon" width="800" height="160" />
     </video>
     <script>
-      // OPアニメーション完了後にDOM削除（3秒後）
-      window.addEventListener('load', () => {
-        setTimeout(() => {
-          const videoOp = document.querySelector('.video-op');
+      // 動画再生のベストプラクティスに準拠した実装
+      (function() {
+        'use strict';
+        
+        const videoOp = document.querySelector('.video-op');
+        if (!videoOp) return;
+        
+        // コントロールを明示的に無効化
+        videoOp.controls = false;
+        videoOp.removeAttribute('controls');
+        
+        // 再生速度を1.5倍に設定
+        videoOp.playbackRate = 1.5;
+        
+        // エラーハンドリング用の関数
+        const handleVideoError = (error) => {
+          console.error('Video loading/playback error:', error);
+          // エラー時はフォールバック画像を表示
+          const fallbackImg = videoOp.querySelector('img');
+          if (fallbackImg) {
+            fallbackImg.style.display = 'block';
+          }
+        };
+        
+        // 動画リソースのクリーンアップ関数
+        const cleanupVideo = () => {
+          if (!videoOp) return;
+          
+          // イベントリスナーを削除
+          videoOp.removeEventListener('error', handleVideoError);
+          videoOp.removeEventListener('loadedmetadata', handlePlayAttempt);
+          videoOp.removeEventListener('canplaythrough', handlePlayAttempt);
+          
+          // 動画を停止してリソースを解放
+          videoOp.pause();
+          videoOp.removeAttribute('src');
+          videoOp.load(); // リソースを解放
+        };
+        
+        // 再生試行関数（複数のイベントで呼び出し可能）
+        const handlePlayAttempt = () => {
+          if (!videoOp) return;
+          
+          const playPromise = videoOp.play();
+          
+          // Promiseベースの再生処理
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => {
+                // 再生成功
+                console.debug('Video autoplay started successfully');
+              })
+              .catch((error) => {
+                // 自動再生がブロックされた場合（ユーザー操作が必要）
+                console.debug('Video autoplay was prevented:', error);
+                // この場合はユーザー操作なしでは再生しない（ベストプラクティス）
+              });
+          }
+        };
+        
+        // エラーハンドリング
+        videoOp.addEventListener('error', handleVideoError, { once: true });
+        
+        // メタデータ読み込み完了時に再生を試行
+        videoOp.addEventListener('loadedmetadata', handlePlayAttempt, { once: true });
+        
+        // 動画が再生可能になった時にも再生を試行（より確実）
+        videoOp.addEventListener('canplaythrough', handlePlayAttempt, { once: true });
+        
+        // OPアニメーション完了後にリソースをクリーンアップしてDOM削除
+        const cleanupAndRemove = () => {
+          cleanupVideo();
+          
           const topOp = document.querySelector('.top-op');
-          if (videoOp) videoOp.remove();
-          if (topOp) topOp.remove();
-        }, 3000);
-      });
+          if (videoOp && videoOp.parentNode) {
+            videoOp.parentNode.removeChild(videoOp);
+          }
+          if (topOp && topOp.parentNode) {
+            topOp.parentNode.removeChild(topOp);
+          }
+        };
+        
+        // ページ読み込み完了後、3秒経過したらクリーンアップ
+        if (document.readyState === 'complete') {
+          setTimeout(cleanupAndRemove, 3000);
+        } else {
+          window.addEventListener('load', () => {
+            setTimeout(cleanupAndRemove, 3000);
+          }, { once: true });
+        }
+        
+        // ページアンロード時にもクリーンアップ（メモリリーク防止）
+        window.addEventListener('beforeunload', cleanupVideo, { once: true });
+      })();
     </script>
     <div id="back"></div>
 

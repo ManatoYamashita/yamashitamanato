@@ -51,6 +51,27 @@
 	-webkit-animation: videoAnim 1.6s forwards;
 	animation: videoAnim 1.6s forwards;
   }
+  
+  /* 動画コントロールを完全に非表示（全ブラウザ対応） */
+  .video-op::-webkit-media-controls {
+	display: none !important;
+  }
+  .video-op::-webkit-media-controls-enclosure {
+	display: none !important;
+  }
+  .video-op::-webkit-media-controls-panel {
+	display: none !important;
+  }
+  .video-op::-webkit-media-controls-play-button {
+	display: none !important;
+  }
+  .video-op::-webkit-media-controls-start-playback-button {
+	display: none !important;
+  }
+  /* Firefox用 */
+  .video-op::-moz-media-controls {
+	display: none !important;
+  }
 @keyframes videoAnim {
 	0% {
 		opacity: 1;

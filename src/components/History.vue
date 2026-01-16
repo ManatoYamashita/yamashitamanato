@@ -41,6 +41,7 @@ const historyItems = ref<HistoryItem[]>([
   { year: '2022', titleKey: 'his.22', descriptionKey: 'his.22-de' },
   { year: '2023', titleKey: 'his.23', descriptionKey: 'his.23-de' },
   { year: '2025', titleKey: 'his.25', descriptionKey: 'his.25-de' },
+  { year: '2026', titleKey: 'his.26', descriptionKey: 'his.26-de' },
 ]);
 
 const timelineRef: Ref<HTMLElement | null> = ref(null);

@@ -414,22 +414,15 @@
       pointer-events: none;
     }
     #center-logo {
-      top: 40%;
+      top: calc(32% + env(safe-area-inset-top, 0rem));
       width: 60%;
+      max-width: 280px;
     }
     .app {
       margin: 0;
       width: 100%;
     }
-    #sp-nav {
-      display: block;
-      position: fixed;
-      right: 50%;
-      bottom: 2.5rem;
-      pointer-events: all !important;
-      z-index: 20;
-    }
-    
+
     /* SP用プログレスバー */
     .progress-bar {
       height: 4px;
@@ -674,10 +667,10 @@
       flex-wrap: nowrap;
       align-items: center; /* 水平中央揃え */
       gap: 0.75rem; /* 項目間の縦間隔 */
-      top: 50%; /* ロゴから少し下げる */
+      top: calc(42% + env(safe-area-inset-top, 0rem)); /* ロゴから少し下げる */
       max-width: 90vw; /* 画面幅の90%まで使用 */
       padding: 0 1rem;
-      padding-top: max(0.5rem, env(safe-area-inset-top, 0.5rem)); /* Safe Area対応 */
+      padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 1.5rem)); /* Safe Area対応 */
     }
 
     /* リンクスタイル - タッチフレンドリー */
@@ -758,6 +751,31 @@
       right: auto;
       left: 50%;
       transform: translateX(-50%); /* ドロップダウンを中央配置 */
+    }
+  }
+
+  /* iPhone SE (375px x 667px) 等の超小型デバイス対応 */
+  @media screen and (max-width: 540px) and (max-height: 700px) {
+    #center-logo {
+      top: calc(30% + env(safe-area-inset-top, 0rem));
+      width: 55%;
+    }
+
+    .home-nav-links {
+      top: calc(40% + env(safe-area-inset-top, 0rem));
+      gap: 0.5rem;
+    }
+
+    .home-nav-link {
+      font-size: 1rem;
+      padding: 0.4rem 1rem;
+      min-height: 40px;
+    }
+
+    .home-lang-dropdown-toggle {
+      font-size: 0.9rem;
+      padding: 0.4rem 0.9rem;
+      min-height: 40px;
     }
   }
 </style>

@@ -63,7 +63,14 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faTableCells, faFilm, faCode, faPalette, faVideo, faPencilAlt } from '@fortawesome/free-solid-svg-icons';
+import {
+  faTableCells,
+  faFilm,
+  faCode,
+  faPalette,
+  faVideo,
+  faPencilAlt,
+} from '@fortawesome/free-solid-svg-icons';
 
 // フィルター状態管理
 const activeFilter = ref('all');
@@ -80,55 +87,65 @@ const setFilter = (category: string): void => {
 onMounted(async () => {
   // GSAPを動的インポートして初期バンドルサイズを削減
   const { gsap } = await import('gsap');
-  
+
   // Hero セクションのアニメーション
   const tl = gsap.timeline();
-  
-  tl.fromTo('.hero-text h1', 
+
+  tl.fromTo(
+    '.hero-text h1',
     {
       y: 50,
-      opacity: 0
+      opacity: 0,
     },
     {
       y: 0,
       opacity: 1,
       duration: 1,
-      ease: 'power3.out'
+      ease: 'power3.out',
     }
   )
-  .fromTo('.hero-description', 
-    {
-      y: 30,
-      opacity: 0
-    },
-    {
-      y: 0,
-      opacity: 1,
-      duration: 1,
-      ease: 'power3.out'
-    }, '-=0.7')
-  .fromTo('.cta-button', 
-    {
-      y: 20,
-      opacity: 0
-    },
-    {
-      y: 0,
-      opacity: 1,
-      duration: 1,
-      ease: 'power3.out'
-    }, '-=0.7')
-  .fromTo('.sphere', 
-    {
-      scale: 0.5,
-      opacity: 0
-    },
-    {
-      scale: 1,
-      opacity: 1,
-      duration: 1.5,
-      ease: 'elastic.out(1, 0.3)'
-    }, '-=0.8');
+    .fromTo(
+      '.hero-description',
+      {
+        y: 30,
+        opacity: 0,
+      },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 1,
+        ease: 'power3.out',
+      },
+      '-=0.7'
+    )
+    .fromTo(
+      '.cta-button',
+      {
+        y: 20,
+        opacity: 0,
+      },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 1,
+        ease: 'power3.out',
+      },
+      '-=0.7'
+    )
+    .fromTo(
+      '.sphere',
+      {
+        scale: 0.5,
+        opacity: 0,
+      },
+      {
+        scale: 1,
+        opacity: 1,
+        duration: 1.5,
+        ease: 'elastic.out(1, 0.3)',
+      },
+      '-=0.8'
+    );
 });
 </script>
 
@@ -243,7 +260,7 @@ onMounted(async () => {
   height: 100%;
   border-radius: 50%;
   background: linear-gradient(135deg, #ffffff 0%, #e6f7ff 100%);
-  box-shadow: 
+  box-shadow:
     inset -20px -20px 60px rgba(67, 153, 187, 0.3),
     inset 20px 20px 60px rgba(255, 255, 255, 0.8),
     0 0 30px rgba(67, 153, 187, 0.2);
@@ -252,7 +269,8 @@ onMounted(async () => {
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0) rotateY(0);
   }
   50% {
@@ -307,10 +325,10 @@ onMounted(async () => {
     display: grid;
     grid-template-columns: 1fr;
     grid-template-areas:
-      "title"
-      "sphere"
-      "desc"
-      "filters";
+      'title'
+      'sphere'
+      'desc'
+      'filters';
     justify-items: center;
     text-align: center;
     gap: 1.25rem;
@@ -351,4 +369,4 @@ onMounted(async () => {
     font-size: 0.9rem;
   }
 }
-</style> 
+</style>

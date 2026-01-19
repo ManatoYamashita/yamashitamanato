@@ -116,3 +116,29 @@ console.log('PROD:', import.meta.env.PROD);
 - デベロッパーツールでソースマップを有効化
 - ネットワークタブでチャンク読み込み順序を確認
 - コンソールで初期化ログを監視
+
+---
+
+## セキュリティチェック
+
+### Node.jsバージョン確認
+- [ ] 最新のセキュリティパッチが適用されているか確認
+- [ ] .nvmrc, package.json, .github/workflows/feature-ci.yml, netlify.toml が統一されているか
+- [ ] Node.jsセキュリティアドバイザリを確認: https://nodejs.org/en/blog/vulnerability/
+
+### 依存関係の脆弱性スキャン
+```bash
+npm audit
+# 期待結果: 0 vulnerabilities
+```
+
+**高リスク脆弱性が検出された場合**:
+1. `npm audit fix` で自動修正可能か確認
+2. Breaking changesが必要な場合は `npm audit fix --force` を慎重に実行
+3. 修正後、必ずビルドとテストを実行
+4. `docs/ops/nodejs-version-management.md` を参照してNode.jsアップデートを検討
+
+### セキュリティヘッダー確認
+- [ ] Netlify環境でセキュリティヘッダーが適切に設定されている
+- [ ] CORS設定が適切（Netlify Functions使用時）
+- [ ] 環境変数が正しく設定され、クライアントに露出していない

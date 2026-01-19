@@ -33,6 +33,7 @@
 - ops/creatives-guide.md — microCMSでのポートフォリオ作品管理手順（categories/creatives API、データフロー、詳細ページルーティング `/creatives/:category/:id`）。
 - ops/deployment-checklist.md — デプロイ前後の確認項目とトラブルシュート。
 - ops/branch.md — ブランチ戦略、GitHub Actions CI/CD、コミットメッセージ規約。
+- ops/nodejs-version-management.md — Node.js バージョン管理ガイド（アップデート手順、セキュリティパッチ適用、トラブルシューティング）。
 
 ### Dev（開発環境）
 - dev/devcontainer-setup.md — Devcontainer 環境構築ガイド（VS Code + Docker、Node.js 22.13.1、Vue 3 + Vite 対応）。
@@ -50,4 +51,4 @@
 
 ---
 
-最終更新日: 2026-01-12
+最終更新日: 2026-01-19

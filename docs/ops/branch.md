@@ -352,6 +352,53 @@ git push origin feature-add-gtm
 - **Prettier 設定:** `.prettierrc`
 - **GitHub Actions ワークフロー:** `.github/workflows/feature-ci.yml`
 
+## セキュリティアップデートのコミット規約
+
+### セキュリティ修正のPREFIX
+
+Node.jsや依存関係のセキュリティアップデートには `FIX` プレフィックスを使用します：
+
+```
+FIX: Node.js 22.22.0にアップデートしてセキュリティ脆弱性8件を修正
+```
+
+### コミットメッセージの詳細例
+
+```bash
+git commit -m "FIX: Node.js 22.22.0にアップデートしてセキュリティ脆弱性8件を修正" -m "
+- CVE-2025-55131: Buffer/Uint8Array 非ゼロクリア（高）
+- CVE-2025-55130: ファイルシステム権限回避（高）
+- CVE-2025-59465: HTTP/2 マルフォームドヘッダー（高）
+- その他5件の中度・低度の脆弱性を修正
+
+更新ファイル:
+- .github/workflows/feature-ci.yml (node-version: 22.22.0)
+- netlify.toml (NODE_VERSION = 22.22.0)
+- .nvmrc (新規作成: 22.22.0)
+- package.json (enginesフィールド追加: node >=22.22.0)
+
+検証済み:
+- TypeScript型チェック（ゼロエラー）
+- ESLint/Prettierチェック（ゼロエラー）
+- ビルド成功（開発/プロダクション両環境）
+- Netlify Functions動作確認（該当する場合）
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+"
+```
+
+### セキュリティアップデートの特徴
+
+- **詳細な脆弱性リスト**: CVE番号と深刻度を明記
+- **更新ファイルの網羅**: すべての関連ファイルをリスト化
+- **検証結果の記録**: 実施した検証項目を明記
+- **Co-Authored-By**: Claude Codeによる支援を明示
+
+### 関連ドキュメント
+
+セキュリティアップデートの詳細な手順は `docs/ops/nodejs-version-management.md` を参照してください。
+
 ## 更新履歴
 
+- 2026-01-19: セキュリティアップデートのコミット規約を追加
 - 2026-11-24: 初版作成（feature/quality-tools ブランチでの運用実績を反映）

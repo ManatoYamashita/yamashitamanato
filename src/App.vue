@@ -604,21 +604,6 @@
     filter: blur(2rem);
   }
 
-  /* 初期表示時のアニメーション（ロゴと同期） */
-  .home-nav-links {
-    opacity: 0;
-    animation: homeMenuFadeIn 0.4s ease-in-out 2.3s forwards;
-  }
-
-  @keyframes homeMenuFadeIn {
-    0% {
-      opacity: 0;
-    }
-    100% {
-      opacity: 1;
-    }
-  }
-
   /* レスポンシブ対応 - 3段階ブレークポイント */
 
   /* Desktop: 769px以上 - ホームメニュー表示（一行レイアウト） */

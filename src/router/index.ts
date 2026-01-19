@@ -3,7 +3,7 @@ import {
   createWebHistory,
   type RouteRecordRaw,
   type NavigationGuardNext,
-  type RouteLocationNormalized
+  type RouteLocationNormalized,
 } from 'vue-router';
 import { isValidCategory } from '@/types';
 import Home from '@/views/Home.vue';
@@ -20,7 +20,7 @@ const NotFoundComponent = () => import('../views/404.vue');
 const preloadComponents = () => {
   // requestIdleCallbackを使用してブラウザアイドル時に事前読み込み
   const schedule = window.requestIdleCallback || ((cb) => setTimeout(cb, 100));
-  
+
   schedule(() => {
     AboutComponent();
     CreativesComponent();
@@ -35,61 +35,61 @@ const preloadComponents = () => {
 preloadComponents();
 
 const routes: RouteRecordRaw[] = [
-    {
-      path: '/',
-      name: 'home',
-      component: Home,
-    },
-    {
-      path: '/about',
-      name: 'about',
-      component: AboutComponent,
-    },
-    {
-      path: '/creatives',
-      name: 'creatives',
-      component: CreativesComponent,
-      meta: {
-        style: {
-          top: '0',
-        },
+  {
+    path: '/',
+    name: 'home',
+    component: Home,
+  },
+  {
+    path: '/about',
+    name: 'about',
+    component: AboutComponent,
+  },
+  {
+    path: '/creatives',
+    name: 'creatives',
+    component: CreativesComponent,
+    meta: {
+      style: {
+        top: '0',
       },
     },
-    {
-      path: '/creatives/:category/:id',
-      name: 'creative-detail',
-      component: CreativeDetailComponent,
-      props: true,
-      beforeEnter: (
-        to: RouteLocationNormalized,
-        _from: RouteLocationNormalized,
-        next: NavigationGuardNext
-      ) => {
-        const { category } = to.params;
+  },
+  {
+    path: '/creatives/:category/:id',
+    name: 'creative-detail',
+    component: CreativeDetailComponent,
+    props: true,
+    beforeEnter: (
+      to: RouteLocationNormalized,
+      _from: RouteLocationNormalized,
+      next: NavigationGuardNext
+    ) => {
+      const { category } = to.params;
 
-        if (typeof category === 'string' && isValidCategory(category)) {
-          next();
-        } else {
-          next('/404');
-        }
+      if (typeof category === 'string' && isValidCategory(category)) {
+        next();
+      } else {
+        next('/404');
       }
     },
-    {
-      path: '/contact',
-      name: 'contact',
-      component: ContactComponent,
-    },
-    {
-      path: '/underconstraction',
-      name: 'underconstraction',
-      component: UnderConstractionComponent,
-    },
-    {
-      path: '/:pathMatch(.*)*',
-      name: '404',
-      component: NotFoundComponent,
-    },
-  ];
+  },
+  {
+    path: '/contact',
+    name: 'contact',
+    component: ContactComponent,
+  },
+  {
+    path: '/underconstraction',
+    name: 'underconstraction',
+    component: UnderConstractionComponent,
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: '404',
+    component: NotFoundComponent,
+  },
+];
 
 const router = createRouter({
   history: createWebHistory(),
@@ -101,50 +101,44 @@ const router = createRouter({
     // それ以外はページ上部へスクロール
     return { top: 0 };
   },
-  routes
+  routes,
 });
 
 // 完璧ナビゲーション視覚フィードバックシステム
-router.beforeEach((
-  to: RouteLocationNormalized,
-  _from: RouteLocationNormalized,
-  next: NavigationGuardNext
-) => {
-  // lazy loading開始時の瞬時視覚フィードバック
-  if (to.name !== 'home') {
-    // 即座にローディング状態を適用
-    document.body.style.cursor = 'wait';
-    document.body.classList.add('navigation-loading');
+router.beforeEach(
+  (to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => {
+    // lazy loading開始時の瞬時視覚フィードバック
+    if (to.name !== 'home') {
+      // 即座にローディング状態を適用
+      document.body.style.cursor = 'wait';
+      document.body.classList.add('navigation-loading');
 
-    // プログレスバーを素早く表示
-    const progressBar = document.getElementById('navigation-progress');
-    const progressFill = progressBar?.querySelector<HTMLElement>('.progress-fill');
-    if (progressBar && progressFill) {
-      progressBar.style.display = 'block';
-      progressFill.style.width = '25%';
+      // プログレスバーを素早く表示
+      const progressBar = document.getElementById('navigation-progress');
+      const progressFill = progressBar?.querySelector<HTMLElement>('.progress-fill');
+      if (progressBar && progressFill) {
+        progressBar.style.display = 'block';
+        progressFill.style.width = '25%';
 
-      // 段階的プログレス表示でUX向上
-      setTimeout(() => {
-        if (progressFill.style.width === '25%') {
-          progressFill.style.width = '60%';
-        }
-      }, 100);
+        // 段階的プログレス表示でUX向上
+        setTimeout(() => {
+          if (progressFill.style.width === '25%') {
+            progressFill.style.width = '60%';
+          }
+        }, 100);
 
-      setTimeout(() => {
-        if (progressFill.style.width === '60%') {
-          progressFill.style.width = '85%';
-        }
-      }, 200);
+        setTimeout(() => {
+          if (progressFill.style.width === '60%') {
+            progressFill.style.width = '85%';
+          }
+        }, 200);
+      }
     }
-
+    next();
   }
-  next();
-});
+);
 
-router.afterEach((
-  to: RouteLocationNormalized,
-  _from: RouteLocationNormalized
-) => {
+router.afterEach((to: RouteLocationNormalized, _from: RouteLocationNormalized) => {
   // lazy loading完了時の視覚フィードバック解除
   if (to.name !== 'home') {
     // ローディング状態を短時間で段階的に解除（滑らかな体験）
@@ -163,14 +157,12 @@ router.afterEach((
       // ローディングカーソル解除
       document.body.style.cursor = '';
       document.body.classList.remove('navigation-loading');
-
     }, 100);
   }
 });
 
 // ナビゲーションエラーハンドリング強化
 router.onError((error: Error) => {
-
   // エラー時のクリーンアップ
   const progressBar = document.getElementById('navigation-progress');
   if (progressBar) {
@@ -186,7 +178,10 @@ router.onError((error: Error) => {
   document.body.classList.remove('navigation-loading');
 
   // 重要: DOM操作エラーの場合は強制的にホームに戻す
-  if (error.message.includes('nextSibling') || error.message.includes('Cannot read properties of null')) {
+  if (
+    error.message.includes('nextSibling') ||
+    error.message.includes('Cannot read properties of null')
+  ) {
     window.location.href = '/';
   }
 });

@@ -45,11 +45,7 @@
       <div class="sns-container">
         <Sns />
       </div>
-      <router-link
-        to="/contact"
-        class="cta-button"
-        :aria-label="t('about.ctaLabel')"
-      >
+      <router-link to="/contact" class="cta-button" :aria-label="t('about.ctaLabel')">
         <font-awesome-icon :icon="faEnvelope" class="icon" />
         <span class="label">{{ t('about.ctaText') }}</span>
         <font-awesome-icon :icon="faArrowRight" class="icon" />
@@ -59,82 +55,83 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, onMounted } from 'vue';
-  import { useI18n } from 'vue-i18n';
-  import type { Locale } from '@/types';
-  import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-  import { faArrowUpRightFromSquare, faArrowRight, faEnvelope } from '@fortawesome/free-solid-svg-icons';
-  import Sns from '@/components/Sns.vue';
+import { computed, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import type { Locale } from '@/types';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import {
+  faArrowUpRightFromSquare,
+  faArrowRight,
+  faEnvelope,
+} from '@fortawesome/free-solid-svg-icons';
+import Sns from '@/components/Sns.vue';
 
-  const { t, locale } = useI18n<{ message: string }, Locale>();
+const { t, locale } = useI18n<{ message: string }, Locale>();
 
-  // 画像パスの配列
-  const imageOptions = [
-    '/山下真和都(マナト).webp',
-    '/山下真和都(マナト)2.webp'
-  ];
+// 画像パスの配列
+const imageOptions = ['/山下真和都(マナト).webp', '/山下真和都(マナト)2.webp'];
 
-  // ランダムに画像を選択
-  const imageSrc = imageOptions[Math.floor(Math.random() * imageOptions.length)];
-  const externalProfileUrl = 'https://bento.me/ym/';
+// ランダムに画像を選択
+const imageSrc = imageOptions[Math.floor(Math.random() * imageOptions.length)];
+const externalProfileUrl = 'https://bento.me/ym/';
 
-  const imageAlt = computed(() =>
-    locale.value === 'ja' ? '山下真和都(マナト)' : 'Manato Yamashita'
-  );
+const imageAlt = computed(() =>
+  locale.value === 'ja' ? '山下真和都(マナト)' : 'Manato Yamashita'
+);
 
-  onMounted(async () => {
-    // GSAPを動的インポートして初期バンドルサイズを削減
-    const { gsap } = await import('gsap');
+onMounted(async () => {
+  // GSAPを動的インポートして初期バンドルサイズを削減
+  const { gsap } = await import('gsap');
 
-    // 1. 画像（0.0s）
-    gsap.from('.profile-image', {
-      scale: 0.8,
-      opacity: 0,
-      duration: 1,
-      ease: 'power2.out',
-    });
-
-    // 2. 名前セクション（0.2s）
-    gsap.from('.name-section', {
-      opacity: 0,
-      y: -20,
-      duration: 0.8,
-      delay: 0.2,
-      ease: 'power2.out',
-    });
-
-    // 3. 読み仮名（0.4s）
-    gsap.from('.profile-reading', {
-      opacity: 0,
-      y: 10,
-      duration: 0.6,
-      delay: 0.4,
-      ease: 'power2.out',
-    });
-
-    // 4. メッセージ（0.5s）
-    gsap.from('.message-section', {
-      opacity: 0,
-      y: 30,
-      duration: 1,
-      delay: 0.5,
-      ease: 'power2.out',
-    });
-
-    // 5. CTAボタン（0.7s）
-    gsap.from('.cta-button', {
-      opacity: 0,
-      scale: 0.9,
-      duration: 0.8,
-      delay: 0.7,
-      ease: 'back.out(1.4)',
-      clearProps: 'opacity',
-    });
-
-    // 6. SNSアイコン（Sns.vue内のstagger維持）
+  // 1. 画像（0.0s）
+  gsap.from('.profile-image', {
+    scale: 0.8,
+    opacity: 0,
+    duration: 1,
+    ease: 'power2.out',
   });
+
+  // 2. 名前セクション（0.2s）
+  gsap.from('.name-section', {
+    opacity: 0,
+    y: -20,
+    duration: 0.8,
+    delay: 0.2,
+    ease: 'power2.out',
+  });
+
+  // 3. 読み仮名（0.4s）
+  gsap.from('.profile-reading', {
+    opacity: 0,
+    y: 10,
+    duration: 0.6,
+    delay: 0.4,
+    ease: 'power2.out',
+  });
+
+  // 4. メッセージ（0.5s）
+  gsap.from('.message-section', {
+    opacity: 0,
+    y: 30,
+    duration: 1,
+    delay: 0.5,
+    ease: 'power2.out',
+  });
+
+  // 5. CTAボタン（0.7s）
+  gsap.from('.cta-button', {
+    opacity: 0,
+    scale: 0.9,
+    duration: 0.8,
+    delay: 0.7,
+    ease: 'back.out(1.4)',
+    clearProps: 'opacity',
+  });
+
+  // 6. SNSアイコン（Sns.vue内のstagger維持）
+});
 </script>
-  
+
 <style scoped>
 /* === ベーススタイル（モバイル: ~480px） === */
 #about-hero {
@@ -204,7 +201,9 @@
 
 .external-link-icon {
   color: #666;
-  transition: color 0.3s ease, transform 0.3s ease;
+  transition:
+    color 0.3s ease,
+    transform 0.3s ease;
   display: flex;
   align-items: center;
   text-decoration: none;
@@ -375,4 +374,3 @@
   }
 }
 </style>
-  

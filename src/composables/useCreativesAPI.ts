@@ -98,42 +98,46 @@ function setCachedData<T>(key: string, data: T): void {
  */
 function adaptCreativeData(data: CreativeData, locale: 'ja' | 'en'): CMSCreative {
   // 多言語フィールドの選択
-  const title = locale === 'ja' ? data.title : (data.titleEn || data.title);
-  const description = locale === 'ja'
-    ? (data.description || '')
-    : (data.descriptionEn || data.description || '');
+  const title = locale === 'ja' ? data.title : data.titleEn || data.title;
+  const description =
+    locale === 'ja' ? data.description || '' : data.descriptionEn || data.description || '';
 
   // 小カテゴリをタグに変換
-  const tags = data.minorCategory?.map((cat) =>
-    locale === 'ja' ? cat.name : (cat.nameEn || cat.name)
-  ) || [];
+  const tags =
+    data.minorCategory?.map((cat) => (locale === 'ja' ? cat.name : cat.nameEn || cat.name)) || [];
 
   // detailオブジェクトの構築
   // richEditorV2のHTMLをMarkdownとして扱う（必要に応じてHTML→Markdown変換処理追加）
-  const detail = data.detail || data.images ? {
-    images: data.images?.map(img => img.url) || [data.thumbnail.url],
-    descriptionMarkdown: locale === 'ja'
-      ? (data.detail || data.description || '')
-      : (data.detailEn || data.descriptionEn || data.description || ''),
-    youtube: data.youtubeUrl ? {
-      mobile: data.youtubeUrl,  // 単一URLを両方に設定
-      desktop: data.youtubeUrl
-    } : undefined,
-    productionYear: data.year,
-    // credits と cta は detail（richEditorV2）内で管理
-    credits: undefined,
-    cta: undefined
-  } : undefined;
+  const detail =
+    data.detail || data.images
+      ? {
+          images: data.images?.map((img) => img.url) || [data.thumbnail.url],
+          descriptionMarkdown:
+            locale === 'ja'
+              ? data.detail || data.description || ''
+              : data.detailEn || data.descriptionEn || data.description || '',
+          youtube: data.youtubeUrl
+            ? {
+                mobile: data.youtubeUrl, // 単一URLを両方に設定
+                desktop: data.youtubeUrl,
+              }
+            : undefined,
+          productionYear: data.year,
+          // credits と cta は detail（richEditorV2）内で管理
+          credits: undefined,
+          cta: undefined,
+        }
+      : undefined;
 
   return {
-    id: data.id,  // microCMS自動生成IDを使用
+    id: data.id, // microCMS自動生成IDを使用
     title,
     description,
     url: data.url || '',
     thumbnail: data.thumbnail.url,
     tags,
     detail,
-    _isCMS: true
+    _isCMS: true,
   } as CMSCreative;
 }
 
@@ -154,7 +158,7 @@ async function fetchCategories(): Promise<void> {
 
     // API呼び出し
     const response = await fetchMicroCMS<MicroCMSListResponse<CategoryData>>('categories', {
-      limit: 100,  // カテゴリ数は少ないため全件取得
+      limit: 100, // カテゴリ数は少ないため全件取得
     });
 
     categories.value = response.contents;
@@ -187,8 +191,8 @@ async function fetchCreatives(categoryFilter?: string): Promise<void> {
 
     // API呼び出しパラメータ
     const params: Record<string, string | number> = {
-      limit: 100,  // 作品数に応じて調整
-      depth: 2,    // カテゴリ参照を含める
+      limit: 100, // 作品数に応じて調整
+      depth: 2, // カテゴリ参照を含める
     };
 
     // カテゴリフィルタリング
@@ -226,8 +230,7 @@ export function useCreativesAPI() {
           const majorCategoryType = creative.majorCategory.type;
           // typeは配列なので、'major'を含むかチェック
           // カテゴリIDで比較（name/nameEnではなくIDを使用）
-          return majorCategoryType.includes('major') &&
-                 creative.majorCategory.id === category;
+          return majorCategoryType.includes('major') && creative.majorCategory.id === category;
         })
         .map((creative) => adaptCreativeData(creative, locale));
     });
@@ -236,10 +239,7 @@ export function useCreativesAPI() {
   /**
    * IDから作品を取得（ロケール対応）
    */
-  const getCreativeById = (
-    id: string,
-    locale: 'ja' | 'en'
-  ): ComputedRef<CMSCreative | null> => {
+  const getCreativeById = (id: string, locale: 'ja' | 'en'): ComputedRef<CMSCreative | null> => {
     return computed(() => {
       const creative = creatives.value.find((c) => c.id === id);
       return creative ? adaptCreativeData(creative, locale) : null;

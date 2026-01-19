@@ -51,9 +51,6 @@ interface ImportMeta {
 
 // requestIdleCallback type definition (for browser API)
 interface Window {
-  requestIdleCallback?: (
-    callback: IdleRequestCallback,
-    options?: IdleRequestOptions
-  ) => number;
+  requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number;
   cancelIdleCallback?: (handle: number) => void;
 }

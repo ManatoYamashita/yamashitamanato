@@ -29,6 +29,6 @@ export function getCreativeParams(
 
   return {
     category: category as CreativeCategory,
-    id
+    id,
   };
 }

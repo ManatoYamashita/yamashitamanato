@@ -1,11 +1,7 @@
 <template>
   <div id="history">
     <div class="timeline" ref="timelineRef">
-      <div
-        class="entry"
-        v-for="(item, index) in historyItems"
-        :key="index"
-      >
+      <div class="entry" v-for="(item, index) in historyItems" :key="index">
         <div class="title">
           <h3>{{ item.year }}</h3>
         </div>
@@ -70,97 +66,106 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-  #history {
-    width: 100%;
-    max-width: 800px;
-    overflow-y: hidden;
-    margin: 0 auto;
-  }
-  .timeline {
-    width: 100%;
-    height: 100%;
-    padding: 2rem 0 5rem 0;
-    position: relative;
-  }
-  .timeline:before {
-    content: '';
-    position: absolute;
-    left: calc(33% + 15px);
-    top: calc(3rem + 3px);
-    bottom: 0;
-    width: 4px;
-    background: #101010;
-  }
-  .timeline:after {
-    content: "";
-    display: table;
-    clear: both;
-  }
-  .entry {
-    clear: both;
-    text-align: left;
-    position: relative;
-  }
-  .title {
-    float: left;
-    width: 33%;
-    padding-right: 30px;
-    text-align: right;
-    position: relative;
-  }
-  .title:before {
-    /* point of timeline */
-    content: '';
-    position: absolute;
-    width: 1rem;
-    border: .5rem solid black;
-    border-radius: 100%;
-    top: 15%;
-    right: calc(-1.5rem - 1px);
-  }
-  h3 {
-    margin: 0;
-    font-size: 120%;
-  }
-  p {
-    margin: 0;
-    font-size: small;
-    color: #666;
-    line-height: 1.6;
-  }
-  .incident {
-    float: right;
-    width: 66%;
-    padding-left: 2rem;
-    margin: 0;
-  }
+#history {
+  width: 100%;
+  max-width: 800px;
+  overflow-y: hidden;
+  margin: 0 auto;
+}
+.timeline {
+  width: 100%;
+  height: 100%;
+  padding: 2rem 0 5rem 0;
+  position: relative;
+}
+.timeline:before {
+  content: '';
+  position: absolute;
+  left: calc(33% + 15px);
+  top: calc(3rem + 3px);
+  bottom: 0;
+  width: 4px;
+  background: #101010;
+}
+.timeline:after {
+  content: '';
+  display: table;
+  clear: both;
+}
+.entry {
+  clear: both;
+  text-align: left;
+  position: relative;
+}
+.title {
+  float: left;
+  width: 33%;
+  padding-right: 30px;
+  text-align: right;
+  position: relative;
+}
+.title:before {
+  /* point of timeline */
+  content: '';
+  position: absolute;
+  width: 1rem;
+  border: 0.5rem solid black;
+  border-radius: 100%;
+  top: 15%;
+  right: calc(-1.5rem - 1px);
+}
+h3 {
+  margin: 0;
+  font-size: 120%;
+}
+p {
+  margin: 0;
+  font-size: small;
+  color: #666;
+  line-height: 1.6;
+}
+.incident {
+  float: right;
+  width: 66%;
+  padding-left: 2rem;
+  margin: 0;
+}
 
-  /* 時代ごとの間隔 */
-  .p1 { /* 2002年 */
-    margin-bottom: 0.5rem;
-  }
-  .p2 { /* 2003年 */
-    margin-bottom: 6rem;
-  }
-  .p3 { /* 2015年 */
-    margin-bottom: 1.5rem;
-  }
-  .p4 { /* 2018年 */
-    margin-bottom: 1.5rem;
-  }
-  .p5 { /* 2021年 */
-    margin-bottom: 0;
-  }
-  .p6 { /* 2021年 */
-    margin-bottom: .5rem;
-  }
-  .p7 { /* 2022年 */
-    margin-bottom: .5rem;
-  }
-  .p8 { /* 2023年 */
-    margin-bottom: 1rem;
-  }
-  .p9 { /* 2026年 */
-    margin-bottom: 1rem;
-  }
+/* 時代ごとの間隔 */
+.p1 {
+  /* 2002年 */
+  margin-bottom: 0.5rem;
+}
+.p2 {
+  /* 2003年 */
+  margin-bottom: 6rem;
+}
+.p3 {
+  /* 2015年 */
+  margin-bottom: 1.5rem;
+}
+.p4 {
+  /* 2018年 */
+  margin-bottom: 1.5rem;
+}
+.p5 {
+  /* 2021年 */
+  margin-bottom: 0;
+}
+.p6 {
+  /* 2021年 */
+  margin-bottom: 0.5rem;
+}
+.p7 {
+  /* 2022年 */
+  margin-bottom: 0.5rem;
+}
+.p8 {
+  /* 2023年 */
+  margin-bottom: 1rem;
+}
+.p9 {
+  /* 2026年 */
+  margin-bottom: 1rem;
+}
 </style>

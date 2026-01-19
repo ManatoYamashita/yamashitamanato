@@ -18,13 +18,19 @@
           </transition>
         </RouterLink>
       </div>
-      
+
       <!-- 通常ページ用メニュー項目 -->
       <transition name="menu-fade">
         <div class="nav-links" v-show="currentPath !== '/'">
-          <RouterLink to="/about" class="nav-link" :class="{ 'nav-animate': isInitialLoad }">{{ $t('navbar.menu.about') }}</RouterLink>
-          <RouterLink to="/creatives" class="nav-link" :class="{ 'nav-animate': isInitialLoad }">{{ $t('navbar.menu.creatives') }}</RouterLink>
-          <RouterLink to="/contact" class="nav-link" :class="{ 'nav-animate': isInitialLoad }">{{ $t('navbar.menu.contact') }}</RouterLink>
+          <RouterLink to="/about" class="nav-link" :class="{ 'nav-animate': isInitialLoad }">{{
+            $t('navbar.menu.about')
+          }}</RouterLink>
+          <RouterLink to="/creatives" class="nav-link" :class="{ 'nav-animate': isInitialLoad }">{{
+            $t('navbar.menu.creatives')
+          }}</RouterLink>
+          <RouterLink to="/contact" class="nav-link" :class="{ 'nav-animate': isInitialLoad }">{{
+            $t('navbar.menu.contact')
+          }}</RouterLink>
         </div>
       </transition>
 
@@ -41,7 +47,7 @@
           <font-awesome-icon
             :icon="faChevronDown"
             class="chevron-icon"
-            :class="{ 'rotated': isDropdownOpen }"
+            :class="{ rotated: isDropdownOpen }"
           />
         </button>
 
@@ -50,7 +56,7 @@
             <li v-for="lang in languages" :key="lang.code">
               <button
                 @click="selectLanguage(lang.code)"
-                :class="{ 'active': locale === lang.code }"
+                :class="{ active: locale === lang.code }"
                 class="lang-option-btn"
               >
                 <font-awesome-icon
@@ -65,7 +71,6 @@
         </transition>
       </div>
     </nav>
-    
 
     <!-- モバイルナビゲーション -->
     <nav class="mobile-nav" v-show="shouldShowMobileNav">
@@ -98,7 +103,7 @@
             <font-awesome-icon
               :icon="faChevronDown"
               class="chevron-icon"
-              :class="{ 'rotated': isDropdownOpen }"
+              :class="{ rotated: isDropdownOpen }"
             />
           </button>
 
@@ -107,7 +112,7 @@
               <li v-for="lang in languages" :key="lang.code">
                 <button
                   @click="selectLanguage(lang.code)"
-                  :class="{ 'active': locale === lang.code }"
+                  :class="{ active: locale === lang.code }"
                   class="lang-option-btn"
                 >
                   <font-awesome-icon
@@ -170,19 +175,21 @@
           </div>
 
           <!-- メニューリスト -->
-          <ul
-            v-show="isMobileMenuOpen"
-            class="mobile-menu-card"
-            id="mobile-menu-links"
-          >
+          <ul v-show="isMobileMenuOpen" class="mobile-menu-card" id="mobile-menu-links">
             <li class="mobile-menu-item">
-              <RouterLink to="/about" class="mobile-menu-link">{{ $t('navbar.menu.about') }}</RouterLink>
+              <RouterLink to="/about" class="mobile-menu-link">{{
+                $t('navbar.menu.about')
+              }}</RouterLink>
             </li>
             <li class="mobile-menu-item">
-              <RouterLink to="/creatives" class="mobile-menu-link">{{ $t('navbar.menu.creatives') }}</RouterLink>
+              <RouterLink to="/creatives" class="mobile-menu-link">{{
+                $t('navbar.menu.creatives')
+              }}</RouterLink>
             </li>
             <li class="mobile-menu-item">
-              <RouterLink to="/contact" class="mobile-menu-link">{{ $t('navbar.menu.contact') }}</RouterLink>
+              <RouterLink to="/contact" class="mobile-menu-link">{{
+                $t('navbar.menu.contact')
+              }}</RouterLink>
             </li>
           </ul>
         </div>
@@ -196,7 +203,13 @@ import { ref, computed, onMounted, onUnmounted, nextTick, watch, onErrorCaptured
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faGlobe, faChevronDown, faCheck, faBars, faXmark } from '@fortawesome/free-solid-svg-icons';
+import {
+  faGlobe,
+  faChevronDown,
+  faCheck,
+  faBars,
+  faXmark,
+} from '@fortawesome/free-solid-svg-icons';
 import { gsap } from 'gsap';
 import type { Locale } from '@/types';
 import logoSvg from '@/assets/logo.svg';
@@ -231,7 +244,7 @@ const currentPageLabel = computed<string>(() => {
     '/': 'home',
     '/about': 'about',
     '/creatives': 'creatives',
-    '/contact': 'contact'
+    '/contact': 'contact',
   };
 
   if (path.startsWith('/creatives/')) {
@@ -250,12 +263,12 @@ interface Language {
 
 const languages: Language[] = [
   { code: 'ja', label: '日本語' },
-  { code: 'en', label: 'English' }
+  { code: 'en', label: 'English' },
 ];
 
 // 現在の言語ラベル
 const currentLanguageLabel = computed<string>(() => {
-  const current = languages.find(lang => lang.code === locale.value);
+  const current = languages.find((lang) => lang.code === locale.value);
   return current ? current.label : '日本語';
 });
 
@@ -283,76 +296,92 @@ const handleMorphButtonClick = (): void => {
     isMobileMenuOpen.value = true;
 
     nextTick(() => {
-      gsap.timeline({
-        defaults: { ease: 'power2.out' },
-        onComplete: () => { isAnimating.value = false; }
-      })
-      // ページタイトルを後ろに引っ込める（完全には消さない）
-      .to('.mobile-page-title', {
-        opacity: 0.3,           // 薄く残す
-        scale: 0.92,
-        y: 0,                 // 上方向に押し込む
-        zIndex: 1,
-        duration: 0.2
-      })
-      // メニューカードを手前に引き出す
-      .to('.mobile-menu-card', {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        zIndex: 5,
-        duration: 0.25,
-        ease: 'back.out(1.2)'
-      }, '-=0.1');
+      gsap
+        .timeline({
+          defaults: { ease: 'power2.out' },
+          onComplete: () => {
+            isAnimating.value = false;
+          },
+        })
+        // ページタイトルを後ろに引っ込める（完全には消さない）
+        .to('.mobile-page-title', {
+          opacity: 0.3, // 薄く残す
+          scale: 0.92,
+          y: 0, // 上方向に押し込む
+          zIndex: 1,
+          duration: 0.2,
+        })
+        // メニューカードを手前に引き出す
+        .to(
+          '.mobile-menu-card',
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            zIndex: 5,
+            duration: 0.25,
+            ease: 'back.out(1.2)',
+          },
+          '-=0.1'
+        );
     });
   } else {
     // オープン → クローズ
-    gsap.timeline({
-      defaults: { ease: 'power2.in' },
-      onComplete: () => {
-        isMobileMenuOpen.value = false;
-        isAnimating.value = false;
+    gsap
+      .timeline({
+        defaults: { ease: 'power2.in' },
+        onComplete: () => {
+          isMobileMenuOpen.value = false;
+          isAnimating.value = false;
 
-        // 状態リセット
-        gsap.set('.mobile-page-title', {
+          // 状態リセット
+          gsap.set('.mobile-page-title', {
+            opacity: 1,
+            scale: 1,
+            y: 0,
+            zIndex: 5,
+          });
+          gsap.set('.mobile-menu-card', {
+            opacity: 0,
+            y: 8,
+            scale: 0.95,
+            zIndex: 1,
+          });
+        },
+      })
+      // メニューカードを後ろに押し込む
+      .to('.mobile-menu-card', {
+        opacity: 0.3, // 薄く残す
+        y: 12,
+        scale: 0.95,
+        zIndex: 1,
+        duration: 0.2,
+      })
+      // ページタイトルを手前に引き出す
+      .to(
+        '.mobile-page-title',
+        {
           opacity: 1,
           scale: 1,
           y: 0,
-          zIndex: 5
-        });
-        gsap.set('.mobile-menu-card', {
-          opacity: 0,
-          y: 8,
-          scale: 0.95,
-          zIndex: 1
-        });
-      }
-    })
-    // メニューカードを後ろに押し込む
-    .to('.mobile-menu-card', {
-      opacity: 0.3,           // 薄く残す
-      y: 12,
-      scale: 0.95,
-      zIndex: 1,
-      duration: 0.2
-    })
-    // ページタイトルを手前に引き出す
-    .to('.mobile-page-title', {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      zIndex: 5,
-      duration: 0.25,
-      ease: 'back.out(1.3)'
-    }, '-=0.12');
+          zIndex: 5,
+          duration: 0.25,
+          ease: 'back.out(1.3)',
+        },
+        '-=0.12'
+      );
   }
 };
 
 // 外側クリック検出
 const handleClickOutside = (event: MouseEvent): void => {
   const target = event.target as Node;
-  if (dropdownRef.value && !dropdownRef.value.contains(target) &&
-      dropdownRefMobile.value && !dropdownRefMobile.value.contains(target)) {
+  if (
+    dropdownRef.value &&
+    !dropdownRef.value.contains(target) &&
+    dropdownRefMobile.value &&
+    !dropdownRefMobile.value.contains(target)
+  ) {
     isDropdownOpen.value = false;
   }
 };
@@ -411,15 +440,18 @@ const handleLogoError = (event: Event): void => {
 };
 
 // ルート変更の監視（watch）
-watch(() => route.path, (newPath: string) => {
-  try {
-    if (newPath) {
-      currentPath.value = newPath;
+watch(
+  () => route.path,
+  (newPath: string) => {
+    try {
+      if (newPath) {
+        currentPath.value = newPath;
+      }
+    } catch {
+      currentPath.value = '/';
     }
-  } catch {
-    currentPath.value = '/';
   }
-});
+);
 
 // エラーキャプチャ
 onErrorCaptured(() => {
@@ -494,7 +526,9 @@ onErrorCaptured(() => {
 /* アクティブページのグロー効果 */
 .nav-link.router-link-active {
   color: #d7a800; /* 濃い黄色 */
-  text-shadow: #f0d300 0 0px 1rem, #f0d300 0 0px 2rem;
+  text-shadow:
+    #f0d300 0 0px 1rem,
+    #f0d300 0 0px 2rem;
   font-weight: 900; /* より強調 */
 }
 
@@ -503,7 +537,9 @@ onErrorCaptured(() => {
     text-shadow: #f0d300 0 0px 1rem;
   }
   to {
-    text-shadow: #f0d300 0 0px 2rem, #f0d300 0 0px 3rem;
+    text-shadow:
+      #f0d300 0 0px 2rem,
+      #f0d300 0 0px 3rem;
   }
 }
 
@@ -694,7 +730,10 @@ onErrorCaptured(() => {
   padding: 0.35rem;
   z-index: 20;
   overflow: visible;
-  transition: width 0.25s ease, transform 0.25s ease, opacity 0.25s ease;
+  transition:
+    width 0.25s ease,
+    transform 0.25s ease,
+    opacity 0.25s ease;
 }
 
 .mobile-menu-shell {
@@ -943,8 +982,8 @@ onErrorCaptured(() => {
   color: #d7a800; /* ダークイエロー */
   font-weight: 900;
   text-shadow:
-    0 0 12px rgba(240, 211, 0, 0.8),   /* 内側の強いグロー */
-    0 0 24px rgba(240, 211, 0, 0.4);   /* 外側の柔らかいグロー */
+    0 0 12px rgba(240, 211, 0, 0.8),
+    /* 内側の強いグロー */ 0 0 24px rgba(240, 211, 0, 0.4); /* 外側の柔らかいグロー */
 }
 
 /* 下線エフェクト */
@@ -957,13 +996,7 @@ onErrorCaptured(() => {
   width: 60%;
   max-width: 160px;
   height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    #d7a800 20%,
-    #d7a800 80%,
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, #d7a800 20%, #d7a800 80%, transparent);
   box-shadow: 0 0 8px rgba(240, 211, 0, 0.6);
 }
 
@@ -1117,11 +1150,12 @@ onErrorCaptured(() => {
   color: #4faef2;
 }
 
-
 /* メニューフェードアニメーション（ヘッダー用） */
 .menu-fade-enter-active,
 .menu-fade-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
 }
 
 .menu-fade-enter-from {

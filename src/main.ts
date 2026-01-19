@@ -23,8 +23,8 @@ const setupI18n = async () => {
     warnHtmlMessage: false, // HTML警告無効化（軽量化）
     escapeParameter: false, // エスケープ処理無効化（軽量化）
     messages: {
-      ja: ja.default
-    }
+      ja: ja.default,
+    },
   });
 
   // アイドル時に英語辞書を読み込み、フォールバックを有効化
@@ -45,7 +45,7 @@ app.use(head);
 // metaballのルーター適用は遅延読み込み時に設定する
 
 // i18nを遅延読み込み（$t関数エラー修正版）
-setupI18n().then(i18n => {
+setupI18n().then((i18n) => {
   // provide/injectパターンを削除し、通常の使用方法に復元
   app.use(i18n);
 
@@ -72,12 +72,12 @@ setupI18n().then(i18n => {
 
   // 画面の初期描画完了後に背景の重いthree.jsを読み込む
   const schedule = window.requestIdleCallback || ((cb: IdleRequestCallback) => setTimeout(cb, 1));
-  
+
   // CSSを先に読み込み
   schedule(() => {
     loadMainCSS();
   });
-  
+
   schedule(async () => {
     const { default: MetaBall } = await import('@/components/MetaBall.vue');
     const metaball = createApp(MetaBall);
@@ -92,19 +92,19 @@ setupI18n().then(i18n => {
 if ('mediaSession' in navigator) {
   // ページ読み込み完了後に実行
   window.addEventListener('load', () => {
-    navigator.mediaSession.setActionHandler('play', function() {
+    navigator.mediaSession.setActionHandler('play', function () {
       // 再生処理
     });
 
-    navigator.mediaSession.setActionHandler('pause', function() {
+    navigator.mediaSession.setActionHandler('pause', function () {
       // 一時停止処理
     });
 
-    navigator.mediaSession.setActionHandler('previoustrack', function() {
+    navigator.mediaSession.setActionHandler('previoustrack', function () {
       // 前のトラックへ
     });
 
-    navigator.mediaSession.setActionHandler('nexttrack', function() {
+    navigator.mediaSession.setActionHandler('nexttrack', function () {
       // 次のトラックへ
     });
   });

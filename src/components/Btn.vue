@@ -1,163 +1,168 @@
 <style scoped>
-  button {
-    --primary-gradient: linear-gradient(135deg, #f0d300 0%, #f5e050 100%);
-    --hover-shadow: 0 8px 20px rgba(240, 211, 0, 0.4);
-    --default-shadow: 0 4px 15px rgba(240, 211, 0, 0.3);
-    
-    display: inline-flex;
-    align-items: center;
-    gap: 0.8rem;
-    padding: 0.8rem 1.5rem;
-    background: var(--primary-gradient);
-    color: white;
-    font-weight: 600;
-    border-radius: 2rem;
-    border: none;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    box-shadow: var(--default-shadow);
-    cursor: pointer;
-    position: relative; /* ツールチップの基準要素にする */
-  }
+button {
+  --primary-gradient: linear-gradient(135deg, #f0d300 0%, #f5e050 100%);
+  --hover-shadow: 0 8px 20px rgba(240, 211, 0, 0.4);
+  --default-shadow: 0 4px 15px rgba(240, 211, 0, 0.3);
 
-  button:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--hover-shadow);
-  }
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 1.5rem;
+  background: var(--primary-gradient);
+  color: white;
+  font-weight: 600;
+  border-radius: 2rem;
+  border: none;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: var(--default-shadow);
+  cursor: pointer;
+  position: relative; /* ツールチップの基準要素にする */
+}
 
-  .icon {
-    font-size: 1rem;
-  }
+button:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--hover-shadow);
+}
 
-  /* ラベル（主要ラベルのみ） */
-  .label {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-  }
+.icon {
+  font-size: 1rem;
+}
 
-  /* ツールチップ（副ラベル） */
-  .tooltip {
-    position: absolute;
-    bottom: calc(100% + 8px);
-    left: 50%;
-    transform: translateX(-50%) translateY(4px);
-    background: rgba(20, 20, 20, 0.95);
-    color: #fff;
-    padding: 6px 10px;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    line-height: 1;
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.15s ease, transform 0.15s ease;
-    z-index: 10;
-  }
+/* ラベル（主要ラベルのみ） */
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
 
-  .tooltip::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 6px solid transparent;
-    border-top-color: rgba(20, 20, 20, 0.95);
-  }
+/* ツールチップ（副ラベル） */
+.tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: rgba(20, 20, 20, 0.95);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+  z-index: 10;
+}
 
-  button:hover .tooltip,
-  button:focus-visible .tooltip {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
+.tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(20, 20, 20, 0.95);
+}
 
-  /* カテゴリー別のスタイル */
-  button.animation {
-    background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(255, 142, 83, 0.9) 100%);
-    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
-  }
+button:hover .tooltip,
+button:focus-visible .tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
 
-  button.animation:hover {
-    box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
-  }
+/* カテゴリー別のスタイル */
+button.animation {
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(255, 142, 83, 0.9) 100%);
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
 
-  button.programming {
-    background: linear-gradient(135deg, rgba(240, 211, 0, 0.9) 0%, rgba(245, 224, 80, 0.9) 100%);
-    box-shadow: 0 4px 15px rgba(240, 211, 0, 0.3);
-  }
+button.animation:hover {
+  box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+}
 
-  button.programming:hover {
-    box-shadow: 0 8px 20px rgba(240, 211, 0, 0.4);
-  }
+button.programming {
+  background: linear-gradient(135deg, rgba(240, 211, 0, 0.9) 0%, rgba(245, 224, 80, 0.9) 100%);
+  box-shadow: 0 4px 15px rgba(240, 211, 0, 0.3);
+}
 
-  button.graphics {
-    background: linear-gradient(135deg, rgba(106, 17, 203, 0.9) 0%, rgba(158, 117, 240, 0.9) 100%);
-    box-shadow: 0 4px 15px rgba(106, 17, 203, 0.3);
-  }
+button.programming:hover {
+  box-shadow: 0 8px 20px rgba(240, 211, 0, 0.4);
+}
 
-  button.graphics:hover {
-    box-shadow: 0 8px 20px rgba(106, 17, 203, 0.4);
-  }
+button.graphics {
+  background: linear-gradient(135deg, rgba(106, 17, 203, 0.9) 0%, rgba(158, 117, 240, 0.9) 100%);
+  box-shadow: 0 4px 15px rgba(106, 17, 203, 0.3);
+}
 
-  button.video {
-    background: linear-gradient(135deg, rgba(0, 201, 255, 0.9) 0%, rgba(146, 254, 157, 0.9) 100%);
-    box-shadow: 0 4px 15px rgba(0, 201, 255, 0.3);
-  }
+button.graphics:hover {
+  box-shadow: 0 8px 20px rgba(106, 17, 203, 0.4);
+}
 
-  button.video:hover {
-    box-shadow: 0 8px 20px rgba(0, 201, 255, 0.4);
-  }
+button.video {
+  background: linear-gradient(135deg, rgba(0, 201, 255, 0.9) 0%, rgba(146, 254, 157, 0.9) 100%);
+  box-shadow: 0 4px 15px rgba(0, 201, 255, 0.3);
+}
 
-  /* シンプルバリアント */
-  button.simple {
-    background: #ffffff;
-    color: #333333;
-    border: 1px solid #DDDDDD;
-    box-shadow: none;
-    border-radius: 10px;
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-  }
+button.video:hover {
+  box-shadow: 0 8px 20px rgba(0, 201, 255, 0.4);
+}
 
-  button.simple:hover {
-    transform: none;
-    box-shadow: none;
-    background: #F7F7F7;
-    border-color: #CCCCCC;
-  }
+/* シンプルバリアント */
+button.simple {
+  background: #ffffff;
+  color: #333333;
+  border: 1px solid #dddddd;
+  box-shadow: none;
+  border-radius: 10px;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
 
-  button.simple:focus-visible {
-    outline: 2px solid #f0d300;
-    outline-offset: 2px;
-  }
+button.simple:hover {
+  transform: none;
+  box-shadow: none;
+  background: #f7f7f7;
+  border-color: #cccccc;
+}
 
-  /* プライマリ/セカンダリ（シンプル） */
-  button.primary {
-    background: var(--primary-color, #f0d300);
-    color: #ffffff;
-    border: 1px solid var(--primary-color, #f0d300);
-    box-shadow: none;
-    border-radius: 10px;
-  }
+button.simple:focus-visible {
+  outline: 2px solid #f0d300;
+  outline-offset: 2px;
+}
 
-  button.primary:hover {
-    transform: none;
-    box-shadow: none;
-    filter: brightness(0.95);
-  }
+/* プライマリ/セカンダリ（シンプル） */
+button.primary {
+  background: var(--primary-color, #f0d300);
+  color: #ffffff;
+  border: 1px solid var(--primary-color, #f0d300);
+  box-shadow: none;
+  border-radius: 10px;
+}
 
-  button.secondary {
-    background: transparent;
-    color: var(--primary-color, #f0d300);
-    border: 1px solid var(--primary-color, #f0d300);
-    box-shadow: none;
-    border-radius: 10px;
-  }
+button.primary:hover {
+  transform: none;
+  box-shadow: none;
+  filter: brightness(0.95);
+}
 
-  button.secondary:hover {
-    transform: none;
-    box-shadow: none;
-    background: rgba(240, 211, 0, 0.06);
-  }
+button.secondary {
+  background: transparent;
+  color: var(--primary-color, #f0d300);
+  border: 1px solid var(--primary-color, #f0d300);
+  box-shadow: none;
+  border-radius: 10px;
+}
+
+button.secondary:hover {
+  transform: none;
+  box-shadow: none;
+  background: rgba(240, 211, 0, 0.06);
+}
 </style>
 
 <template>
@@ -197,7 +202,7 @@ const props = withDefaults(defineProps<Props>(), {
   alt: 'button link(view more)',
   showArrow: false,
   category: '',
-  variant: ''
+  variant: '',
 });
 
 const handleClick = (): void => {

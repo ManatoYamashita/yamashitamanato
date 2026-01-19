@@ -15,24 +15,13 @@ export type {
   CreativeDetail,
   CreativesData,
   CreativeCategory,
-  CtaButton
+  CtaButton,
 } from './creatives';
 
-export type {
-  CreativeDetailParams
-} from './router';
+export type { CreativeDetailParams } from './router';
 
-export type {
-  Locale
-} from './i18n';
+export type { Locale } from './i18n';
 
-export type {
-  CreativeItemProps
-} from './components';
+export type { CreativeItemProps } from './components';
 
-export type {
-  CategoryData,
-  CreativeData,
-  MicroCMSListResponse,
-  CategoryType
-} from './microcms';
+export type { CategoryData, CreativeData, MicroCMSListResponse, CategoryType } from './microcms';

@@ -1,5 +1,5 @@
 <template>
-    <section id="about-history">
+  <section id="about-history">
     <h2>History</h2>
     <History />
   </section>
@@ -23,7 +23,7 @@ h2 {
     padding: 1rem;
   }
   h2 {
-    font-size: 2.0rem;
+    font-size: 2rem;
   }
 }
 

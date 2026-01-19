@@ -26,7 +26,7 @@
     
     <!-- ホームページ専用メニュー項目（中央ロゴの下） -->
     <transition name="home-menu-fade">
-      <nav class="home-nav-links" v-show="isHomePage">
+      <nav class="home-nav-links" v-if="isHomePage">
         <RouterLink to="/about" class="home-nav-link">{{ $t('navbar.menu.about') }}</RouterLink>
         <RouterLink to="/creatives" class="home-nav-link">{{ $t('navbar.menu.creatives') }}</RouterLink>
         <RouterLink to="/contact" class="home-nav-link">{{ $t('navbar.menu.contact') }}</RouterLink>
@@ -275,6 +275,7 @@
     overflow-y: auto; /* スクロール可能に変更 */
     scrollbar-width: thin;
     scrollbar-color: transparent;
+    z-index: 10;
   }
   .glass {
     /* 背景を少し強めてコントラストを確保 */
@@ -287,6 +288,7 @@
     backdrop-filter: blur(20px);
     box-shadow: 0 10px 28px rgba(0, 0, 0, 0.14), 0 1px 4px rgba(0, 0, 0, 0.06); /* 柔らかい二段影 */
     color: #111; /* ガラス上のテキストは濃色で可読性を担保 */
+    z-index: 10;
   }
   #scrollable-aria {
     scrollbar-width: thin;
@@ -345,7 +347,7 @@
     width: 100%;
     height: 3px;
     background: transparent;
-    z-index: 9999;
+    z-index: 10;
     display: none;
     overflow: hidden;
   }
@@ -439,7 +441,7 @@
     justify-content: center;
     flex-wrap: nowrap; /* 明示的にデフォルト設定 */
     gap: 3rem;
-    z-index: 15;
+    z-index: 1;
     pointer-events: auto;
   }
 
@@ -487,7 +489,7 @@
   /* 言語切り替えドロップダウン（ホームページ専用） */
   .home-lang-dropdown {
     position: relative;
-    z-index: 200;
+    z-index: 1;
     margin-left: 1.5rem; /* 縦線との間隔 */
   }
 
@@ -534,7 +536,7 @@
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     padding: 0.5rem 0;
-    z-index: 200;
+    z-index: 1;
     list-style: none;
     margin: 0;
   }

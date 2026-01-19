@@ -25,7 +25,7 @@
     </a>
     
     <!-- ホームページ専用メニュー項目（中央ロゴの下） -->
-    <transition name="home-menu-fade">
+    <transition name="home-menu-fade" mode="out-in">
       <nav class="home-nav-links" v-if="isHomePage">
         <RouterLink to="/about" class="home-nav-link">{{ $t('navbar.menu.about') }}</RouterLink>
         <RouterLink to="/creatives" class="home-nav-link">{{ $t('navbar.menu.creatives') }}</RouterLink>
@@ -589,6 +589,10 @@
   .home-menu-fade-enter-active,
   .home-menu-fade-leave-active {
     transition: opacity 0.4s ease, filter 0.4s ease;
+  }
+
+  .home-menu-fade-leave-active {
+    pointer-events: none; /* 退場アニメーション中はイベント受信を完全遮断 */
   }
 
   .home-menu-fade-enter-from {

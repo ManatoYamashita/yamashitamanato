@@ -294,7 +294,7 @@
     overflow-x: hidden;
     scrollbar-width: thin;
     scrollbar-color: transparent;
-    z-index: 1;
+    z-index: 10;
     pointer-events: all;
   }
   ::-webkit-scrollbar {

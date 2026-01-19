@@ -431,7 +431,7 @@ onErrorCaptured(() => {
 .menu {
   position: relative;
   margin-bottom: 1rem;
-  z-index: 10;
+  z-index: 1;
   pointer-events: auto !important;
 }
 
@@ -692,7 +692,7 @@ onErrorCaptured(() => {
   min-width: 280px;
   max-width: 480px;
   padding: 0.35rem;
-  z-index: 100;
+  z-index: 20;
   overflow: visible;
   transition: width 0.25s ease, transform 0.25s ease, opacity 0.25s ease;
 }

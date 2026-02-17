@@ -4,13 +4,13 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
-  # HTTPSの強制
-  RewriteCond %{HTTPS} off
-  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
-
-  # 旧ドメインから新ドメイン（www付き）へのリダイレクト
+  # [最優先] 旧ドメインから新ドメインへの301リダイレクト
   RewriteCond %{HTTP_HOST} ^(www\.)?manapuraza\.com$ [NC]
   RewriteRule ^(.*)$ https://www.yamashitamana.to/$1 [R=301,L]
+
+  # HTTPSの強制（新ドメインのみに適用）
+  RewriteCond %{HTTPS} off
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
 
   # 新ドメインのnon-www → www リダイレクト
   RewriteCond %{HTTP_HOST} ^yamashitamana\.to$ [NC]

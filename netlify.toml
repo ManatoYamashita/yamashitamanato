@@ -6,6 +6,32 @@
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
+# 旧ドメイン(manapuraza.com)から新ドメインへの301リダイレクト
+[[redirects]]
+  from = "https://manapuraza.com/*"
+  to = "https://www.yamashitamana.to/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://www.manapuraza.com/*"
+  to = "https://www.yamashitamana.to/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://manapuraza.com/*"
+  to = "https://www.yamashitamana.to/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://www.manapuraza.com/*"
+  to = "https://www.yamashitamana.to/:splat"
+  status = 301
+  force = true
+
+# SPA フォールバック（最後に配置）
 [[redirects]]
   from = "/*"
   to = "/index.html"

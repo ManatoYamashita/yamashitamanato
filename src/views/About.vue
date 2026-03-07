@@ -104,7 +104,7 @@ useHead({
             'https://github.com/ManatoYamashita',
             'https://bento.me/ym',
             'https://twitter.com/tcu_dc',
-            'https://www.instagram.com/manapuraza',
+            'https://www.instagram.com/yamashitamana.to',
             'https://www.youtube.com/manapuraza',
           ],
         })
@@ -115,7 +115,7 @@ useHead({
 </script>
 
 <template>
-  <main id="about">
+  <main id="about" class="about">
     <AboutHero />
     <AboutInfomations />
     <AboutHistory />
@@ -124,24 +124,11 @@ useHead({
 
 <style lang="css" scoped>
 /* === ベーススタイル（モバイル: ~480px） === */
-main#about {
+.about {
   width: 100%;
+  max-width: 1024px;
   margin: 0 auto;
-  padding: 1.5rem;
   pointer-events: all;
 }
 
-/* === タブレット（481px-768px） === */
-@media screen and (min-width: 481px) and (max-width: 768px) {
-  main#about {
-    padding: 2rem;
-  }
-}
-
-/* === デスクトップ（769px~） === */
-@media screen and (min-width: 769px) {
-  main#about {
-    padding: 3rem;
-  }
-}
 </style>

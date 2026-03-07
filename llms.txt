@@ -29,4 +29,4 @@
 ## Optional
 - [docs/analytics/ga4-setup.md](https://raw.githubusercontent.com/ManatoYamashita/manapuraza/main/docs/analytics/ga4-setup.md): GA4セットアップ（GTM経由）。
 - [docs/analytics/ga4-vue-integration.md](https://raw.githubusercontent.com/ManatoYamashita/manapuraza/main/docs/analytics/ga4-vue-integration.md): Vue×GA4実装ガイド。
-- [docs/standards/design.md](https://raw.githubusercontent.com/ManatoYamashita/manapuraza/main/docs/standards/design.md): デザイン指針（カラー/フォント/モーション）。
+- [docs/standards/design-system.md](https://raw.githubusercontent.com/ManatoYamashita/manapuraza/main/docs/standards/design-system.md): デザインシステム（カラー/フォント/背景/モーション/コンポーネント）。

@@ -153,7 +153,7 @@ onMounted(async () => {
 /* Hero セクションのスタイル */
 .hero-section {
   width: 100%;
-  padding: 3rem 2rem;
+  padding: 3rem 0;
   margin-bottom: 3rem;
   /* min-height: 100svh; */
 }
@@ -176,7 +176,21 @@ onMounted(async () => {
   line-height: 1.2;
   margin-bottom: 1.5rem;
   font-weight: 800;
-  color: #1a1a1a;
+
+  /* ShinyText: グラデーションシャイン効果 */
+  background-image: linear-gradient(
+    120deg,
+    #1a1a1a 0%,
+    #1a1a1a 35%,
+    #888 50%,
+    #1a1a1a 65%,
+    #1a1a1a 100%
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shine 3s linear infinite;
 }
 
 .hero-text h1 span {
@@ -184,8 +198,25 @@ onMounted(async () => {
 }
 
 .hero-text h1 .highlight {
-  color: #f0d300; /* Primary Yellow */
+  -webkit-text-fill-color: transparent;
+  background-image: linear-gradient(
+    120deg,
+    #f0d300 0%,
+    #f0d300 35%,
+    #fff8b0 50%,
+    #f0d300 65%,
+    #f0d300 100%
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  animation: shine 3s linear infinite;
   position: relative;
+}
+
+@keyframes shine {
+  from { background-position: 150% center; }
+  to   { background-position: -50% center; }
 }
 
 .hero-description {
@@ -210,27 +241,28 @@ onMounted(async () => {
   align-items: center;
   gap: 0.4rem;
   padding: 0.6rem 1.2rem;
-  background: rgba(240, 211, 0, 0.15); /* Primary Yellow 半透明 */
-  border: 2px solid rgba(240, 211, 0, 0.4);
+  background: transparent;
+  border: 2px solid #000;
   border-radius: 20px;
   font-size: 0.9rem;
   font-weight: 600;
-  color: #333;
+  color: #000;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .filter-tag:hover {
-  background: rgba(240, 211, 0, 0.25);
-  border-color: rgba(240, 211, 0, 0.6);
+  background: #000;
+  border-color: #000;
+  color: #fff;
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(240, 211, 0, 0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .filter-tag.active {
-  background: #f0d300; /* Primary Yellow ソリッド */
-  border-color: #d7a800;
-  color: #000;
+  background: #000;
+  border-color: #000;
+  color: #fff;
   font-weight: 700;
 }
 

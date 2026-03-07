@@ -250,20 +250,21 @@ a:hover {
 .creative-tag {
   display: inline-block;
   padding: 0.35rem 0.8rem;
-  background: rgba(240, 211, 0, 0.15); /* Primary Yellow 半透明 */
-  border: 1.5px solid #000; /* 黒ボーダー */
+  background: transparent;
+  border: 1.5px solid #000;
   border-radius: 12px;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #333;
+  color: #000;
   transition: all 0.3s ease;
 }
 
 .creative-tag:hover {
-  background: rgba(240, 211, 0, 0.25);
-  border-color: #000; /* ホバー時も黒を維持 */
+  background: #000;
+  border-color: #000;
+  color: #fff;
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 微細な影で立体感追加 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 @media screen and (max-width: 967px) {

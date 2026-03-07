@@ -95,13 +95,11 @@ const rows = ref([]);
 /* === ベーススタイル（モバイル: ~480px） === */
 #about-infomations {
   width: 100%;
-  margin-top: 1.5rem;
-  padding: 1rem;
+  margin: 1.5rem 1rem;
 }
 
 h2 {
   font-size: 1.6rem;
-  margin-left: 1rem;
 }
 
 table.about-infomations-table {
@@ -127,7 +125,7 @@ td {
 }
 
 th {
-  text-align: left;
+  text-align: right;
   font-weight: 600;
   color: #333;
   position: relative;
@@ -135,7 +133,7 @@ th {
 }
 
 td {
-  text-align: right;
+  text-align: left;
 }
 
 td a {
@@ -206,11 +204,11 @@ td {
   }
 
   th {
-    text-align: left;
+    text-align: right;
   }
 
   td {
-    text-align: right;
+    text-align: left;
     border-top: none;
     padding-top: 1rem;
   }
@@ -242,11 +240,11 @@ td {
   }
 
   th {
-    text-align: left;
+    text-align: right;
   }
 
   td {
-    text-align: right;
+    text-align: left;
     border-top: none;
     padding-top: 1rem;
   }

@@ -15,7 +15,6 @@ import History from '@/components/History.vue';
 }
 h2 {
   font-size: 1.6rem;
-  margin-left: 1rem;
 }
 
 @media screen and (min-width: 481px) and (max-width: 768px) {

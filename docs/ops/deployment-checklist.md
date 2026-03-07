@@ -142,3 +142,74 @@ npm audit
 - [ ] Netlify環境でセキュリティヘッダーが適切に設定されている
 - [ ] CORS設定が適切（Netlify Functions使用時）
 - [ ] 環境変数が正しく設定され、クライアントに露出していない
+
+---
+
+## Netlify CLI ローカルデプロイ
+
+### サイト情報
+| 項目 | 値 |
+|---|---|
+| サイト名 | `yamashitamanato` |
+| サイトID | `728803e2-8b38-4852-a604-0946f2488645` |
+| Admin URL | https://app.netlify.com/projects/yamashitamanato |
+| サイトURL | https://www.yamashitamana.to |
+| アカウントslug | `yamashitamanato` |
+| チーム名 | yamashitamana.to |
+
+### 認証
+
+```bash
+# ログイン状態の確認
+npx netlify status
+
+# 未認証の場合（ブラウザでOAuth認証）
+npx netlify login
+
+# API Key認証（ブラウザが使えない場合）
+export NETLIFY_AUTH_TOKEN=your_token_here
+# トークン生成: https://app.netlify.com/user/applications#personal-access-tokens
+```
+
+### サイトリンク
+
+```bash
+# 既存サイトにリンク
+npx netlify link --name yamashitamanato
+
+# リンク解除
+npx netlify unlink
+
+# リンク状態確認
+npx netlify status
+```
+
+### デプロイ手順
+
+```bash
+# 1. プレビューデプロイ（テスト用、一意のURLが発行される）
+npx netlify deploy
+
+# 2. 本番デプロイ（www.yamashitamana.to に反映）
+npx netlify deploy --prod
+```
+
+### netlify.toml 設定概要
+- ビルドコマンド: `npm run build`
+- 公開ディレクトリ: `dist`
+- Node.js: `22.22.0`
+- SPAフォールバック: `/* → /index.html (200)`
+- リダイレクト: `manapuraza.com` → `www.yamashitamana.to` (301)
+
+### LobeHub Skills（エージェント用）
+Netlifyデプロイスキルが `.agents/skills/openai-skills-netlify-deploy/` にインストール済み。
+エージェントからのデプロイ自動化に使用可能。
+
+### トラブルシューティング
+
+**対話式コマンドがエージェント環境で動かない場合:**
+- `npx netlify sites:create` → `--account-slug yamashitamanato` フラグを付与
+- `npx netlify api listAccountsForUser` でアカウントslugを確認可能
+
+**ネットワークエラーでデプロイ失敗:**
+- サンドボックス環境の場合、`sandbox_permissions=require_escalated` で再実行

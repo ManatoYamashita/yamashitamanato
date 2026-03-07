@@ -22,8 +22,7 @@
 ### Standards（コーディング規約・ガイドライン）
 - standards/architecture.md — エントリ/初期化/責務分離とフォールバック方針。
 - standards/frontend-guidelines.md — Vue SFC規約、ルーティング、i18n、新規ページ追加の手順。
-- standards/design.md — カラー/フォント/背景/モーションなどのデザイン指針。
-- standards/design-system.md — デザインシステム（コンポーネント、スタイル、パターン）。
+- standards/design-system.md — カラー/フォント/背景/モーション/コンポーネントなどのデザインシステム全体。
 - standards/performance-and-build.md — 遅延/分割、アセット方針、Three.js、ビルド設定。
 - standards/security-and-seo.md — セキュリティ、アクセシビリティ、SEO/アナリティクス。
 - standards/coding-standards.md — コーディングスタイルとレビュー/コミットの基本。
@@ -31,7 +30,7 @@
 ### Ops（運用・手順書）
 - ops/microcms-setup.md — microCMS初期セットアップガイド（アカウント作成、API設定、環境変数、初期データ登録）。
 - ops/creatives-guide.md — microCMSでのポートフォリオ作品管理手順（categories/creatives API、データフロー、詳細ページルーティング `/creatives/:category/:id`）。
-- ops/deployment-checklist.md — デプロイ前後の確認項目とトラブルシュート。
+- ops/deployment-checklist.md — デプロイ前後の確認項目とトラブルシュート。Netlify CLIローカルデプロイ手順を含む。
 - ops/branch.md — ブランチ戦略、GitHub Actions CI/CD、コミットメッセージ規約。
 - ops/nodejs-version-management.md — Node.js バージョン管理ガイド（アップデート手順、セキュリティパッチ適用、トラブルシューティング）。
 
@@ -51,4 +50,4 @@
 
 ---
 
-最終更新日: 2026-01-19
+最終更新日: 2026-03-07

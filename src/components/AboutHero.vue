@@ -45,11 +45,7 @@
       <div class="sns-container">
         <Sns />
       </div>
-      <router-link to="/contact" class="cta-button" :aria-label="t('about.ctaLabel')">
-        <font-awesome-icon :icon="faEnvelope" class="icon" />
-        <span class="label">{{ t('about.ctaText') }}</span>
-        <font-awesome-icon :icon="faArrowRight" class="icon" />
-      </router-link>
+      <Cta :to="'/contact'" :text="t('about.ctaText')" />
     </div>
   </section>
 </template>
@@ -59,12 +55,9 @@ import { computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Locale } from '@/types';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import {
-  faArrowUpRightFromSquare,
-  faArrowRight,
-  faEnvelope,
-} from '@fortawesome/free-solid-svg-icons';
+import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import Sns from '@/components/Sns.vue';
+import Cta from '@/components/Cta.vue';
 
 const { t, locale } = useI18n<{ message: string }, Locale>();
 
@@ -119,7 +112,7 @@ onMounted(async () => {
   });
 
   // 5. CTAボタン（0.7s）
-  gsap.from('.cta-button', {
+  gsap.from('.learn-more', {
     opacity: 0,
     scale: 0.9,
     duration: 0.8,
@@ -153,12 +146,12 @@ onMounted(async () => {
 /* 画像 */
 .profile-image-container {
   width: 100%;
-  max-width: 300px;
-  max-height: 300px;
-  aspect-ratio: 1 / 1;
+  max-width: none;
+  max-height: 40vh;
   overflow: hidden;
+  border-radius: 1.5rem 1.5rem 0 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   margin: 0;
 }
@@ -166,7 +159,7 @@ onMounted(async () => {
 .profile-image {
   width: 100%;
   height: 100%;
-  border-radius: 1.5rem;
+  border-radius: 1.5rem 1.5rem 0 0;
   object-fit: cover;
 }
 
@@ -195,8 +188,31 @@ onMounted(async () => {
 .profile-name {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #111;
   margin: 0;
+
+  /* ShinyText: グラデーションシャイン効果 */
+  background-image: linear-gradient(
+    120deg,
+    #111 0%,
+    #111 35%,
+    #888 50%,
+    #111 65%,
+    #111 100%
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shine 3s linear infinite;
+}
+
+@keyframes shine {
+  from {
+    background-position: 150% center;
+  }
+  to {
+    background-position: -50% center;
+  }
 }
 
 .external-link-icon {
@@ -247,46 +263,8 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 1.5rem;
-}
-
-.cta-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.8rem;
-  padding: 0.9rem 1.8rem;
-  width: 100%;
-  max-width: 280px;
-  background: linear-gradient(135deg, #f0d300 0%, #f5e050 100%);
-  color: #111;
-  font-weight: 600;
-  font-size: 1rem;
-  border-radius: 2rem;
-  text-decoration: none;
-  box-shadow: 0 4px 15px rgba(240, 211, 0, 0.3);
-  transition: all 0.3s ease;
-  opacity: 1;
-}
-
-.cta-button:hover {
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 8px 20px rgba(240, 211, 0, 0.4);
-  background: linear-gradient(135deg, #f5dc00 0%, #f9e860 100%);
-}
-
-.cta-button:focus-visible {
-  outline: 2px solid #f0d300;
-  outline-offset: 2px;
-}
-
-.cta-button .icon {
-  flex-shrink: 0;
-}
-
-.cta-button .label {
-  flex-grow: 1;
-  text-align: center;
+  gap: 1.5rem;
+  margin: 3rem 0;
 }
 
 .sns-container {
@@ -295,10 +273,24 @@ onMounted(async () => {
   justify-content: center;
 }
 
+/* === タブレット（541px-768px） === */
+@media screen and (min-width: 541px) and (max-width: 768px) {
+  .profile-image-container {
+    max-width: 300px;
+    max-height: 300px;
+    aspect-ratio: 1 / 1;
+    border-radius: 1.5rem 1.5rem 0 0;
+  }
+
+  .profile-image {
+    border-radius: 1.5rem 1.5rem 0 0;
+  }
+}
+
 /* === デスクトップ（769px~） === */
 @media screen and (min-width: 769px) {
   #about-hero {
-    padding: 3rem;
+    padding: 3rem 0;
   }
 
   .profile-layout {
@@ -361,12 +353,6 @@ onMounted(async () => {
     gap: 1rem;
     width: 100%;
     margin-top: 2rem;
-  }
-
-  .cta-button {
-    display: inline-flex;
-    width: auto;
-    max-width: none;
   }
 
   .sns-container {

@@ -6,18 +6,20 @@
       {{ $t('creatives.common.backToList') }}
     </router-link>
 
-    <!-- 作品タイトル -->
-    <h1 class="creative-title">{{ creative.title }}</h1>
+    <!-- メインコンテンツ -->
+    <div id="main-contents">
+      <!-- 作品タイトル -->
+      <h1 class="creative-title">{{ creative.title }}</h1>
 
-    <!-- タグ -->
-    <div class="creative-tags" v-if="creative.tags && creative.tags.length > 0">
-      <span v-for="(tag, index) in creative.tags" :key="index" class="creative-tag">
-        {{ tag }}
-      </span>
-    </div>
+      <!-- タグ -->
+      <div class="creative-tags" v-if="creative.tags && creative.tags.length > 0">
+        <span v-for="(tag, index) in creative.tags" :key="index" class="creative-tag">
+          {{ tag }}
+        </span>
+      </div>
 
-    <!-- 2カラムコンテンツ -->
-    <div class="content-wrapper">
+      <!-- 2カラムコンテンツ -->
+      <div class="content-wrapper">
       <!-- 左カラム: 画像・動画 -->
       <div class="left-column">
         <!-- 作品画像ギャラリー -->
@@ -96,6 +98,7 @@
           </dl>
         </div>
       </div>
+    </div>
     </div>
 
     <!-- CTA ボタン -->
@@ -400,6 +403,12 @@ useHead({
   flex-direction: column;
 }
 
+#main-contents {
+  max-width: 760px;
+  margin: 0 auto;
+  width: 100%;
+}
+
 .back-link {
   display: inline-flex;
   align-items: center;
@@ -587,18 +596,19 @@ useHead({
 .creative-tag {
   display: inline-block;
   padding: 0.4rem 0.9rem;
-  background: rgba(240, 211, 0, 0.12);
-  border: 1px solid rgba(240, 211, 0, 0.3);
+  background: transparent;
+  border: 1px solid #000;
   border-radius: 8px;
   font-size: 0.8rem;
   font-weight: 500;
-  color: #444;
+  color: #000;
   transition: all 0.2s ease;
 }
 
 .creative-tag:hover {
-  background: rgba(240, 211, 0, 0.2);
-  border-color: rgba(240, 211, 0, 0.45);
+  background: #000;
+  border-color: #000;
+  color: #fff;
   transform: translateY(-1px);
 }
 

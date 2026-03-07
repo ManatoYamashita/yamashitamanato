@@ -709,6 +709,7 @@ onErrorCaptured(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: .7rem;
 }
 
 .mobile-header .logo {
@@ -723,6 +724,7 @@ onErrorCaptured(() => {
 .mobile-bottom-menu {
   position: fixed;
   left: 1rem;
+  margin-top: .7rem;
   bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
   width: min(60vw, 420px);
   min-width: 280px;

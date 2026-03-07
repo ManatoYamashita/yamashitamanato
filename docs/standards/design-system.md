@@ -386,7 +386,17 @@ box-shadow: 0 5px 20px rgba(255, 152, 79, 0.5);
 - High quality: `logo.webp` (遅延ロード)
 - Transition: Smooth fade with opacity/scale
 
-### 10.2 アニメーション最適化
+### 10.2 画像アセット参照
+
+**静的アセット解決**
+- サムネイルは WebP 推奨。ロゴは low→high の段階的切替を前提にプリロード（`logo-low.webp` → `logo.webp`）。
+- Vite 環境でのアセット参照は以下のパターンで静的解決する：
+
+```javascript
+new URL('@/assets/foo.webp', import.meta.url).href
+```
+
+### 10.3 アニメーション最適化
 
 **requestIdleCallback使用**
 - 非クリティカルなアニメーションは遅延実行
@@ -401,6 +411,9 @@ box-shadow: 0 5px 20px rgba(255, 152, 79, 0.5);
 ## 11. 多言語対応（i18n）
 
 ### 11.1 テキスト管理
+
+**基本方針**
+- テキストは `locales/` 経由で管理し、テンプレートへの直書きを避ける。
 
 **翻訳キー命名規則**
 - Pattern: `{section}.{subsection}.{item}`

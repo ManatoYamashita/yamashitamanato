@@ -1,5 +1,11 @@
 <template>
   <div id="main">
+    <!-- スプラッシュオーバーレイ -->
+    <div v-if="showSplash" ref="splashOverlayRef" class="splash-overlay" aria-hidden="true">
+      <img ref="splashLogoRef" :src="logoSvg" alt="" class="splash-logo"
+           width="800" height="200" draggable="false" />
+    </div>
+
     <!-- ナビゲーション視覚フィードバック用プログレスバー -->
     <div id="navigation-progress" class="progress-bar">
       <div class="progress-fill"></div>
@@ -26,7 +32,7 @@
 
     <!-- ホームページ専用メニュー項目（中央ロゴの下） -->
     <transition name="home-menu-fade" mode="out-in">
-      <nav class="home-nav-links" v-if="isHomePage">
+      <nav class="home-nav-links" v-if="isHomePage && introComplete">
         <RouterLink to="/about" class="home-nav-link">{{ $t('navbar.menu.about') }}</RouterLink>
         <RouterLink to="/creatives" class="home-nav-link">{{
           $t('navbar.menu.creatives')
@@ -103,6 +109,10 @@ const route = useRoute();
 const router = useRouter();
 const { locale } = useI18n<{ message: string }, Locale>();
 const isHomePage = ref<boolean>(true);
+const introComplete = ref<boolean>(false);
+const showSplash = ref<boolean>(true);
+const splashOverlayRef = ref<HTMLDivElement | null>(null);
+const splashLogoRef = ref<HTMLImageElement | null>(null);
 
 // 言語切り替えドロップダウン管理
 const isDropdownOpen = ref<boolean>(false);
@@ -185,10 +195,58 @@ const updateHomePageState = (): void => {
 
 watch(route, () => {
   updateHomePageState();
+  // ホームに戻った場合はイントロをスキップし、即座にナビリンク表示
+  if (isHomePage.value && !introComplete.value) {
+    introComplete.value = true;
+  }
 });
 
-onMounted(() => {
-  checkRouterReady();
+const playIntroAnimation = async (): Promise<void> => {
+  if (introComplete.value || !splashOverlayRef.value || !splashLogoRef.value) {
+    showSplash.value = false;
+    introComplete.value = true;
+    return;
+  }
+
+  const { gsap } = await import('gsap');
+  const tl = gsap.timeline({
+    onComplete: () => {
+      showSplash.value = false;
+      introComplete.value = true;
+    },
+  });
+
+  // Phase 1: 黄色レイヤー上にロゴがフェードイン
+  tl.fromTo(
+    splashLogoRef.value,
+    { opacity: 0, scale: 0.92 },
+    { opacity: 1, scale: 1, duration: 0.8, ease: 'power2.out' },
+  )
+  // Phase 2: ロゴフェードアウト → レイヤースライドアウト
+  .to(splashLogoRef.value, {
+    opacity: 0,
+    duration: 0.5,
+    ease: 'power2.in',
+    delay: 1.0,
+  })
+  .to(splashOverlayRef.value, {
+    yPercent: -100,
+    duration: 0.7,
+    ease: 'power3.inOut',
+  });
+  // Phase 3: onComplete でメイン画面（ロゴ+メニュー）表示
+};
+
+onMounted(async () => {
+  await checkRouterReady();
+
+  // ホームページならイントロアニメーション再生
+  if (isHomePage.value) {
+    playIntroAnimation();
+  } else {
+    showSplash.value = false;
+    introComplete.value = true;
+  }
 
   // 言語切り替えドロップダウンのイベントリスナー
   document.addEventListener('click', handleClickOutside);
@@ -212,10 +270,9 @@ const className = computed<string>(() => {
 
 const styleObject = computed<StyleObject>(() => {
   if (path.value === '/') {
-    return {
-      opacity: '1',
-      transition: 'all .4s ease-in-out',
-    };
+    return introComplete.value
+      ? { opacity: '1', transition: 'all .4s ease-in-out' }
+      : { opacity: '0' };
   } else {
     return {
       opacity: '0',
@@ -238,11 +295,28 @@ const styleObject = computed<StyleObject>(() => {
   z-index: 1;
   overflow-y: hidden;
 }
+/* スプラッシュオーバーレイ */
+.splash-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: #f0d300;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  will-change: transform;
+}
+.splash-logo {
+  width: min(75vw, 700px);
+  height: auto;
+  opacity: 0;
+  will-change: opacity, transform;
+}
 #center-logo {
   position: absolute;
   top: 43%;
   left: 50%;
-  width: 500px;
+  width: min(75vw, 700px);
   height: auto;
   transform: translate(-50%, -50%);
   transition: all 0.5s ease-in-out;
@@ -253,13 +327,11 @@ const styleObject = computed<StyleObject>(() => {
 .route-home {
   opacity: 1;
   transition: all 0.4s ease-in-out;
-  animation-delay: 2.3s;
 }
 .route-other {
   opacity: 0;
   filter: blur(2rem);
   transition: all 0.4s ease-in-out;
-  animation-delay: 2.3s;
 }
 .hidden {
   visibility: hidden;
@@ -426,8 +498,10 @@ const styleObject = computed<StyleObject>(() => {
   }
   #center-logo {
     top: calc(32% + env(safe-area-inset-top, 0rem));
-    width: 60%;
-    max-width: 280px;
+    width: min(80vw, 400px);
+  }
+  .splash-logo {
+    width: min(85vw, 400px);
   }
   .app {
     margin: 0;
@@ -443,7 +517,7 @@ const styleObject = computed<StyleObject>(() => {
 /* ホームページ専用メニュー項目（中央ロゴの下） */
 .home-nav-links {
   position: absolute;
-  top: 55%; /* 中央ロゴ（43%）の下に配置 */
+  top: 55%;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -759,8 +833,7 @@ const styleObject = computed<StyleObject>(() => {
 /* iPhone SE (375px x 667px) 等の超小型デバイス対応 */
 @media screen and (max-width: 540px) and (max-height: 700px) {
   #center-logo {
-    top: calc(30% + env(safe-area-inset-top, 0rem));
-    width: 55%;
+    width: min(75vw, 350px);
   }
 
   .home-nav-links {

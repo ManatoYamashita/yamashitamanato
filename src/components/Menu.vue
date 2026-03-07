@@ -6,6 +6,7 @@
         <RouterLink to="/" aria-current="page" aria-label="ホームページに戻る">
           <transition name="slide" mode="out-in">
             <img
+              v-if="!logoError"
               :src="logoSvg"
               alt="yamashitamana.to logo"
               decoding="async"
@@ -15,6 +16,7 @@
               v-show="currentPath !== '/'"
               @error="handleLogoError"
             />
+            <span v-else class="logo-fallback">yamashitamana.to</span>
           </transition>
         </RouterLink>
       </div>
@@ -35,41 +37,18 @@
       </transition>
 
       <!-- 言語切り替えドロップダウン（デスクトップ） -->
-      <div class="lang-dropdown desktop-lang" ref="dropdownRef" v-show="currentPath !== '/'">
-        <button
-          class="lang-dropdown-toggle"
-          @click="toggleDropdown"
-          :aria-expanded="isDropdownOpen"
-          :aria-label="$t('navbar.selectLanguage')"
-        >
-          <font-awesome-icon :icon="faGlobe" class="globe-icon" />
-          <span class="current-lang-label">{{ currentLanguageLabel }}</span>
-          <font-awesome-icon
-            :icon="faChevronDown"
-            class="chevron-icon"
-            :class="{ rotated: isDropdownOpen }"
-          />
-        </button>
-
-        <transition name="dropdown-slide">
-          <ul class="lang-dropdown-menu" v-show="isDropdownOpen">
-            <li v-for="lang in languages" :key="lang.code">
-              <button
-                @click="selectLanguage(lang.code)"
-                :class="{ active: locale === lang.code }"
-                class="lang-option-btn"
-              >
-                <font-awesome-icon
-                  :icon="faCheck"
-                  class="check-icon"
-                  v-show="locale === lang.code"
-                />
-                <span>{{ lang.label }}</span>
-              </button>
-            </li>
-          </ul>
-        </transition>
-      </div>
+      <LanguageDropdown
+        ref="langDropdownDesktop"
+        v-show="currentPath !== '/'"
+        variant="desktop"
+        :is-open="isDropdownOpen"
+        :current-label="currentLanguageLabel"
+        :languages="languages"
+        :current-locale="locale"
+        :ariaLabel="$t('navbar.selectLanguage')"
+        @toggle="toggleDropdown"
+        @select="selectLanguage"
+      />
     </nav>
 
     <!-- モバイルナビゲーション -->
@@ -78,6 +57,7 @@
         <div class="logo">
           <RouterLink to="/" aria-current="page" aria-label="ホームページに戻る">
             <img
+              v-if="!logoError"
               :src="logoSvg"
               alt="yamashitamana.to logo"
               width="200"
@@ -87,45 +67,23 @@
               v-show="currentPath !== '/'"
               @error="handleLogoError"
             />
+            <span v-else class="logo-fallback">yamashitamana.to</span>
           </RouterLink>
         </div>
 
         <!-- 言語切り替えドロップダウン（モバイル） -->
-        <div class="lang-dropdown mobile-lang" ref="dropdownRefMobile" v-show="currentPath !== '/'">
-          <button
-            class="lang-dropdown-toggle"
-            @click="toggleDropdown"
-            :aria-expanded="isDropdownOpen"
-            :aria-label="$t('navbar.selectLanguage')"
-          >
-            <font-awesome-icon :icon="faGlobe" class="globe-icon" />
-            <span class="current-lang-label">{{ currentLanguageLabel }}</span>
-            <font-awesome-icon
-              :icon="faChevronDown"
-              class="chevron-icon"
-              :class="{ rotated: isDropdownOpen }"
-            />
-          </button>
-
-          <transition name="dropdown-slide">
-            <ul class="lang-dropdown-menu" v-show="isDropdownOpen">
-              <li v-for="lang in languages" :key="lang.code">
-                <button
-                  @click="selectLanguage(lang.code)"
-                  :class="{ active: locale === lang.code }"
-                  class="lang-option-btn"
-                >
-                  <font-awesome-icon
-                    :icon="faCheck"
-                    class="check-icon"
-                    v-show="locale === lang.code"
-                  />
-                  <span>{{ lang.label }}</span>
-                </button>
-              </li>
-            </ul>
-          </transition>
-        </div>
+        <LanguageDropdown
+          ref="langDropdownMobile"
+          v-show="currentPath !== '/'"
+          variant="mobile"
+          :is-open="isDropdownOpen"
+          :current-label="currentLanguageLabel"
+          :languages="languages"
+          :current-locale="locale"
+          :ariaLabel="$t('navbar.selectLanguage')"
+          @toggle="toggleDropdown"
+          @select="selectLanguage"
+        />
       </div>
 
       <!-- モバイル下部メニュー -->
@@ -163,6 +121,7 @@
 
           <!-- 右側: ページタイトルボタン（カプセル型） -->
           <div
+            ref="pageTitleRef"
             v-show="!isMobileMenuOpen"
             class="mobile-page-title"
             @click="handleMorphButtonClick"
@@ -175,7 +134,7 @@
           </div>
 
           <!-- メニューリスト -->
-          <ul v-show="isMobileMenuOpen" class="mobile-menu-card" id="mobile-menu-links">
+          <ul ref="menuCardRef" v-show="isMobileMenuOpen" class="mobile-menu-card" id="mobile-menu-links">
             <li class="mobile-menu-item">
               <RouterLink to="/about" class="mobile-menu-link">{{
                 $t('navbar.menu.about')
@@ -199,41 +158,54 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, nextTick, watch, onErrorCaptured } from 'vue';
+import { ref, computed, onMounted, watch, onErrorCaptured } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import {
-  faGlobe,
-  faChevronDown,
-  faCheck,
-  faBars,
-  faXmark,
-} from '@fortawesome/free-solid-svg-icons';
-import { gsap } from 'gsap';
+import { faBars, faXmark } from '@fortawesome/free-solid-svg-icons';
 import type { Locale } from '@/types';
 import logoSvg from '@/assets/logo.svg';
+import { useLanguageSwitcher } from '@/composables/useLanguageSwitcher';
+import { useMobileMenuAnimation } from '@/composables/useMobileMenuAnimation';
+import LanguageDropdown from '@/components/LanguageDropdown.vue';
 
 const route = useRoute();
 const router = useRouter();
-const { t, locale } = useI18n<{ message: string }, Locale>();
+const { t } = useI18n<{ message: string }, Locale>();
 
 const currentPath = ref<string>(route.path);
 const isInitialLoad = ref<boolean>(true);
-const isMobileMenuOpen = ref<boolean>(false);
-const isAnimating = ref<boolean>(false);
+const logoError = ref(false);
 
-// ドロップダウン状態管理
-const isDropdownOpen = ref<boolean>(false);
-const dropdownRef = ref<HTMLElement | null>(null);
-const dropdownRefMobile = ref<HTMLElement | null>(null);
+// テンプレート ref（vue-tsc がテンプレート参照を追跡するためコンポーネント側で宣言）
+const pageTitleRef = ref<HTMLElement | null>(null);
+const menuCardRef = ref<HTMLElement | null>(null);
+
+// 言語ドロップダウン ref（LanguageDropdown expose経由）
+const langDropdownDesktop = ref<InstanceType<typeof LanguageDropdown> | null>(null);
+const langDropdownMobile = ref<InstanceType<typeof LanguageDropdown> | null>(null);
+
+// 言語切替 composable
+const {
+  locale,
+  languages,
+  isDropdownOpen,
+  currentLanguageLabel,
+  toggleDropdown,
+  selectLanguage,
+} = useLanguageSwitcher(() => [
+  langDropdownDesktop.value?.rootRef ?? null,
+  langDropdownMobile.value?.rootRef ?? null,
+]);
+
+// モバイルメニューアニメーション composable
+const {
+  isMobileMenuOpen,
+  handleMorphButtonClick,
+} = useMobileMenuAnimation({ router, isDropdownOpen, pageTitleRef, menuCardRef });
 
 // モバイルメニューの表示判定
 const shouldShowMobileNav = computed<boolean>(() => {
-  // 常にtrueを返す
-  // - 769px以上: CSSで.mobile-navが非表示
-  // - 768px以下: モバイルメニュー表示
-  // - ホームページ（540px以下）: .home-nav-linksが非表示なので、モバイル下部メニューを表示
   return true;
 });
 
@@ -255,191 +227,17 @@ const currentPageLabel = computed<string>(() => {
   return t(`navbar.menu.${key}`);
 });
 
-// 言語リスト
-interface Language {
-  code: Locale;
-  label: string;
-}
-
-const languages: Language[] = [
-  { code: 'ja', label: '日本語' },
-  { code: 'en', label: 'English' },
-];
-
-// 現在の言語ラベル
-const currentLanguageLabel = computed<string>(() => {
-  const current = languages.find((lang) => lang.code === locale.value);
-  return current ? current.label : '日本語';
-});
-
-// ドロップダウン開閉
-const toggleDropdown = (): void => {
-  isDropdownOpen.value = !isDropdownOpen.value;
-};
-
-// 言語選択
-const selectLanguage = (langCode: Locale): void => {
-  if (locale.value !== langCode) {
-    locale.value = langCode;
-  }
-  isDropdownOpen.value = false; // 自動クローズ
-};
-
-const handleMorphButtonClick = (): void => {
-  if (isAnimating.value) return; // 連打防止
-
-  isAnimating.value = true;
-  const willOpen = !isMobileMenuOpen.value;
-
-  if (willOpen) {
-    // クローズ → オープン
-    isMobileMenuOpen.value = true;
-
-    nextTick(() => {
-      gsap
-        .timeline({
-          defaults: { ease: 'power2.out' },
-          onComplete: () => {
-            isAnimating.value = false;
-          },
-        })
-        // ページタイトルを後ろに引っ込める（完全には消さない）
-        .to('.mobile-page-title', {
-          opacity: 0.3, // 薄く残す
-          scale: 0.92,
-          y: 0, // 上方向に押し込む
-          zIndex: 1,
-          duration: 0.2,
-        })
-        // メニューカードを手前に引き出す
-        .to(
-          '.mobile-menu-card',
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            zIndex: 5,
-            duration: 0.25,
-            ease: 'back.out(1.2)',
-          },
-          '-=0.1'
-        );
-    });
-  } else {
-    // オープン → クローズ
-    gsap
-      .timeline({
-        defaults: { ease: 'power2.in' },
-        onComplete: () => {
-          isMobileMenuOpen.value = false;
-          isAnimating.value = false;
-
-          // 状態リセット
-          gsap.set('.mobile-page-title', {
-            opacity: 1,
-            scale: 1,
-            y: 0,
-            zIndex: 5,
-          });
-          gsap.set('.mobile-menu-card', {
-            opacity: 0,
-            y: 8,
-            scale: 0.95,
-            zIndex: 1,
-          });
-        },
-      })
-      // メニューカードを後ろに押し込む
-      .to('.mobile-menu-card', {
-        opacity: 0.3, // 薄く残す
-        y: 12,
-        scale: 0.95,
-        zIndex: 1,
-        duration: 0.2,
-      })
-      // ページタイトルを手前に引き出す
-      .to(
-        '.mobile-page-title',
-        {
-          opacity: 1,
-          scale: 1,
-          y: 0,
-          zIndex: 5,
-          duration: 0.25,
-          ease: 'back.out(1.3)',
-        },
-        '-=0.12'
-      );
-  }
-};
-
-// 外側クリック検出
-const handleClickOutside = (event: MouseEvent): void => {
-  const target = event.target as Node;
-  if (
-    dropdownRef.value &&
-    !dropdownRef.value.contains(target) &&
-    dropdownRefMobile.value &&
-    !dropdownRefMobile.value.contains(target)
-  ) {
-    isDropdownOpen.value = false;
-  }
-};
-
-// Escapeキーでクローズ
-const handleKeyDown = (event: KeyboardEvent): void => {
-  if (event.key === 'Escape' && isDropdownOpen.value) {
-    isDropdownOpen.value = false;
-  }
+const handleLogoError = (): void => {
+  logoError.value = true;
 };
 
 onMounted(() => {
-  try {
-    setTimeout(() => {
-      isInitialLoad.value = false;
-    }, 2000);
-
-    // イベントリスナー追加
-    document.addEventListener('click', handleClickOutside);
-    document.addEventListener('keydown', handleKeyDown);
-
-    // ルート変更時にドロップダウンとモバイルメニューをクローズ
-    router.afterEach(() => {
-      isDropdownOpen.value = false;
-      if (isMobileMenuOpen.value) {
-        isMobileMenuOpen.value = false;
-        // ページタイトルを確実に表示状態に戻す
-        nextTick(() => {
-          gsap.set('.mobile-page-title', { opacity: 1, scale: 1 });
-          gsap.set('.mobile-menu-card', { opacity: 0, y: 8 });
-        });
-      }
-    });
-  } catch {
+  setTimeout(() => {
     isInitialLoad.value = false;
-  }
+  }, 2000);
 });
 
-onUnmounted(() => {
-  // イベントリスナー削除
-  document.removeEventListener('click', handleClickOutside);
-  document.removeEventListener('keydown', handleKeyDown);
-});
-
-const handleLogoError = (event: Event): void => {
-  try {
-    const target = event.target as HTMLImageElement;
-    target.style.display = 'none';
-    const logoContainer = target.parentElement?.parentElement;
-    if (logoContainer) {
-      logoContainer.innerHTML = '<span class="logo-fallback">manapuraza</span>';
-    }
-  } catch {
-    console.warn('Logo error handling failed');
-  }
-};
-
-// ルート変更の監視（watch）
+// ルート変更の監視
 watch(
   () => route.path,
   (newPath: string) => {
@@ -453,7 +251,6 @@ watch(
   }
 );
 
-// エラーキャプチャ
 onErrorCaptured(() => {
   return false;
 });
@@ -566,137 +363,6 @@ onErrorCaptured(() => {
   100% {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-/* 言語切り替えドロップダウン */
-.lang-dropdown {
-  position: relative;
-  flex: 0 0 auto;
-  z-index: 200;
-}
-
-.lang-dropdown-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: transparent;
-  border: 1px solid #111; /* 1pxボーダー */
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: bold;
-  color: #111;
-  font-size: 1rem;
-}
-
-.lang-dropdown-toggle:hover {
-  background: #f0d300;
-  border-color: #d7a800;
-  transform: translateY(-2px);
-}
-
-.globe-icon {
-  font-size: 1.2rem;
-}
-
-.current-lang-label {
-  font-size: 1rem;
-  white-space: nowrap;
-}
-
-.chevron-icon {
-  font-size: 0.8rem;
-  transition: transform 0.3s ease;
-}
-
-.chevron-icon.rotated {
-  transform: rotate(180deg);
-}
-
-.lang-dropdown-menu {
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 0;
-  min-width: 150px;
-  background: #fff;
-  border: 1px solid #111; /* 1pxボーダー */
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  padding: 0.5rem 0;
-  z-index: 200;
-  list-style: none;
-  margin: 0;
-}
-
-.lang-option-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: transparent;
-  border: none;
-  text-align: left;
-  cursor: pointer;
-  transition: background 0.2s ease;
-  font-size: 1rem;
-  color: #111;
-}
-
-.lang-option-btn:hover {
-  background: #f0d300;
-}
-
-.lang-option-btn.active {
-  font-weight: bold;
-  background: #fef9e0;
-}
-
-.check-icon {
-  font-size: 1rem;
-  color: #d7a800;
-  flex-shrink: 0;
-  width: 1rem;
-  display: inline-block;
-}
-
-/* ドロップダウンアニメーション */
-.dropdown-slide-enter-active,
-.dropdown-slide-leave-active {
-  transition: all 0.25s ease;
-  transform-origin: top center;
-}
-
-.dropdown-slide-enter-from {
-  opacity: 0;
-  transform: translateY(0) scaleY(0.8);
-}
-
-.dropdown-slide-leave-to {
-  opacity: 0;
-  transform: translateY(0) scaleY(0.8);
-}
-
-/* デスクトップ言語切り替え */
-.desktop-lang {
-  margin-left: 0;
-}
-
-/* モバイル言語切り替え */
-.mobile-lang .current-lang-label {
-  display: inline;
-}
-
-/* レスポンシブ対応 */
-@media screen and (max-width: 768px) {
-  .mobile-lang .lang-dropdown-toggle {
-    padding: 0.5rem;
-  }
-
-  .mobile-lang .lang-dropdown-menu {
-    min-width: 110px;
   }
 }
 

@@ -41,7 +41,7 @@
 
       <!-- タグ表示（Card modes） -->
       <div class="creative-tags" v-if="tags && tags.length > 0">
-        <span v-for="(tag, tagIndex) in tags" :key="tagIndex" class="creative-tag">
+        <span v-for="tag in tags" :key="tag" class="creative-tag">
           {{ tag }}
         </span>
       </div>

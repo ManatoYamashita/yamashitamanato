@@ -223,6 +223,8 @@ const imageSizes = '(max-width: 768px) 600px, (max-width: 1200px) 1200px, 1800px
 // デスクトップ判定
 const isDesktop: Ref<boolean> = ref(false);
 let mediaQueryList: MediaQueryList | null = null;
+// GSAP timeline 参照（クリーンアップ用）
+let tl: gsap.core.Timeline | null = null;
 
 const handleMediaQueryChange = (e: MediaQueryListEvent): void => {
   isDesktop.value = e.matches;
@@ -237,7 +239,7 @@ onMounted(async () => {
     // GSAP アニメーション（Contact.vueパターン踏襲）
     const { gsap } = await import('gsap');
 
-    const tl = gsap.timeline();
+    tl = gsap.timeline();
 
     // 1. 戻るボタン（最優先で表示）
     tl.fromTo(
@@ -297,6 +299,8 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
+  tl?.kill();
+  tl = null;
   if (mediaQueryList) {
     mediaQueryList.removeEventListener('change', handleMediaQueryChange);
   }

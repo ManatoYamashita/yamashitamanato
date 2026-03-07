@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, computed } from 'vue';
+import { onMounted, onUnmounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useHead } from '@vueuse/head';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
@@ -120,27 +120,37 @@ useHead({
   ],
 });
 
+// GSAP tween 参照（クリーンアップ用）
+let tweens: gsap.core.Tween[] = [];
+
 onMounted(async () => {
   // GSAPを動的インポートして初期バンドルサイズを削減
   const { gsap } = await import('gsap');
 
-  // タイトルのアニメーション
-  gsap.from('h1', {
-    y: 50,
-    opacity: 0,
-    duration: 1,
-    ease: 'power2.out',
-  });
+  tweens = [
+    // タイトルのアニメーション
+    gsap.from('h1', {
+      y: 50,
+      opacity: 0,
+      duration: 1,
+      ease: 'power2.out',
+    }),
 
-  // セクションのアニメーション
-  gsap.from('.contact-section', {
-    y: 30,
-    opacity: 0,
-    duration: 1,
-    delay: 0.3,
-    stagger: 0.2,
-    ease: 'power2.out',
-  });
+    // セクションのアニメーション
+    gsap.from('.contact-section', {
+      y: 30,
+      opacity: 0,
+      duration: 1,
+      delay: 0.3,
+      stagger: 0.2,
+      ease: 'power2.out',
+    }),
+  ];
+});
+
+onUnmounted(() => {
+  tweens.forEach(t => t.kill());
+  tweens = [];
 });
 </script>
 

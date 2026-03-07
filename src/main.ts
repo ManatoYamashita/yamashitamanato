@@ -88,28 +88,6 @@ setupI18n().then((i18n) => {
   });
 });
 
-// Media Session APIの遅延設定
-if ('mediaSession' in navigator) {
-  // ページ読み込み完了後に実行
-  window.addEventListener('load', () => {
-    navigator.mediaSession.setActionHandler('play', function () {
-      // 再生処理
-    });
-
-    navigator.mediaSession.setActionHandler('pause', function () {
-      // 一時停止処理
-    });
-
-    navigator.mediaSession.setActionHandler('previoustrack', function () {
-      // 前のトラックへ
-    });
-
-    navigator.mediaSession.setActionHandler('nexttrack', function () {
-      // 次のトラックへ
-    });
-  });
-}
-
 // Service Worker登録（本番環境のみ）
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {

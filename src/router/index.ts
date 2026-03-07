@@ -2,7 +2,6 @@ import {
   createRouter,
   createWebHistory,
   type RouteRecordRaw,
-  type NavigationGuardNext,
   type RouteLocationNormalized,
 } from 'vue-router';
 import { isValidCategory } from '@/types';
@@ -60,18 +59,12 @@ const routes: RouteRecordRaw[] = [
     name: 'creative-detail',
     component: CreativeDetailComponent,
     props: true,
-    beforeEnter: (
-      to: RouteLocationNormalized,
-      _from: RouteLocationNormalized,
-      next: NavigationGuardNext
-    ) => {
+    beforeEnter: (to: RouteLocationNormalized) => {
       const { category } = to.params;
-
       if (typeof category === 'string' && isValidCategory(category)) {
-        next();
-      } else {
-        next('/404');
+        return true;
       }
+      return '/404';
     },
   },
   {
@@ -105,38 +98,35 @@ const router = createRouter({
 });
 
 // 完璧ナビゲーション視覚フィードバックシステム
-router.beforeEach(
-  (to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => {
-    // lazy loading開始時の瞬時視覚フィードバック
-    if (to.name !== 'home') {
-      // 即座にローディング状態を適用
-      document.body.style.cursor = 'wait';
-      document.body.classList.add('navigation-loading');
+router.beforeEach((to: RouteLocationNormalized) => {
+  // lazy loading開始時の瞬時視覚フィードバック
+  if (to.name !== 'home') {
+    // 即座にローディング状態を適用
+    document.body.style.cursor = 'wait';
+    document.body.classList.add('navigation-loading');
 
-      // プログレスバーを素早く表示
-      const progressBar = document.getElementById('navigation-progress');
-      const progressFill = progressBar?.querySelector<HTMLElement>('.progress-fill');
-      if (progressBar && progressFill) {
-        progressBar.style.display = 'block';
-        progressFill.style.width = '25%';
+    // プログレスバーを素早く表示
+    const progressBar = document.getElementById('navigation-progress');
+    const progressFill = progressBar?.querySelector<HTMLElement>('.progress-fill');
+    if (progressBar && progressFill) {
+      progressBar.style.display = 'block';
+      progressFill.style.width = '25%';
 
-        // 段階的プログレス表示でUX向上
-        setTimeout(() => {
-          if (progressFill.style.width === '25%') {
-            progressFill.style.width = '60%';
-          }
-        }, 100);
+      // 段階的プログレス表示でUX向上
+      setTimeout(() => {
+        if (progressFill.style.width === '25%') {
+          progressFill.style.width = '60%';
+        }
+      }, 100);
 
-        setTimeout(() => {
-          if (progressFill.style.width === '60%') {
-            progressFill.style.width = '85%';
-          }
-        }, 200);
-      }
+      setTimeout(() => {
+        if (progressFill.style.width === '60%') {
+          progressFill.style.width = '85%';
+        }
+      }, 200);
     }
-    next();
   }
-);
+});
 
 router.afterEach((to: RouteLocationNormalized, _from: RouteLocationNormalized) => {
   // lazy loading完了時の視覚フィードバック解除

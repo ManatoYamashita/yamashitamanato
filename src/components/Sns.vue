@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faGithub, faLinkedin, faTwitter, faInstagram } from '@fortawesome/free-brands-svg-icons';
 import { faLink } from '@fortawesome/free-solid-svg-icons';
@@ -67,11 +67,14 @@ const icons: SnsLink[] = [
 // refs を格納する配列
 const iconRefs = ref<HTMLElement[]>([]);
 
+// GSAP tween参照（クリーンアップ用）
+let tween: gsap.core.Tween | null = null;
+
 onMounted(async () => {
   // GSAPを動的インポートして初期バンドルサイズを削減
   const { gsap } = await import('gsap');
   // アニメーションの設定
-  gsap.fromTo(
+  tween = gsap.fromTo(
     iconRefs.value,
     {
       y: 50,
@@ -82,6 +85,11 @@ onMounted(async () => {
       stagger: 0.1,
     }
   );
+});
+
+onUnmounted(() => {
+  tween?.kill();
+  tween = null;
 });
 </script>
 

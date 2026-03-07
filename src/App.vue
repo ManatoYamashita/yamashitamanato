@@ -40,41 +40,17 @@
         <RouterLink to="/contact" class="home-nav-link">{{ $t('navbar.menu.contact') }}</RouterLink>
 
         <!-- 言語切り替えドロップダウン -->
-        <div class="home-lang-dropdown" ref="dropdownRef">
-          <button
-            class="home-lang-dropdown-toggle"
-            @click="toggleDropdown"
-            :aria-expanded="isDropdownOpen"
-            :aria-label="$t('navbar.selectLanguage')"
-          >
-            <font-awesome-icon :icon="faGlobe" class="globe-icon" />
-            <span class="current-lang-label">{{ currentLanguageLabel }}</span>
-            <font-awesome-icon
-              :icon="faChevronDown"
-              class="chevron-icon"
-              :class="{ rotated: isDropdownOpen }"
-            />
-          </button>
-
-          <transition name="dropdown-slide">
-            <ul class="home-lang-dropdown-menu" v-show="isDropdownOpen">
-              <li v-for="lang in languages" :key="lang.code">
-                <button
-                  @click="selectLanguage(lang.code)"
-                  :class="{ active: locale === lang.code }"
-                  class="home-lang-option-btn"
-                >
-                  <font-awesome-icon
-                    :icon="faCheck"
-                    class="check-icon"
-                    v-show="locale === lang.code"
-                  />
-                  <span>{{ lang.label }}</span>
-                </button>
-              </li>
-            </ul>
-          </transition>
-        </div>
+        <LanguageDropdown
+          ref="langDropdownHome"
+          variant="home"
+          :is-open="isDropdownOpen"
+          :current-label="currentLanguageLabel"
+          :languages="languages"
+          :current-locale="locale"
+          :ariaLabel="$t('navbar.selectLanguage')"
+          @toggle="toggleDropdown"
+          @select="selectLanguage"
+        />
       </nav>
 
     <div class="app glass" :class="{ hidden: isHomePage }" :style="appStyles">
@@ -95,69 +71,45 @@
 </template>
 
 <script setup lang="ts">
-import { watch, onMounted, onUnmounted, computed, ref, nextTick } from 'vue';
+import { watch, onMounted, computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faGlobe, faChevronDown, faCheck } from '@fortawesome/free-solid-svg-icons';
 import Menu from '@/components/Menu.vue';
-import type { Locale } from '@/types';
+import LanguageDropdown from '@/components/LanguageDropdown.vue';
 import logoSvg from '@/assets/logo.svg';
+import { useLanguageSwitcher } from '@/composables/useLanguageSwitcher';
+import { useIntroAnimation } from '@/composables/useIntroAnimation';
 
 const route = useRoute();
 const router = useRouter();
-const { locale } = useI18n<{ message: string }, Locale>();
 const isHomePage = ref<boolean>(true);
-const introComplete = ref<boolean>(false);
-const showSplash = ref<boolean>(true);
+
+// テンプレート ref（vue-tsc がテンプレート参照を追跡するためコンポーネント側で宣言）
 const splashOverlayRef = ref<HTMLDivElement | null>(null);
 const splashLogoRef = ref<HTMLImageElement | null>(null);
 const centerLogoRef = ref<HTMLImageElement | null>(null);
 const homeNavRef = ref<HTMLElement | null>(null);
-const revealComplete = ref<boolean>(false);
 
-// 言語切り替えドロップダウン管理
-const isDropdownOpen = ref<boolean>(false);
-const dropdownRef = ref<HTMLElement | null>(null);
+// 言語ドロップダウン ref（LanguageDropdown expose経由）
+const langDropdownHome = ref<InstanceType<typeof LanguageDropdown> | null>(null);
 
-interface Language {
-  code: Locale;
-  label: string;
-}
+// 言語切替 composable
+const {
+  locale,
+  languages,
+  isDropdownOpen,
+  currentLanguageLabel,
+  toggleDropdown,
+  selectLanguage,
+} = useLanguageSwitcher(() => [langDropdownHome.value?.rootRef ?? null]);
 
-const languages: Language[] = [
-  { code: 'ja', label: '日本語' },
-  { code: 'en', label: 'English' },
-];
-
-const currentLanguageLabel = computed<string>(() => {
-  const current = languages.find((lang) => lang.code === locale.value);
-  return current ? current.label : '日本語';
-});
-
-const toggleDropdown = (): void => {
-  isDropdownOpen.value = !isDropdownOpen.value;
-};
-
-const selectLanguage = (langCode: Locale): void => {
-  if (locale.value !== langCode) {
-    locale.value = langCode;
-  }
-  isDropdownOpen.value = false;
-};
-
-const handleClickOutside = (event: MouseEvent): void => {
-  const target = event.target as Node;
-  if (dropdownRef.value && !dropdownRef.value.contains(target)) {
-    isDropdownOpen.value = false;
-  }
-};
-
-const handleKeyDown = (event: KeyboardEvent): void => {
-  if (event.key === 'Escape' && isDropdownOpen.value) {
-    isDropdownOpen.value = false;
-  }
-};
+// イントロアニメーション composable
+const {
+  showSplash,
+  introComplete,
+  revealComplete,
+  initAnimation,
+  skipIntroIfNeeded,
+} = useIntroAnimation({ isHomePage, splashOverlayRef, splashLogoRef, centerLogoRef, homeNavRef });
 
 const checkRouterReady = async (): Promise<void> => {
   await router.isReady();
@@ -192,119 +144,16 @@ const appStyles = computed<StyleObject>(() => {
 
 const updateHomePageState = (): void => {
   isHomePage.value = route.name === 'home';
-  // 直接DOM操作を削除 - リアクティブスタイルが自動更新
 };
 
 watch(route, () => {
   updateHomePageState();
-  // ホームに戻った場合はイントロをスキップし、即座にナビリンク表示
-  if (isHomePage.value && !introComplete.value) {
-    introComplete.value = true;
-    revealComplete.value = true;
-  }
+  skipIntroIfNeeded();
 });
-
-const playIntroAnimation = async (): Promise<void> => {
-  if (introComplete.value || !splashOverlayRef.value || !splashLogoRef.value) {
-    showSplash.value = false;
-    introComplete.value = true;
-    revealComplete.value = true;
-    return;
-  }
-
-  const { gsap } = await import('gsap');
-  const tl = gsap.timeline({
-    onComplete: () => {
-      showSplash.value = false;
-      introComplete.value = true;
-
-      void nextTick().then(() => {
-        playRevealStagger(gsap);
-      });
-    },
-  });
-
-  // Phase 1: 黄色レイヤー上にロゴがフェードイン
-  tl.fromTo(
-    splashLogoRef.value,
-    { opacity: 0, scale: 0.92 },
-    { opacity: 1, scale: 1, duration: 0.5, ease: 'power2.out' },
-  )
-  // Phase 2: ロゴフェードアウト → レイヤースライドアウト
-  .to(splashLogoRef.value, {
-    opacity: 0,
-    duration: 0.3,
-    ease: 'power2.in',
-    delay: 0.3,
-  })
-  .to(splashOverlayRef.value, {
-    yPercent: -100,
-    duration: 0.7,
-    ease: 'power3.inOut',
-  });
-  // Phase 3: onComplete でメイン画面（ロゴ+メニュー）stagger fade-down表示
-};
-
-const playRevealStagger = (gsap: typeof import('gsap').gsap): void => {
-  const targets: Element[] = [];
-
-  // 1. ロゴ
-  if (centerLogoRef.value) {
-    targets.push(centerLogoRef.value);
-  }
-  // 2. ナビリンク + 言語ドロップダウン（子要素を個別に）
-  if (homeNavRef.value) {
-    targets.push(...Array.from(homeNavRef.value.children));
-  }
-
-  if (targets.length === 0) return;
-
-  // CSS transition を無効化してGSAPとの競合を防止
-  // （.home-nav-link の transition: all 0.3s ease がGSAPの fromTo と干渉するため）
-  targets.forEach((el) => {
-    (el as HTMLElement).style.transition = 'none';
-  });
-
-  gsap.fromTo(
-    targets,
-    { opacity: 0, y: -30 },
-    {
-      opacity: 1,
-      y: 0,
-      duration: 0.5,
-      ease: 'power2.out',
-      stagger: 0.12,
-      onComplete: () => {
-        // CSS transition を復元（ホバーエフェクト等に必要）
-        targets.forEach((el) => {
-          (el as HTMLElement).style.transition = '';
-        });
-        revealComplete.value = true;
-      },
-    },
-  );
-};
 
 onMounted(async () => {
   await checkRouterReady();
-
-  // ホームページならイントロアニメーション再生
-  if (isHomePage.value) {
-    playIntroAnimation();
-  } else {
-    showSplash.value = false;
-    introComplete.value = true;
-    revealComplete.value = true;
-  }
-
-  // 言語切り替えドロップダウンのイベントリスナー
-  document.addEventListener('click', handleClickOutside);
-  document.addEventListener('keydown', handleKeyDown);
-});
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside);
-  document.removeEventListener('keydown', handleKeyDown);
+  initAnimation();
 });
 
 const path = computed<string>(() => route.path);
@@ -319,11 +168,9 @@ const className = computed<string>(() => {
 
 const styleObject = computed<StyleObject>(() => {
   if (path.value === '/') {
-    // GSAP reveal完了前: opacity:0 + transition:none でCSSの介入を完全に遮断
     if (!introComplete.value || !revealComplete.value) {
       return { opacity: '0', transition: 'none' };
     }
-    // reveal完了後: CSS transitionで退場アニメーション等を担当
     return { transition: 'all .4s ease-in-out' };
   } else {
     return {
@@ -599,16 +446,6 @@ const styleObject = computed<StyleObject>(() => {
     text-shadow: #f0d300 0 0px 1rem;
     animation: glow 0.3s ease-in-out infinite alternate;
   }
-
-  .home-lang-dropdown-toggle:hover {
-    background: #f0d300;
-    border-color: #d7a800;
-    transform: translateY(-2px);
-  }
-
-  .home-lang-option-btn:hover {
-    background: #f0d300;
-  }
 }
 
 /* メニュー項目間の縦線（最後のリンクにも適用） */
@@ -619,105 +456,6 @@ const styleObject = computed<StyleObject>(() => {
   color: #666;
   font-weight: normal;
   user-select: none;
-}
-
-/* 言語切り替えドロップダウン（ホームページ専用） */
-.home-lang-dropdown {
-  position: relative;
-  z-index: 1;
-  margin-left: 1.5rem; /* 縦線との間隔 */
-}
-
-.home-lang-dropdown-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: transparent;
-  border: 1px solid #111; /* 1pxボーダー */
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: bold;
-  color: #111;
-  font-size: 1rem;
-  white-space: nowrap;
-}
-
-.home-lang-dropdown .globe-icon {
-  font-size: 1.2rem;
-}
-
-.home-lang-dropdown .current-lang-label {
-  font-size: 1rem;
-}
-
-.home-lang-dropdown .chevron-icon {
-  font-size: 0.8rem;
-  transition: transform 0.3s ease;
-}
-
-.home-lang-dropdown .chevron-icon.rotated {
-  transform: rotate(180deg);
-}
-
-.home-lang-dropdown-menu {
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 0;
-  min-width: 150px;
-  background: #fff;
-  border: 1px solid #111; /* 1pxボーダー */
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  padding: 0.5rem 0;
-  z-index: 1;
-  list-style: none;
-  margin: 0;
-}
-
-.home-lang-option-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: transparent;
-  border: none;
-  text-align: left;
-  cursor: pointer;
-  transition: background 0.2s ease;
-  font-size: 1rem;
-  color: #111;
-}
-
-.home-lang-option-btn.active {
-  font-weight: bold;
-  background: #fef9e0;
-}
-
-.home-lang-dropdown .check-icon {
-  font-size: 0.9rem;
-  color: #d7a800;
-  flex-shrink: 0;
-  width: 1rem;
-}
-
-/* ドロップダウンアニメーション */
-.dropdown-slide-enter-active,
-.dropdown-slide-leave-active {
-  transition: all 0.25s ease;
-  transform-origin: top center;
-}
-
-.dropdown-slide-enter-from {
-  opacity: 0;
-  transform: translateY(0) scaleY(0.8);
-}
-
-.dropdown-slide-leave-to {
-  opacity: 0;
-  transform: translateY(0) scaleY(0.8);
 }
 
 /* ホームメニューフェードアニメーション */
@@ -775,16 +513,6 @@ const styleObject = computed<StyleObject>(() => {
   .home-nav-link::after {
     content: none;
   }
-
-  /* 言語ボタンを二段目の中央配置 */
-  .home-lang-dropdown {
-    margin-left: 0; /* リセット */
-    margin-top: 0;
-    flex-basis: 100%; /* 強制的に新しい行へ */
-    width: 100%;
-    display: flex;
-    justify-content: center; /* 水平中央配置 */
-  }
 }
 
 /* Mobile: 540px以下 - 縦積みレイアウト */
@@ -821,65 +549,6 @@ const styleObject = computed<StyleObject>(() => {
     content: none;
     display: none;
   }
-
-  /* 言語ドロップダウンを最下段に配置 */
-  .home-lang-dropdown {
-    margin-left: 0;
-    margin-top: 0.5rem;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    max-width: 280px;
-  }
-
-  /* 言語トグルボタン */
-  .home-lang-dropdown-toggle {
-    font-size: 0.95rem;
-    padding: 0.5rem 1rem;
-    min-height: 44px;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* アイコンサイズ調整 */
-  .home-lang-dropdown .globe-icon {
-    font-size: 1.1rem;
-  }
-
-  .home-lang-dropdown .current-lang-label {
-    font-size: 0.95rem;
-  }
-
-  .home-lang-dropdown .chevron-icon {
-    font-size: 0.75rem;
-  }
-
-  /* ドロップダウンメニュー中央配置 */
-  .home-lang-dropdown-menu {
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    min-width: 180px;
-    max-width: 90vw; /* 画面外回避 */
-  }
-
-  /* ドロップダウンオプションボタン */
-  .home-lang-option-btn {
-    font-size: 0.95rem;
-    padding: 0.75rem 1.2rem;
-    min-height: 44px;
-  }
-}
-
-/* 言語ドロップダウン中央配置（541-768px） */
-@media screen and (max-width: 768px) and (min-width: 541px) {
-  .home-lang-dropdown-menu {
-    right: auto;
-    left: 50%;
-    transform: translateX(-50%); /* ドロップダウンを中央配置 */
-  }
 }
 
 /* iPhone SE (375px x 667px) 等の超小型デバイス対応 */
@@ -896,12 +565,6 @@ const styleObject = computed<StyleObject>(() => {
   .home-nav-link {
     font-size: 1rem;
     padding: 0.4rem 1rem;
-    min-height: 40px;
-  }
-
-  .home-lang-dropdown-toggle {
-    font-size: 0.9rem;
-    padding: 0.4rem 0.9rem;
     min-height: 40px;
   }
 }

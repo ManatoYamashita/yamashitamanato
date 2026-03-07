@@ -31,17 +31,17 @@ interface EffectController {
   isolation: number;
 }
 
-// 基本設定（リアクティブ）
-const effectController: Ref<EffectController> = ref({
+// 基本設定（テンプレート未使用のためプレーン変数で管理）
+const effectController: EffectController = {
   material: 'plastic',
   speed: 0.1,
   numBlobs: 3,
   resolution: 30,
   isolation: 10,
-});
+};
 
-// アニメーション状態（リアクティブ）
-const time: Ref<number> = ref(0);
+// アニメーション状態（テンプレート未使用のためプレーン変数で管理）
+let time = 0;
 const isPaused: Ref<boolean> = ref(false);
 
 // Three.jsオブジェクト（非リアクティブ - パフォーマンス重視）
@@ -52,9 +52,9 @@ const renderer: ShallowRef<WebGLRenderer | null> = shallowRef(null);
 const effect: ShallowRef<MarchingCubes | null> = shallowRef(null);
 const clock: ShallowRef<Clock | null> = shallowRef(null);
 
-// パフォーマンス管理
-const frameInterval: Ref<number> = ref(1000 / 30);
-const lastFrameTime: Ref<number> = ref(0);
+// パフォーマンス管理（テンプレート未使用のためプレーン変数で管理）
+const frameInterval = 1000 / 30;
+let lastFrameTime = 0;
 
 // アニメーション制御
 let animationFrameId: number | null = null;
@@ -176,7 +176,7 @@ const updateCubes = (): void => {
 
   effect.value.reset();
 
-  const numBlobs = effectController.value.numBlobs;
+  const numBlobs = effectController.numBlobs;
   const subtract = 10;
   const strength = 0.6 / ((Math.sqrt(numBlobs) - 1) / 4 + 1);
 
@@ -184,7 +184,7 @@ const updateCubes = (): void => {
   const aspectRatio = window.innerWidth / window.innerHeight;
 
   for (let i = 0; i < numBlobs; i++) {
-    const currentTime = time.value;
+    const currentTime = time;
 
     // 基本数学座標計算
     const rawX = Math.sin(i + 1.26 * currentTime * (1.03 + 0.5 * Math.cos(0.21 * i))) * 0.27 + 0.5;
@@ -218,17 +218,17 @@ const animate = (): void => {
   }
 
   const now = performance.now();
-  const elapsed = now - lastFrameTime.value;
+  const elapsed = now - lastFrameTime;
 
-  if (elapsed >= frameInterval.value) {
-    time.value += clock.value!.getDelta() * effectController.value.speed * 0.5;
+  if (elapsed >= frameInterval) {
+    time += clock.value!.getDelta() * effectController.speed * 0.5;
     updateCubes();
 
     if (renderer.value && camera.value && scene.value) {
       renderer.value.render(scene.value, camera.value);
     }
 
-    lastFrameTime.value = now - (elapsed % frameInterval.value);
+    lastFrameTime = now - (elapsed % frameInterval);
   }
 
   animationFrameId = requestAnimationFrame(animate);

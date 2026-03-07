@@ -238,43 +238,48 @@ watch(
   { immediate: false }
 );
 
+// GSAP tween 参照（クリーンアップ用）
+let tweens: gsap.core.Tween[] = [];
+
 // GSAPアニメーションの初期化
 const initializeAnimations = (gsap: (typeof import('gsap'))['gsap']): void => {
-  // アニメーションセクションのアニメーション
-  gsap.from('#animation', {
-    opacity: 0,
-    y: 50,
-    duration: 1,
-    ease: 'power3.out',
-  });
+  tweens = [
+    // アニメーションセクションのアニメーション
+    gsap.from('#animation', {
+      opacity: 0,
+      y: 50,
+      duration: 1,
+      ease: 'power3.out',
+    }),
 
-  // ビデオコンテナのアニメーション
-  gsap.from('.video-container', {
-    opacity: 0,
-    scale: 0.9,
-    duration: 1.2,
-    delay: 0.3,
-    ease: 'back.out(1.7)',
-  });
+    // ビデオコンテナのアニメーション
+    gsap.from('.video-container', {
+      opacity: 0,
+      scale: 0.9,
+      duration: 1.2,
+      delay: 0.3,
+      ease: 'back.out(1.7)',
+    }),
 
-  // アニメーション情報のアニメーション
-  gsap.from('.animation-info', {
-    opacity: 0,
-    x: 30,
-    duration: 1,
-    delay: 0.5,
-    ease: 'power2.out',
-  });
+    // アニメーション情報のアニメーション
+    gsap.from('.animation-info', {
+      opacity: 0,
+      x: 30,
+      duration: 1,
+      delay: 0.5,
+      ease: 'power2.out',
+    }),
 
-  // 各セクションの順次表示
-  gsap.from('.info-grid, .credits-section, .synopsis-section, .animation-links', {
-    opacity: 0,
-    y: 20,
-    stagger: 0.15,
-    duration: 0.8,
-    delay: 0.7,
-    ease: 'power2.out',
-  });
+    // 各セクションの順次表示
+    gsap.from('.info-grid, .credits-section, .synopsis-section, .animation-links', {
+      opacity: 0,
+      y: 20,
+      stagger: 0.15,
+      duration: 0.8,
+      delay: 0.7,
+      ease: 'power2.out',
+    }),
+  ];
 };
 
 onMounted(async () => {
@@ -300,6 +305,10 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
+  // GSAP tweenのクリーンアップ（メモリリーク防止）
+  tweens.forEach(t => t.kill());
+  tweens = [];
+
   // コンポーネント破棄時にリスナーを削除
   if (mediaQueryList) {
     mediaQueryList.removeEventListener('change', handleMediaQueryChange);

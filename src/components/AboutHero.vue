@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { Locale } from '@/types';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
@@ -72,56 +72,66 @@ const imageAlt = computed(() =>
   locale.value === 'ja' ? '山下真和都(マナト)' : 'Manato Yamashita'
 );
 
+// GSAP tween 参照（クリーンアップ用）
+let tweens: gsap.core.Tween[] = [];
+
 onMounted(async () => {
   // GSAPを動的インポートして初期バンドルサイズを削減
   const { gsap } = await import('gsap');
 
-  // 1. 画像（0.0s）
-  gsap.from('.profile-image', {
-    scale: 0.8,
-    opacity: 0,
-    duration: 1,
-    ease: 'power2.out',
-  });
+  tweens = [
+    // 1. 画像（0.0s）
+    gsap.from('.profile-image', {
+      scale: 0.8,
+      opacity: 0,
+      duration: 1,
+      ease: 'power2.out',
+    }),
 
-  // 2. 名前セクション（0.2s）
-  gsap.from('.name-section', {
-    opacity: 0,
-    y: -20,
-    duration: 0.8,
-    delay: 0.2,
-    ease: 'power2.out',
-  });
+    // 2. 名前セクション（0.2s）
+    gsap.from('.name-section', {
+      opacity: 0,
+      y: -20,
+      duration: 0.8,
+      delay: 0.2,
+      ease: 'power2.out',
+    }),
 
-  // 3. 読み仮名（0.4s）
-  gsap.from('.profile-reading', {
-    opacity: 0,
-    y: 10,
-    duration: 0.6,
-    delay: 0.4,
-    ease: 'power2.out',
-  });
+    // 3. 読み仮名（0.4s）
+    gsap.from('.profile-reading', {
+      opacity: 0,
+      y: 10,
+      duration: 0.6,
+      delay: 0.4,
+      ease: 'power2.out',
+    }),
 
-  // 4. メッセージ（0.5s）
-  gsap.from('.message-section', {
-    opacity: 0,
-    y: 30,
-    duration: 1,
-    delay: 0.5,
-    ease: 'power2.out',
-  });
+    // 4. メッセージ（0.5s）
+    gsap.from('.message-section', {
+      opacity: 0,
+      y: 30,
+      duration: 1,
+      delay: 0.5,
+      ease: 'power2.out',
+    }),
 
-  // 5. CTAボタン（0.7s）
-  gsap.from('.learn-more', {
-    opacity: 0,
-    scale: 0.9,
-    duration: 0.8,
-    delay: 0.7,
-    ease: 'back.out(1.4)',
-    clearProps: 'opacity',
-  });
+    // 5. CTAボタン（0.7s）
+    gsap.from('.learn-more', {
+      opacity: 0,
+      scale: 0.9,
+      duration: 0.8,
+      delay: 0.7,
+      ease: 'back.out(1.4)',
+      clearProps: 'opacity',
+    }),
+  ];
 
   // 6. SNSアイコン（Sns.vue内のstagger維持）
+});
+
+onUnmounted(() => {
+  tweens.forEach(t => t.kill());
+  tweens = [];
 });
 </script>
 

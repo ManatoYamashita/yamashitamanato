@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import {
   faTableCells,
@@ -84,12 +84,15 @@ const setFilter = (category: string): void => {
   emit('filter-change', category); // 親コンポーネント（Creatives.vue）に通知
 };
 
+// GSAP timeline 参照（クリーンアップ用）
+let tl: gsap.core.Timeline | null = null;
+
 onMounted(async () => {
   // GSAPを動的インポートして初期バンドルサイズを削減
   const { gsap } = await import('gsap');
 
   // Hero セクションのアニメーション
-  const tl = gsap.timeline();
+  tl = gsap.timeline();
 
   tl.fromTo(
     '.hero-text h1',
@@ -146,6 +149,11 @@ onMounted(async () => {
       },
       '-=0.8'
     );
+});
+
+onUnmounted(() => {
+  tl?.kill();
+  tl = null;
 });
 </script>
 

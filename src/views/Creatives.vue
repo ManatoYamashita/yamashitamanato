@@ -125,7 +125,7 @@
 import CreativeItem from '@/components/CreativeItem.vue';
 import CreativesHero from '@/components/CreativesHero.vue';
 import { useCreativesAPI } from '@/composables/useCreativesAPI';
-import { computed, ref, nextTick, onMounted } from 'vue';
+import { computed, ref, watch, nextTick, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useHead } from '@vueuse/head';
 import type { Locale, CreativeCategory, CMSCreative } from '@/types';
@@ -323,14 +323,23 @@ const shuffleArray = <T,>(array: T[]): T[] => {
   return shuffled;
 };
 
+// シャッフル結果キャッシュ（ロケール切替時の並び順変動を防止）
+const shuffledDevCache = ref<CMSCreative[]>([]);
+
+// ID構成が変わった場合のみ再シャッフル（watchで副作用を分離）
+watch(
+  () => developmentCreatives.value.map((i) => i.id).join(','),
+  () => {
+    const items = developmentCreatives.value;
+    if (items && Array.isArray(items) && items.length > 0) {
+      shuffledDevCache.value = shuffleArray(items);
+    }
+  },
+  { immediate: true }
+);
+
 // ランダムに並び替えられたプログラミング作品のリスト
-const randomizedDevelopment = computed<CMSCreative[]>(() => {
-  const items = developmentCreatives.value;
-  if (!items || !Array.isArray(items)) {
-    return [];
-  }
-  return shuffleArray(items);
-});
+const randomizedDevelopment = computed<CMSCreative[]>(() => shuffledDevCache.value);
 </script>
 
 <style scoped>

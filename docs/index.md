@@ -25,6 +25,7 @@
 - standards/design-system.md — カラー/フォント/背景/モーション/コンポーネントなどのデザインシステム全体。
 - standards/performance-and-build.md — 遅延/分割、アセット方針、Three.js、ビルド設定。
 - standards/security-and-seo.md — セキュリティ、アクセシビリティ、SEO/アナリティクス。
+- standards/accessibility.md — WCAG 2.1 AA準拠ガイドライン（focus-visible、reduced-motion、ARIA、キーボード操作）。
 - standards/coding-standards.md — コーディングスタイルとレビュー/コミットの基本。
 
 ### Ops（運用・手順書）

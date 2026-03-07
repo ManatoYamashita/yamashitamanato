@@ -228,14 +228,14 @@ const playIntroAnimation = async (): Promise<void> => {
   tl.fromTo(
     splashLogoRef.value,
     { opacity: 0, scale: 0.92 },
-    { opacity: 1, scale: 1, duration: 0.8, ease: 'power2.out' },
+    { opacity: 1, scale: 1, duration: 0.5, ease: 'power2.out' },
   )
   // Phase 2: ロゴフェードアウト → レイヤースライドアウト
   .to(splashLogoRef.value, {
     opacity: 0,
-    duration: 0.5,
+    duration: 0.3,
     ease: 'power2.in',
-    delay: 1.0,
+    delay: 0.3,
   })
   .to(splashOverlayRef.value, {
     yPercent: -100,

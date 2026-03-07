@@ -70,13 +70,11 @@ setupI18n().then((i18n) => {
     }
   };
 
+  // CSSを即座に読み込み（FOUC防止）
+  loadMainCSS();
+
   // 画面の初期描画完了後に背景の重いthree.jsを読み込む
   const schedule = window.requestIdleCallback || ((cb: IdleRequestCallback) => setTimeout(cb, 1));
-
-  // CSSを先に読み込み
-  schedule(() => {
-    loadMainCSS();
-  });
 
   schedule(async () => {
     const { default: MetaBall } = await import('@/components/MetaBall.vue');

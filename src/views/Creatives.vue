@@ -113,7 +113,9 @@
             fetchpriority="low"
             loading="lazy"
             src="@/assets/dcchan.webp"
-            alt="dc-chan"
+            :alt="$t('creatives.dcChanAlt')"
+            width="256"
+            height="256"
           />
         </div>
       </a>
@@ -378,6 +380,7 @@ section h2 {
 #dc-chan {
   width: 25%;
   height: auto;
+  aspect-ratio: 1 / 1;
   border-radius: 0.5rem;
   box-shadow: none;
   pointer-events: none;

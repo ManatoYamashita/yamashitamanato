@@ -18,6 +18,7 @@
 
     <a href="https://www.yamashitamana.to" aria-current="page" class="home-logo">
       <img
+        ref="centerLogoRef"
         fetchpriority="high"
         :src="logoSvg"
         alt="ホームページに戻る"
@@ -31,8 +32,7 @@
     </a>
 
     <!-- ホームページ専用メニュー項目（中央ロゴの下） -->
-    <transition name="home-menu-fade" mode="out-in">
-      <nav class="home-nav-links" v-if="isHomePage && introComplete">
+    <nav class="home-nav-links" ref="homeNavRef" v-if="isHomePage && introComplete">
         <RouterLink to="/about" class="home-nav-link">{{ $t('navbar.menu.about') }}</RouterLink>
         <RouterLink to="/creatives" class="home-nav-link">{{
           $t('navbar.menu.creatives')
@@ -76,7 +76,6 @@
           </transition>
         </div>
       </nav>
-    </transition>
 
     <div class="app glass" :class="{ hidden: isHomePage }" :style="appStyles">
       <router-view v-slot="{ Component }" :key="$route.fullPath">
@@ -96,7 +95,7 @@
 </template>
 
 <script setup lang="ts">
-import { watch, onMounted, onUnmounted, computed, ref } from 'vue';
+import { watch, onMounted, onUnmounted, computed, ref, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
@@ -113,6 +112,9 @@ const introComplete = ref<boolean>(false);
 const showSplash = ref<boolean>(true);
 const splashOverlayRef = ref<HTMLDivElement | null>(null);
 const splashLogoRef = ref<HTMLImageElement | null>(null);
+const centerLogoRef = ref<HTMLImageElement | null>(null);
+const homeNavRef = ref<HTMLElement | null>(null);
+const revealComplete = ref<boolean>(false);
 
 // 言語切り替えドロップダウン管理
 const isDropdownOpen = ref<boolean>(false);
@@ -198,6 +200,7 @@ watch(route, () => {
   // ホームに戻った場合はイントロをスキップし、即座にナビリンク表示
   if (isHomePage.value && !introComplete.value) {
     introComplete.value = true;
+    revealComplete.value = true;
   }
 });
 
@@ -205,6 +208,7 @@ const playIntroAnimation = async (): Promise<void> => {
   if (introComplete.value || !splashOverlayRef.value || !splashLogoRef.value) {
     showSplash.value = false;
     introComplete.value = true;
+    revealComplete.value = true;
     return;
   }
 
@@ -213,6 +217,10 @@ const playIntroAnimation = async (): Promise<void> => {
     onComplete: () => {
       showSplash.value = false;
       introComplete.value = true;
+
+      void nextTick().then(() => {
+        playRevealStagger(gsap);
+      });
     },
   });
 
@@ -234,7 +242,47 @@ const playIntroAnimation = async (): Promise<void> => {
     duration: 0.7,
     ease: 'power3.inOut',
   });
-  // Phase 3: onComplete でメイン画面（ロゴ+メニュー）表示
+  // Phase 3: onComplete でメイン画面（ロゴ+メニュー）stagger fade-down表示
+};
+
+const playRevealStagger = (gsap: typeof import('gsap').gsap): void => {
+  const targets: Element[] = [];
+
+  // 1. ロゴ
+  if (centerLogoRef.value) {
+    targets.push(centerLogoRef.value);
+  }
+  // 2. ナビリンク + 言語ドロップダウン（子要素を個別に）
+  if (homeNavRef.value) {
+    targets.push(...Array.from(homeNavRef.value.children));
+  }
+
+  if (targets.length === 0) return;
+
+  // CSS transition を無効化してGSAPとの競合を防止
+  // （.home-nav-link の transition: all 0.3s ease がGSAPの fromTo と干渉するため）
+  targets.forEach((el) => {
+    (el as HTMLElement).style.transition = 'none';
+  });
+
+  gsap.fromTo(
+    targets,
+    { opacity: 0, y: -30 },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 0.5,
+      ease: 'power2.out',
+      stagger: 0.12,
+      onComplete: () => {
+        // CSS transition を復元（ホバーエフェクト等に必要）
+        targets.forEach((el) => {
+          (el as HTMLElement).style.transition = '';
+        });
+        revealComplete.value = true;
+      },
+    },
+  );
 };
 
 onMounted(async () => {
@@ -246,6 +294,7 @@ onMounted(async () => {
   } else {
     showSplash.value = false;
     introComplete.value = true;
+    revealComplete.value = true;
   }
 
   // 言語切り替えドロップダウンのイベントリスナー
@@ -270,9 +319,12 @@ const className = computed<string>(() => {
 
 const styleObject = computed<StyleObject>(() => {
   if (path.value === '/') {
-    return introComplete.value
-      ? { opacity: '1', transition: 'all .4s ease-in-out' }
-      : { opacity: '0' };
+    // GSAP reveal完了前: opacity:0 + transition:none でCSSの介入を完全に遮断
+    if (!introComplete.value || !revealComplete.value) {
+      return { opacity: '0', transition: 'none' };
+    }
+    // reveal完了後: CSS transitionで退場アニメーション等を担当
+    return { transition: 'all .4s ease-in-out' };
   } else {
     return {
       opacity: '0',

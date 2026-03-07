@@ -14,6 +14,9 @@ export function useIntroAnimation(options: UseIntroAnimationOptions) {
   const introComplete = ref(false);
   const revealComplete = ref(false);
 
+  const prefersReducedMotion = (): boolean =>
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   const playRevealStagger = (gsap: typeof import('gsap').gsap): void => {
     const targets: Element[] = [];
 
@@ -53,6 +56,14 @@ export function useIntroAnimation(options: UseIntroAnimationOptions) {
 
   const playIntroAnimation = async (): Promise<void> => {
     if (introComplete.value || !options.splashOverlayRef.value || !options.splashLogoRef.value) {
+      showSplash.value = false;
+      introComplete.value = true;
+      revealComplete.value = true;
+      return;
+    }
+
+    // reduced-motion: アニメーションをスキップして即最終状態
+    if (prefersReducedMotion()) {
       showSplash.value = false;
       introComplete.value = true;
       revealComplete.value = true;

@@ -1,4 +1,10 @@
 {
+    "common": {
+      "opensInNewTab": "opens in a new tab"
+    },
+    "home": {
+      "title": "Manato Yamashita's Portfolio"
+    },
     "navbar": {
       "selectLanguage": "Select Language",
       "menu": {
@@ -69,6 +75,16 @@
             "credits": "Credits",
             "notFound": "Creative not found"
         },
+        "filters": {
+            "toolbar": "Category filter",
+            "all": "Show all categories",
+            "animation": "Show animation works",
+            "development": "Show development works",
+            "illustration": "Show illustration works",
+            "video": "Show video works",
+            "design": "Show design works"
+        },
+        "dcChanAlt": "Digicon-chan - Tokyo City University Digital Contents Club mascot character",
         "paragraph": "I have experience in commissioned work and paid requests, as well as hobbies in creating digital content (illustrations, animations, websites, etc.). I use my design skills as a foundation for my sense of creativity in web production, video editing, and illustration.",
         "animation": {
             "paragraph": "As a director, I created an original animation in collaboration with Setagaya Ward. I gathered 35 members, formed a volunteer group, and spent a year creating the setting, script, video, and music. With the cooperation of 81 Produce, we cast voice actors Kent Itou and Reina Ueda.",

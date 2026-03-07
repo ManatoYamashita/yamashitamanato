@@ -13,6 +13,9 @@ export function useMobileMenuAnimation(options: UseMobileMenuAnimationOptions) {
   const isMobileMenuOpen = ref(false);
   const isAnimating = ref(false);
 
+  const prefersReducedMotion = (): boolean =>
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   // GSAP 動的 import キャッシュ
   let gsapInstance: typeof import('gsap').gsap | null = null;
 
@@ -30,6 +33,7 @@ export function useMobileMenuAnimation(options: UseMobileMenuAnimationOptions) {
     const gsap = await loadGsap();
     isAnimating.value = true;
     const willOpen = !isMobileMenuOpen.value;
+    const dur = prefersReducedMotion() ? 0 : undefined;
 
     if (willOpen) {
       isMobileMenuOpen.value = true;
@@ -47,7 +51,7 @@ export function useMobileMenuAnimation(options: UseMobileMenuAnimationOptions) {
             scale: 0.92,
             y: 0,
             zIndex: 1,
-            duration: 0.2,
+            duration: dur ?? 0.2,
           });
         }
         if (options.menuCardRef.value) {
@@ -58,10 +62,10 @@ export function useMobileMenuAnimation(options: UseMobileMenuAnimationOptions) {
               y: 0,
               scale: 1,
               zIndex: 5,
-              duration: 0.25,
+              duration: dur ?? 0.25,
               ease: 'back.out(1.2)',
             },
-            '-=0.1'
+            dur !== undefined ? undefined : '-=0.1'
           );
         }
       });
@@ -96,7 +100,7 @@ export function useMobileMenuAnimation(options: UseMobileMenuAnimationOptions) {
           y: 12,
           scale: 0.95,
           zIndex: 1,
-          duration: 0.2,
+          duration: dur ?? 0.2,
         });
       }
       if (options.pageTitleRef.value) {
@@ -107,10 +111,10 @@ export function useMobileMenuAnimation(options: UseMobileMenuAnimationOptions) {
             scale: 1,
             y: 0,
             zIndex: 5,
-            duration: 0.25,
+            duration: dur ?? 0.25,
             ease: 'back.out(1.3)',
           },
-          '-=0.12'
+          dur !== undefined ? undefined : '-=0.12'
         );
       }
     }

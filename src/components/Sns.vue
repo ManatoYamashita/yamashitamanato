@@ -8,7 +8,9 @@
       :id="icon.id"
       ref="iconRefs"
       class="icon-link"
-      :aria-label="icon.label"
+      target="_blank"
+      rel="noopener noreferrer"
+      :aria-label="`${icon.label} (${$t('common.opensInNewTab')})`"
     >
       <font-awesome-icon :icon="icon.icon" class="sns" />
     </a>
@@ -71,6 +73,9 @@ const iconRefs = ref<HTMLElement[]>([]);
 let tween: gsap.core.Tween | null = null;
 
 onMounted(async () => {
+  // reduced-motion: アニメーションをスキップ
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
   // GSAPを動的インポートして初期バンドルサイズを削減
   const { gsap } = await import('gsap');
   // アニメーションの設定

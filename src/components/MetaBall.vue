@@ -1,6 +1,6 @@
 <template>
   <div id="main">
-    <canvas ref="container" id="container" />
+    <canvas ref="container" id="container" aria-hidden="true" />
   </div>
 </template>
 

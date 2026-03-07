@@ -6,10 +6,12 @@
         <p class="hero-description">{{ $t('creatives.paragraph') }}</p>
 
         <!-- カテゴリフィルターボタン -->
-        <div class="category-filters">
+        <div class="category-filters" role="toolbar" :aria-label="$t('creatives.filters.toolbar')">
           <button
             @click="setFilter('all')"
             :class="['filter-tag', { active: activeFilter === 'all' }]"
+            :aria-pressed="activeFilter === 'all'"
+            :aria-label="$t('creatives.filters.all')"
           >
             <font-awesome-icon :icon="faTableCells" class="tag-icon" />
             <span>All</span>
@@ -17,6 +19,8 @@
           <button
             @click="setFilter('animation')"
             :class="['filter-tag', { active: activeFilter === 'animation' }]"
+            :aria-pressed="activeFilter === 'animation'"
+            :aria-label="$t('creatives.filters.animation')"
           >
             <font-awesome-icon :icon="faFilm" class="tag-icon" />
             <span>Anime</span>
@@ -24,6 +28,8 @@
           <button
             @click="setFilter('development')"
             :class="['filter-tag', { active: activeFilter === 'development' }]"
+            :aria-pressed="activeFilter === 'development'"
+            :aria-label="$t('creatives.filters.development')"
           >
             <font-awesome-icon :icon="faCode" class="tag-icon" />
             <span>Dev</span>
@@ -31,6 +37,8 @@
           <button
             @click="setFilter('illustration')"
             :class="['filter-tag', { active: activeFilter === 'illustration' }]"
+            :aria-pressed="activeFilter === 'illustration'"
+            :aria-label="$t('creatives.filters.illustration')"
           >
             <font-awesome-icon :icon="faPalette" class="tag-icon" />
             <span>Illust</span>
@@ -38,6 +46,8 @@
           <button
             @click="setFilter('video')"
             :class="['filter-tag', { active: activeFilter === 'video' }]"
+            :aria-pressed="activeFilter === 'video'"
+            :aria-label="$t('creatives.filters.video')"
           >
             <font-awesome-icon :icon="faVideo" class="tag-icon" />
             <span>Video</span>
@@ -45,6 +55,8 @@
           <button
             @click="setFilter('design')"
             :class="['filter-tag', { active: activeFilter === 'design' }]"
+            :aria-pressed="activeFilter === 'design'"
+            :aria-label="$t('creatives.filters.design')"
           >
             <font-awesome-icon :icon="faPencilAlt" class="tag-icon" />
             <span>Design</span>
@@ -88,6 +100,9 @@ const setFilter = (category: string): void => {
 let tl: gsap.core.Timeline | null = null;
 
 onMounted(async () => {
+  // reduced-motion: アニメーションをスキップ
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
   // GSAPを動的インポートして初期バンドルサイズを削減
   const { gsap } = await import('gsap');
 

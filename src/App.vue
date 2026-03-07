@@ -11,6 +11,9 @@
       <div class="progress-fill"></div>
     </div>
 
+    <!-- ホームページ用 h1（スクリーンリーダー向け） -->
+    <h1 v-if="isHomePage" class="sr-only">{{ t('home.title') }}</h1>
+
     <!-- Menu.vueをヘッダーとして統合 -->
     <header id="navbar">
       <Menu />
@@ -50,6 +53,7 @@
           :ariaLabel="$t('navbar.selectLanguage')"
           @toggle="toggleDropdown"
           @select="selectLanguage"
+          @close="isDropdownOpen = false"
         />
       </nav>
 
@@ -78,7 +82,9 @@ import LanguageDropdown from '@/components/LanguageDropdown.vue';
 import logoSvg from '@/assets/logo.svg';
 import { useLanguageSwitcher } from '@/composables/useLanguageSwitcher';
 import { useIntroAnimation } from '@/composables/useIntroAnimation';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const isHomePage = ref<boolean>(true);
@@ -145,6 +151,11 @@ const appStyles = computed<StyleObject>(() => {
 const updateHomePageState = (): void => {
   isHomePage.value = route.name === 'home';
 };
+
+// <html lang> を locale と同期（WCAG 3.1.1対応）
+watch(locale, (newLocale) => {
+  document.documentElement.lang = newLocale;
+}, { immediate: true });
 
 watch(route, () => {
   updateHomePageState();

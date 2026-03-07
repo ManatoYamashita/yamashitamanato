@@ -16,12 +16,20 @@
     </button>
 
     <transition name="dropdown-slide">
-      <ul class="lang-dropdown-menu" v-show="isOpen">
-        <li v-for="lang in languages" :key="lang.code">
+      <ul
+        class="lang-dropdown-menu"
+        v-show="isOpen"
+        role="menu"
+        @keydown="handleMenuKeydown"
+      >
+        <li v-for="(lang, index) in languages" :key="lang.code" role="none">
           <button
+            ref="menuItemRefs"
             @click="$emit('select', lang.code)"
             :class="{ active: currentLocale === lang.code }"
             class="lang-option-btn"
+            role="menuitem"
+            :tabindex="isOpen && index === focusedIndex ? 0 : -1"
           >
             <font-awesome-icon
               :icon="faCheck"
@@ -37,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch, nextTick } from 'vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faGlobe, faChevronDown, faCheck } from '@fortawesome/free-solid-svg-icons';
 import type { Locale } from '@/types';
@@ -56,14 +64,60 @@ const props = defineProps<{
   variant?: 'desktop' | 'mobile' | 'home';
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   toggle: [];
   select: [code: Locale];
+  close: [];
 }>();
 
 const variantClass = computed(() => `lang-dropdown--${props.variant ?? 'desktop'}`);
 
 const rootRef = ref<HTMLElement | null>(null);
+const menuItemRefs = ref<HTMLButtonElement[]>([]);
+const focusedIndex = ref(0);
+
+// メニューが開いたら最初のアイテムにフォーカス
+watch(() => props.isOpen, (open) => {
+  if (open) {
+    focusedIndex.value = 0;
+    nextTick(() => {
+      menuItemRefs.value[0]?.focus();
+    });
+  }
+});
+
+const handleMenuKeydown = (e: KeyboardEvent): void => {
+  const items = menuItemRefs.value;
+  if (!items.length) return;
+
+  switch (e.key) {
+    case 'ArrowDown':
+      e.preventDefault();
+      focusedIndex.value = (focusedIndex.value + 1) % items.length;
+      items[focusedIndex.value]?.focus();
+      break;
+    case 'ArrowUp':
+      e.preventDefault();
+      focusedIndex.value = (focusedIndex.value - 1 + items.length) % items.length;
+      items[focusedIndex.value]?.focus();
+      break;
+    case 'Escape':
+      e.preventDefault();
+      emit('close');
+      break;
+    case 'Home':
+      e.preventDefault();
+      focusedIndex.value = 0;
+      items[0]?.focus();
+      break;
+    case 'End':
+      e.preventDefault();
+      focusedIndex.value = items.length - 1;
+      items[items.length - 1]?.focus();
+      break;
+  }
+};
+
 defineExpose({ rootRef });
 </script>
 

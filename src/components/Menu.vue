@@ -48,6 +48,7 @@
         :ariaLabel="$t('navbar.selectLanguage')"
         @toggle="toggleDropdown"
         @select="selectLanguage"
+        @close="isDropdownOpen = false"
       />
     </nav>
 
@@ -83,6 +84,7 @@
           :ariaLabel="$t('navbar.selectLanguage')"
           @toggle="toggleDropdown"
           @select="selectLanguage"
+          @close="isDropdownOpen = false"
         />
       </div>
 

@@ -3,7 +3,6 @@ const CACHE_NAME = 'manapuraza-v1';
 const STATIC_CACHE = [
   '/',
   '/index.html',
-  '/icon_white.webp',
 ];
 
 self.addEventListener('install', (event) => {

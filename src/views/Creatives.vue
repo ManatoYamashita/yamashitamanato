@@ -107,7 +107,7 @@
       </div>
 
       <a href="https://でじこんちゃん.net" aria-label="でじこんちゃんのサイトへ">
-        <div id="image-content">
+        <div id="dc-chan-container">
           <img
             id="dc-chan"
             fetchpriority="low"
@@ -115,7 +115,7 @@
             src="@/assets/dcchan.webp"
             :alt="$t('creatives.dcChanAlt')"
             width="256"
-            height="256"
+            height="455"
           />
         </div>
       </a>
@@ -372,7 +372,7 @@ section h2 {
 #main-contents {
   width: 100%;
 }
-#image-content {
+#dc-chan-container {
   width: 100%;
   padding: 1rem;
   text-align: right;
@@ -380,7 +380,7 @@ section h2 {
 #dc-chan {
   width: 25%;
   height: auto;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 9 / 16;
   border-radius: 0.5rem;
   box-shadow: none;
   pointer-events: none;

@@ -22,7 +22,7 @@ export default defineConfig({
       compress: {
         drop_console: false, // コンソール完全削除を無効化
         drop_debugger: true, // debugger文は削除
-        pure_funcs: ['console.debug', 'console.trace'], // 詳細ログのみ削除
+        pure_funcs: ['console.debug', 'console.trace', 'console.log'], // 詳細ログ+console.log削除
         dead_code: true,
         unused: true,
       },
@@ -51,16 +51,6 @@ export default defineConfig({
           }
           if (id.includes('@fortawesome')) {
             return 'vendor_fontawesome';
-          }
-
-          // CSS分割
-          if (id.includes('.vue') && id.includes('style')) {
-            if (id.includes('components')) {
-              return 'styles-components';
-            }
-            if (id.includes('views')) {
-              return 'styles-views';
-            }
           }
         }
       },

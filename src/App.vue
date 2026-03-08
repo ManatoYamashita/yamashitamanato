@@ -35,7 +35,7 @@
     </a>
 
     <!-- ホームページ専用メニュー項目（中央ロゴの下） -->
-    <nav class="home-nav-links" ref="homeNavRef" v-if="isHomePage && introComplete">
+    <nav class="home-nav-links" ref="homeNavRef" v-show="isHomePage && introComplete">
         <RouterLink to="/about" class="home-nav-link">{{ $t('navbar.menu.about') }}</RouterLink>
         <RouterLink to="/creatives" class="home-nav-link">{{
           $t('navbar.menu.creatives')
@@ -75,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import { watch, onMounted, computed, ref } from 'vue';
+import { watch, onMounted, computed, ref, type CSSProperties } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Menu from '@/components/Menu.vue';
 import LanguageDropdown from '@/components/LanguageDropdown.vue';
@@ -122,28 +122,21 @@ const checkRouterReady = async (): Promise<void> => {
   updateHomePageState();
 };
 
-interface StyleObject extends Partial<Record<string, string>> {
-  top?: string;
-  opacity?: string;
-  pointerEvents?: 'auto' | 'none' | 'all';
-  filter?: string;
-  transition?: string;
-  transform?: string;
-}
-
-// リアクティブなスタイル計算（直接DOM操作を排除）
-const appStyles = computed<StyleObject>(() => {
+// リアクティブなスタイル計算（transform使用でCLS回避）
+const appStyles = computed<CSSProperties>(() => {
   if (isHomePage.value) {
     return {
-      top: '20vh',
       opacity: '0',
       pointerEvents: 'none',
+      visibility: 'hidden',
+      transform: 'translateY(20vh)',
     };
   } else {
     return {
-      top: '0',
       opacity: '1',
       pointerEvents: 'all',
+      visibility: 'visible',
+      transform: 'translateY(0)',
     };
   }
 });
@@ -177,7 +170,7 @@ const className = computed<string>(() => {
   }
 });
 
-const styleObject = computed<StyleObject>(() => {
+const styleObject = computed<CSSProperties>(() => {
   if (path.value === '/') {
     if (!introComplete.value || !revealComplete.value) {
       return { opacity: '0', transition: 'none' };
@@ -198,7 +191,6 @@ const styleObject = computed<StyleObject>(() => {
   position: relative;
   width: 100%;
   height: 100%;
-  display: contents;
 }
 .home-logo {
   pointer-events: all;
@@ -228,6 +220,7 @@ const styleObject = computed<StyleObject>(() => {
   left: 50%;
   width: min(75vw, 700px);
   height: auto;
+  aspect-ratio: 800 / 200;
   transform: translate(-50%, -50%);
   transition: all 0.5s ease-in-out;
 }
@@ -254,8 +247,9 @@ const styleObject = computed<StyleObject>(() => {
   margin: 0 auto;
   padding: 0.5rem;
   border-radius: 10px;
-  transition: 0.5s ease-in-out;
-  overflow-y: auto; /* スクロール可能に変更 */
+  transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out, transform 0.5s ease-in-out;
+  will-change: opacity, transform;
+  overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: transparent;
   z-index: 10;

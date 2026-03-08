@@ -3,6 +3,7 @@ import App from '@/App.vue';
 import router from '@/router';
 import { createHead } from '@vueuse/head';
 import type { Locale } from '@/types';
+import '@/assets/main.css';
 // MetaBallは初期描画のクリティカルパス外なので、アイドル時に遅延読み込みする
 
 // Vue-i18n最適化版を使用（Tree shaking最適化）
@@ -51,32 +52,13 @@ setupI18n().then((i18n) => {
 
   app.mount('#app');
 
-  // メインCSSの環境対応読み込み（開発・プロダクション統一）
-  const loadMainCSS = (): void => {
-    if (import.meta.env.DEV) {
-      // 開発環境：従来の動的読み込み
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = '/src/assets/main.css';
-      document.head.appendChild(link);
-    } else {
-      // プロダクション環境：静的インポートで確実に読み込み
-      import('/src/assets/main.css').catch((_err: Error) => {
-        // フォールバック：基本スタイルの確保
-        document.body.style.margin = '0';
-        document.body.style.padding = '0';
-        document.body.style.fontFamily = 'system-ui, sans-serif';
-      });
-    }
-  };
-
-  // CSSを即座に読み込み（FOUC防止）
-  loadMainCSS();
-
   // 画面の初期描画完了後に背景の重いthree.jsを読み込む
   const schedule = window.requestIdleCallback || ((cb: IdleRequestCallback) => setTimeout(cb, 1));
 
   schedule(async () => {
+    const conn = (navigator as unknown as Record<string, unknown>).connection as { effectiveType?: string } | undefined;
+    if (conn && (conn.effectiveType === 'slow-2g' || conn.effectiveType === '2g')) return;
+
     const { default: MetaBall } = await import('@/components/MetaBall.vue');
     const metaball = createApp(MetaBall);
     metaball.use(router);

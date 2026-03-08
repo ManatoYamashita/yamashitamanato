@@ -1,12 +1,5 @@
 @import './base.css';
 
-/* ボーダー追加時のレイアウト安定化 */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
 /* グローバル フォーカスインジケータ（WCAG 2.1 AA準拠） */
 :focus-visible {
   outline: 2px solid var(--manapuraza-yellow, #f0d300);
@@ -51,8 +44,6 @@ main#app {
   left: 0;
   width: 100%;
   height: 100%;
-  display: contents;
-  /* scroll-behavior: none; */
   pointer-events: none;
   overflow: hidden;
 }
@@ -61,7 +52,8 @@ h1 {
 }
 h2 {
   font-size: 1.8rem;
-  font-family: 'Noto Serif JP', serif;
+  font-family: 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', serif;
+  font-weight: 700;
 }
 body {
   margin: 0;

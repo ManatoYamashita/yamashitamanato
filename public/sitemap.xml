@@ -5,7 +5,7 @@
     <!-- Home Page -->
     <url>
         <loc>https://www.yamashitamana.to/</loc>
-        <lastmod>2026-1-15</lastmod>
+        <lastmod>2026-03-08</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.yamashitamana.to/" />
@@ -21,13 +21,14 @@
     <!-- About Page -->
     <url>
         <loc>https://www.yamashitamana.to/about</loc>
-        <lastmod>2026-1-15</lastmod>
+        <lastmod>2026-03-08</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.yamashitamana.to/about" />
         <xhtml:link rel="alternate" hreflang="en" href="https://www.yamashitamana.to/about" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.yamashitamana.to/about" />
         <image:image>
-            <image:loc>https://www.yamashitamana.to/山下真和都(マナト).webp</image:loc>
+            <image:loc>https://www.yamashitamana.to/%E5%B1%B1%E4%B8%8B%E7%9C%9F%E5%92%8C%E9%83%BD(%E3%83%9E%E3%83%8A%E3%83%88).webp</image:loc>
             <image:caption>山下真和都（マナト）プロフィール写真</image:caption>
             <image:title>About Manato Yamashita</image:title>
         </image:image>
@@ -36,11 +37,12 @@
     <!-- Creatives Page -->
     <url>
         <loc>https://www.yamashitamana.to/creatives</loc>
-        <lastmod>2026-1-15</lastmod>
+        <lastmod>2026-03-08</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.yamashitamana.to/creatives" />
         <xhtml:link rel="alternate" hreflang="en" href="https://www.yamashitamana.to/creatives" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.yamashitamana.to/creatives" />
         <image:image>
             <image:loc>https://www.yamashitamana.to/ogp.webp</image:loc>
             <image:caption>山下マナト クリエイティブ作品集</image:caption>
@@ -51,10 +53,278 @@
     <!-- Contact Page -->
     <url>
         <loc>https://www.yamashitamana.to/contact</loc>
-        <lastmod>2026-1-15</lastmod>
+        <lastmod>2026-03-08</lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.7</priority>
         <xhtml:link rel="alternate" hreflang="ja" href="https://www.yamashitamana.to/contact" />
         <xhtml:link rel="alternate" hreflang="en" href="https://www.yamashitamana.to/contact" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.yamashitamana.to/contact" />
+    </url>
+
+    <url>
+        <loc>https://www.yamashitamana.to/creatives/development/tcuac-2025-darkside</loc>
+        <lastmod>2026-02-22</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://www.yamashitamana.to/creatives/development/tcuac-2025-darkside" />
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.yamashitamana.to/creatives/development/tcuac-2025-darkside" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.yamashitamana.to/creatives/development/tcuac-2025-darkside" />
+        <image:image>
+            <image:loc>https://images.microcms-assets.io/assets/d54b2cb61c0a4ed4b40dbd8096a9d0d8/af1d784ad3d24f3ea3bb7b9037bfb1a6/tcuac-2025-darkside.webp</image:loc>
+            <image:caption>都市大アドカレ2025『深淵』 - 暗号化対応セキュアブログシステム</image:caption>
+            <image:title>都市大アドカレ2025『深淵』 - 暗号化対応セキュアブログシステム</image:title>
+        </image:image>
+    </url>
+    <url>
+        <loc>https://www.yamashitamana.to/creatives/development/converter-webp-webm</loc>
+        <lastmod>2026-02-23</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://www.yamashitamana.to/creatives/development/converter-webp-webm" />
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.yamashitamana.to/creatives/development/converter-webp-webm" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.yamashitamana.to/creatives/development/converter-webp-webm" />
+        <image:image>
+            <image:loc>https://images.microcms-assets.io/assets/d54b2cb61c0a4ed4b40dbd8096a9d0d8/9ded358fe7744921921be4df61ef1b0b/converter-webp-webm.webp</image:loc>
+            <image:caption>WebP/WebM バッチ変換ツール</image:caption>
+            <image:title>WebP/WebM バッチ変換ツール</image:title>
+        </image:image>
+    </url>
+    <url>
+        <loc>https://www.yamashitamana.to/creatives/development/win2</loc>
+        <lastmod>2026-02-23</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://www.yamashitamana.to/creatives/development/win2" />
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.yamashitamana.to/creatives/development/win2" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.yamashitamana.to/creatives/development/win2" />
+        <image:image>
+            <image:loc>https://images.microcms-assets.io/assets/d54b2cb61c0a4ed4b40dbd8096a9d0d8/3332c151633b4f49bb1f848420b8ca50/win2.jpg</image:loc>
+            <image:caption>WIN×II 会員向けアフィリエイトブログ</image:caption>
+            <image:title>WIN×II 会員向けアフィリエイトブログ</image:title>
+        </image:image>
+    </url>
+    <url>
+        <loc>https://www.yamashitamana.to/creatives/animation/setagaya-bop-animation</loc>
+        <lastmod>2026-02-23</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://www.yamashitamana.to/creatives/animation/setagaya-bop-animation" />
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.yamashitamana.to/creatives/animation/setagaya-bop-animation" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.yamashitamana.to/creatives/animation/setagaya-bop-animation" />
+        <image:image>
+            <image:loc>https://images.microcms-assets.io/assets/d54b2cb61c0a4ed4b40dbd8096a9d0d8/a46c2135e22946c0a74b14fa07120f3c/tcu-animation.webp</image:loc>
+            <image:caption>世田谷区オリジナルアニメ「新BOPへようこそ！」</image:caption>
+            <image:title>世田谷区オリジナルアニメ「新BOPへようこそ！」</image:title>
+        </image:image>
+    </url>
+    <url>
+        <loc>https://www.yamashitamana.to/creatives/development/yamashitamanato</loc>
+        <lastmod>2026-02-23</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://www.yamashitamana.to/creatives/development/yamashitamanato" />
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.yamashitamana.to/creatives/development/yamashitamanato" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.yamashitamana.to/creatives/development/yamashitamanato" />
+        <image:image>
+            <image:loc>https://images.microcms-assets.io/assets/d54b2cb61c0a4ed4b40dbd8096a9d0d8/dcbcd67ad76d41ffb33e69941bd1b215/manapuraza.webp</image:loc>
+            <image:caption>yamashitamana.to - ポートフォリオWebサイト</image:caption>
+            <image:title>yamashitamana.to - ポートフォリオWebサイト</image:title>
+        </image:image>
+    </url>
+    <url>
+        <loc>https://www.yamashitamana.to/creatives/development/dc-chan</loc>
+        <lastmod>2026-02-23</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://www.yamashitamana.to/creatives/development/dc-chan" />
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.yamashitamana.to/creatives/development/dc-chan" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.yamashitamana.to/creatives/development/dc-chan" />
+        <image:image>
+            <image:loc>https://images.microcms-assets.io/assets/d54b2cb61c0a4ed4b40dbd8096a9d0d8/6b738063d83740d9b4ff240a7f593599/dcchan-ai.webp</image:loc>
+            <image:caption>でじこんちゃんAI</image:caption>
+            <image:title>でじこんちゃんAI</image:title>
+        </image:image>
+    </url>
+    <url>
+        <loc>https://www.yamashitamana.to/creatives/development/numeron</loc>
+        <lastmod>2026-02-22</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://www.yamashitamana.to/creatives/development/numeron" />
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.yamashitamana.to/creatives/development/numeron" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.yamashitamana.to/creatives/development/numeron" />
+        <image:image>
+            <image:loc>https://images.microcms-assets.io/assets/d54b2cb61c0a4ed4b40dbd8096a9d0d8/7f20c210e0de4b009aa3d94a2c50ab65/numeron.webp</image:loc>
+            <image:caption>NUMERON - 論理数字あてゲーム</image:caption>
+            <image:title>NUMERON - 論理数字あてゲーム</image:title>
+        </image:image>
+    </url>
+    <url>
+        <loc>https://www.yamashitamana.to/creatives/development/office-tsuyuki</loc>
+        <lastmod>2026-02-25</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://www.yamashitamana.to/creatives/development/office-tsuyuki" />
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.yamashitamana.to/creatives/development/office-tsuyuki" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.yamashitamana.to/creatives/development/office-tsuyuki" />
+        <image:image>
+            <image:loc>https://images.microcms-assets.io/assets/d54b2cb61c0a4ed4b40dbd8096a9d0d8/a84954b12bf84a389eab3a47a82de2df/office-tsuyuki.webp</image:loc>
+            <image:caption>オフィス露木</image:caption>
+            <image:title>オフィス露木</image:title>
+        </image:image>
+    </url>
+    <url>
+        <loc>https://www.yamashitamana.to/creatives/development/dcchan-twitter-bot</loc>
+        <lastmod>2026-02-23</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://www.yamashitamana.to/creatives/development/dcchan-twitter-bot" />
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.yamashitamana.to/creatives/development/dcchan-twitter-bot" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.yamashitamana.to/creatives/development/dcchan-twitter-bot" />
+        <image:image>
+            <image:loc>https://images.microcms-assets.io/assets/d54b2cb61c0a4ed4b40dbd8096a9d0d8/3215e1141ad949c9a58ce5551429cf34/dcchan-twitterbot.webp</image:loc>
+            <image:caption>でじこんちゃん Twitter BOT</image:caption>
+            <image:title>でじこんちゃん Twitter BOT</image:title>
+        </image:image>
+    </url>
+    <url>
+        <loc>https://www.yamashitamana.to/creatives/development/tcu-sekilab</loc>
+        <lastmod>2026-02-23</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://www.yamashitamana.to/creatives/development/tcu-sekilab" />
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.yamashitamana.to/creatives/development/tcu-sekilab" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.yamashitamana.to/creatives/development/tcu-sekilab" />
+        <image:image>
+            <image:loc>https://images.microcms-assets.io/assets/d54b2cb61c0a4ed4b40dbd8096a9d0d8/ea21059576d148889e1762f75e6f8658/sekilab.webp</image:loc>
+            <image:caption>関研究室（TCU情報セキュリティ研究室）</image:caption>
+            <image:title>関研究室（TCU情報セキュリティ研究室）</image:title>
+        </image:image>
+    </url>
+    <url>
+        <loc>https://www.yamashitamana.to/creatives/development/wtm</loc>
+        <lastmod>2026-02-23</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://www.yamashitamana.to/creatives/development/wtm" />
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.yamashitamana.to/creatives/development/wtm" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.yamashitamana.to/creatives/development/wtm" />
+        <image:image>
+            <image:loc>https://images.microcms-assets.io/assets/d54b2cb61c0a4ed4b40dbd8096a9d0d8/4e080736cc1a493c9b521b9a6ebc20b3/wtm.webp</image:loc>
+            <image:caption>wtm - おでかけ支援アプリ</image:caption>
+            <image:title>wtm - おでかけ支援アプリ</image:title>
+        </image:image>
+    </url>
+    <url>
+        <loc>https://www.yamashitamana.to/creatives/development/dum</loc>
+        <lastmod>2026-02-23</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://www.yamashitamana.to/creatives/development/dum" />
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.yamashitamana.to/creatives/development/dum" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.yamashitamana.to/creatives/development/dum" />
+        <image:image>
+            <image:loc>https://images.microcms-assets.io/assets/d54b2cb61c0a4ed4b40dbd8096a9d0d8/a203411b087749b29dc7913bcd5639ad/dum.webp</image:loc>
+            <image:caption>Down Under Mountain - オーストラリア留学ブログ</image:caption>
+            <image:title>Down Under Mountain - オーストラリア留学ブログ</image:title>
+        </image:image>
+    </url>
+    <url>
+        <loc>https://www.yamashitamana.to/creatives/development/wagiri</loc>
+        <lastmod>2026-02-23</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://www.yamashitamana.to/creatives/development/wagiri" />
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.yamashitamana.to/creatives/development/wagiri" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.yamashitamana.to/creatives/development/wagiri" />
+        <image:image>
+            <image:loc>https://images.microcms-assets.io/assets/d54b2cb61c0a4ed4b40dbd8096a9d0d8/1ff6de3a93304882bf61da17b15225af/flickgame-wagiri.webp</image:loc>
+            <image:caption>WAGIRI!! - 和風フリックゲーム</image:caption>
+            <image:title>WAGIRI!! - 和風フリックゲーム</image:title>
+        </image:image>
+    </url>
+    <url>
+        <loc>https://www.yamashitamana.to/creatives/development/tcu-animation-web</loc>
+        <lastmod>2026-02-23</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://www.yamashitamana.to/creatives/development/tcu-animation-web" />
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.yamashitamana.to/creatives/development/tcu-animation-web" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.yamashitamana.to/creatives/development/tcu-animation-web" />
+        <image:image>
+            <image:loc>https://images.microcms-assets.io/assets/d54b2cb61c0a4ed4b40dbd8096a9d0d8/a46c2135e22946c0a74b14fa07120f3c/tcu-animation.webp</image:loc>
+            <image:caption>都市大アニメーション</image:caption>
+            <image:title>都市大アニメーション</image:title>
+        </image:image>
+    </url>
+    <url>
+        <loc>https://www.yamashitamana.to/creatives/development/textlayout</loc>
+        <lastmod>2026-02-23</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://www.yamashitamana.to/creatives/development/textlayout" />
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.yamashitamana.to/creatives/development/textlayout" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.yamashitamana.to/creatives/development/textlayout" />
+        <image:image>
+            <image:loc>https://images.microcms-assets.io/assets/d54b2cb61c0a4ed4b40dbd8096a9d0d8/a762295921664df9ba713dd8584f95ae/textlayout.webp</image:loc>
+            <image:caption>テキスト自動レイアウトWebApp</image:caption>
+            <image:title>テキスト自動レイアウトWebApp</image:title>
+        </image:image>
+    </url>
+    <url>
+        <loc>https://www.yamashitamana.to/creatives/development/kamiya</loc>
+        <lastmod>2026-02-23</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://www.yamashitamana.to/creatives/development/kamiya" />
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.yamashitamana.to/creatives/development/kamiya" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.yamashitamana.to/creatives/development/kamiya" />
+        <image:image>
+            <image:loc>https://images.microcms-assets.io/assets/d54b2cb61c0a4ed4b40dbd8096a9d0d8/41e525d919704fb28964ba688a29ef0c/k-kamiya.webp</image:loc>
+            <image:caption>割烹神谷 Website</image:caption>
+            <image:title>割烹神谷 Website</image:title>
+        </image:image>
+    </url>
+    <url>
+        <loc>https://www.yamashitamana.to/creatives/illustration/pwcg6ne2-g</loc>
+        <lastmod>2026-02-23</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://www.yamashitamana.to/creatives/illustration/pwcg6ne2-g" />
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.yamashitamana.to/creatives/illustration/pwcg6ne2-g" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.yamashitamana.to/creatives/illustration/pwcg6ne2-g" />
+        <image:image>
+            <image:loc>https://images.microcms-assets.io/assets/d54b2cb61c0a4ed4b40dbd8096a9d0d8/aa64c63e8ddd4c34bbb9925134c4d261/pixiv.webp</image:loc>
+            <image:caption>Pixiv</image:caption>
+            <image:title>Pixiv</image:title>
+        </image:image>
+    </url>
+    <url>
+        <loc>https://www.yamashitamana.to/creatives/video/qt00hytsrjl</loc>
+        <lastmod>2026-02-23</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://www.yamashitamana.to/creatives/video/qt00hytsrjl" />
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.yamashitamana.to/creatives/video/qt00hytsrjl" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.yamashitamana.to/creatives/video/qt00hytsrjl" />
+        <image:image>
+            <image:loc>https://images.microcms-assets.io/assets/d54b2cb61c0a4ed4b40dbd8096a9d0d8/5314b409193a4009b74c45076f1f786c/youtube-tcudc.webp</image:loc>
+            <image:caption>TCU-DC(サークル)のYouTubeチャンネル</image:caption>
+            <image:title>TCU-DC(サークル)のYouTubeチャンネル</image:title>
+        </image:image>
+    </url>
+    <url>
+        <loc>https://www.yamashitamana.to/creatives/video/5yxxl5_wh8t</loc>
+        <lastmod>2026-02-23</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="ja" href="https://www.yamashitamana.to/creatives/video/5yxxl5_wh8t" />
+        <xhtml:link rel="alternate" hreflang="en" href="https://www.yamashitamana.to/creatives/video/5yxxl5_wh8t" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://www.yamashitamana.to/creatives/video/5yxxl5_wh8t" />
+        <image:image>
+            <image:loc>https://images.microcms-assets.io/assets/d54b2cb61c0a4ed4b40dbd8096a9d0d8/a0eda9c90208466cb9893893e4f10be0/youtube-manapuraza.webp</image:loc>
+            <image:caption>個人Youtubeチャンネル2</image:caption>
+            <image:title>個人Youtubeチャンネル2</image:title>
+        </image:image>
     </url>
 </urlset>

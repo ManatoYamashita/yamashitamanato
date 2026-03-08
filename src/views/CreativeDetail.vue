@@ -386,11 +386,107 @@ useHead({
         creative.value ? creative.value.thumbnail : 'https://www.yamashitamana.to/ogp.webp'
       ),
     },
+    {
+      property: 'og:type',
+      content: 'article',
+    },
+    {
+      property: 'og:image:alt',
+      content: computed(() =>
+        creative.value ? t(creative.value.title) : 'yamashitamana.to'
+      ),
+    },
+    {
+      name: 'twitter:card',
+      content: 'summary_large_image',
+    },
+    {
+      name: 'twitter:title',
+      content: computed(() =>
+        creative.value
+          ? `${t(creative.value.title)} | yamashitamana.to`
+          : 'Not Found | yamashitamana.to'
+      ),
+    },
+    {
+      name: 'twitter:description',
+      content: computed(() =>
+        creative.value ? t(creative.value.description) : ''
+      ),
+    },
+    {
+      name: 'twitter:image',
+      content: computed(() =>
+        creative.value ? creative.value.thumbnail : 'https://www.yamashitamana.to/ogp.webp'
+      ),
+    },
   ],
   link: [
     {
       rel: 'canonical',
       href: computed(() => `https://www.yamashitamana.to/creatives/${category.value}/${id.value}`),
+    },
+  ],
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: computed(() => {
+        if (!creative.value) return '{}';
+        const data: Record<string, unknown> = {
+          '@context': 'https://schema.org',
+          '@type': 'CreativeWork',
+          name: t(creative.value.title),
+          description: t(creative.value.description),
+          url: `https://www.yamashitamana.to/creatives/${category.value}/${id.value}`,
+          image: creative.value.thumbnail,
+          thumbnailUrl: creative.value.thumbnail,
+          creator: {
+            '@type': 'Person',
+            '@id': 'https://www.yamashitamana.to/#person',
+            name: locale.value === 'ja' ? '山下真和都' : 'Manato Yamashita',
+          },
+          genre: category.value,
+          inLanguage: locale.value,
+          isPartOf: {
+            '@type': 'CollectionPage',
+            url: 'https://www.yamashitamana.to/creatives',
+          },
+        };
+        if (detailData.value.productionYear) {
+          data.dateCreated = detailData.value.productionYear;
+        }
+        return JSON.stringify(data);
+      }),
+    },
+    {
+      type: 'application/ld+json',
+      innerHTML: computed(() => {
+        if (!creative.value) return '{}';
+        return JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Home',
+              item: 'https://www.yamashitamana.to/',
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: 'Creatives',
+              item: 'https://www.yamashitamana.to/creatives',
+            },
+            {
+              '@type': 'ListItem',
+              position: 3,
+              name: t(creative.value.title),
+              item: `https://www.yamashitamana.to/creatives/${category.value}/${id.value}`,
+            },
+          ],
+        });
+      }),
     },
   ],
 });

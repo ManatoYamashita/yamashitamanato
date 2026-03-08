@@ -15,7 +15,7 @@
   "scripts": {
     "dev": "vite",
     "dev:netlify": "netlify dev",
-    "build": "vue-tsc --noEmit && vite build",
+    "build": "vue-tsc --noEmit && vite build && tsx scripts/generate-sitemap.ts",
     "preview": "vite preview",
     "preview:netlify": "netlify build && netlify serve",
     "analyze": "vite build --mode=analyze",

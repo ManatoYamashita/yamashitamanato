@@ -243,7 +243,7 @@ const styleObject = computed<CSSProperties>(() => {
 .app {
   min-width: 85vw;
   max-width: 1280px;
-  max-height: 77vh;
+  max-height: 82vh; /* デスクトップ */
   margin: 0 auto;
   padding: 0.5rem;
   border-radius: 10px;
@@ -408,8 +408,9 @@ const styleObject = computed<CSSProperties>(() => {
     width: min(85vw, 400px);
   }
   .app {
-    margin: 0;
+    margin: .5rem 0;
     width: 100%;
+    max-height: 77vh;
   }
 
   /* SP用プログレスバー */
@@ -498,6 +499,9 @@ const styleObject = computed<CSSProperties>(() => {
 
 /* Tablet: 541px - 768px - メニューリンク一行 + 言語ボタン中央配置 */
 @media screen and (max-width: 768px) and (min-width: 541px) {
+  .app {
+    max-height: 77vh;
+  }
   .home-nav-links {
     top: 56%;
     flex-wrap: wrap; /* 二段表示（言語ボタンのみ） */

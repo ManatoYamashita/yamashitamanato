@@ -286,7 +286,6 @@ onErrorCaptured(() => {
 }
 
 .logo-img {
-  width: 100%;
   height: auto; /* アスペクト比維持 */
   max-width: 100%;
   object-fit: contain; /* 縦横比維持しながらコンテナに収める */

@@ -17,17 +17,15 @@ export function useIntroAnimation(options: UseIntroAnimationOptions) {
   const prefersReducedMotion = (): boolean =>
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const playRevealStagger = (gsap: typeof import('gsap').gsap): void => {
-    const targets: Element[] = [];
-
-    if (options.centerLogoRef.value) {
-      targets.push(options.centerLogoRef.value);
+  const playRevealStagger = (
+    gsap: typeof import('gsap').gsap,
+    targets: Element[],
+    onDone?: () => void,
+  ): void => {
+    if (targets.length === 0) {
+      onDone?.();
+      return;
     }
-    if (options.homeNavRef.value) {
-      targets.push(...Array.from(options.homeNavRef.value.children));
-    }
-
-    if (targets.length === 0) return;
 
     // CSS transition を無効化してGSAPとの競合を防止
     targets.forEach((el) => {
@@ -48,7 +46,7 @@ export function useIntroAnimation(options: UseIntroAnimationOptions) {
           targets.forEach((el) => {
             (el as HTMLElement).style.transition = '';
           });
-          revealComplete.value = true;
+          onDone?.();
         },
       },
     );
@@ -74,10 +72,10 @@ export function useIntroAnimation(options: UseIntroAnimationOptions) {
     const tl = gsap.timeline({
       onComplete: () => {
         showSplash.value = false;
-        introComplete.value = true;
-
-        void nextTick().then(() => {
-          playRevealStagger(gsap);
+        // ロゴのリビールはスライドアウト完了後（元のタイミング）
+        const logoTargets = options.centerLogoRef.value ? [options.centerLogoRef.value] : [];
+        playRevealStagger(gsap, logoTargets, () => {
+          revealComplete.value = true;
         });
       },
     });
@@ -99,7 +97,21 @@ export function useIntroAnimation(options: UseIntroAnimationOptions) {
       yPercent: -100,
       duration: 0.7,
       ease: 'power3.inOut',
-    });
+    })
+    // スライドアウト開始と同時にナビのみ先行リビール（ロゴは元タイミング維持）
+    .call(() => {
+      // v-show解除時の一瞬のopacity:1表示を防ぐため、事前に初期状態を焼き付ける
+      if (options.homeNavRef.value) {
+        gsap.set(Array.from(options.homeNavRef.value.children), { opacity: 0, y: -30 });
+      }
+      introComplete.value = true;
+      void nextTick().then(() => {
+        const navTargets = options.homeNavRef.value
+          ? Array.from(options.homeNavRef.value.children)
+          : [];
+        playRevealStagger(gsap, navTargets);
+      });
+    }, [], '<');
   };
 
   // 初期化（onMounted から呼ぶ）

@@ -168,4 +168,12 @@ p {
   /* 2026年 */
   margin-bottom: 1rem;
 }
+
+@media (max-width: 540px) {
+  #history {
+    transform: scale(0.75);
+    transform-origin: top center;
+  }
+}
+
 </style>

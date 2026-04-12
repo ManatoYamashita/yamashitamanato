@@ -17,7 +17,7 @@
 
     "about": {
       "ym": "Yamashita Manato",
-      "passage": "I'm Manato Yamashita.\nStudying computer science at the Department of Informatics, at Tokyo City University.\n\nMy hobbies are create digital contents (ex: illustration, animation, web and so on...) and reading.\nMy favorite writer is Sayaka Murata!\n\nThis site is for my portfolio named yamashitamana.to from Manato (my name) + Tamaplaza (the station near my living).\n\nI love all of creative activities! And banana.",
+      "passage": "Hi, I'm Manato Yamashita!\nI work as an engineer, while also active as a food influencer eating sponsored meals every day.\nI've been creating digital content (illustration, animation, web design, video editing, and more) and exploring cafés around Tokyo as hobbies for over 10 years.\nMy favorite writer is Sayaka Murata!\nI love all creative activities! And bananas too 🍌",
       "name": "Name",
       "name-co": "Manato Yamashita",
       "sex": "Sex / Gender",
@@ -27,11 +27,13 @@
       "country": "Country",
       "country-co": "Japan",
       "live": "Live-in",
-      "live-co": "Kanagawa | Tokyo | Kumamoto",
-      "study": "studying",
-      "study-co": "Tokyo City University, Department of Informatics / System Engineering",
-      "research": "Research",
-      "research-co": "Information Security",
+      "live-co": "Meguro-ku, Tokyo",
+      "job": "Job",
+      "job-co": "Engineer (Frontend / Backend)",
+      "music": "Favorite Music",
+      "music-co": "Newjeans, Illit, Shoji Meguro, Hidekazu Tanaka, etc.",
+      "movie": "Favorite Movies",
+      "movie-co": "Fight Club, The Matrix",
       "like": "Like",
       "like-co": "Banana",
       "reading": "Manato Yamashita",
@@ -60,20 +62,20 @@
       "23-de": "2023 ~ 2026, Kawasaki / Japan",
       "25": "Joined MONO-X as a New Graduate Engineer",
       "25-de": "2025~2026, Tokyo / Minato-ku, Roppongi Hills",
-      "26": "Transferred to kozokaAI inc",
-      "26-de": "2026~, Tokyo / Shibuya-ku, Shibuya"
+      "26": "Transferred to a AI company / Live in Nakameguro, Meguro-ku, Tokyo",
+      "26-de": "2026~, Tokyo / Shibuya-ku, Meguro-ku, Japan"
     },
 
     "creatives": {
         "common": {
-            "viewProject": "View Work",
+            "viewProject": "View Projects",
             "github": "GitHub",
             "backToList": "Back to List",
-            "productionYear": "Production Year",
+            "productionYear": "Year",
             "tags": "Tags",
             "video": "Video",
             "credits": "Credits",
-            "notFound": "Creative not found"
+            "notFound": "Projects not found"
         },
         "filters": {
             "toolbar": "Category filter",

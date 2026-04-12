@@ -7,10 +7,10 @@
           <th>{{ t(item.label) }}</th>
           <td>
             <a v-if="item.hasLink" :href="item.linkHref" target="_blank" class="profile-link">
-              {{ item.content }}
+              {{ t(item.contentKey) }}
               <font-awesome-icon :icon="faArrowUpRightFromSquare" />
             </a>
-            <span v-else v-html="item.content"></span>
+            <span v-else v-html="item.contentKey === 'about.like-co' ? `${t(item.contentKey)} &#x1F34C;` : t(item.contentKey)"></span>
           </td>
         </tr>
       </tbody>
@@ -28,49 +28,15 @@ const { t } = useI18n();
 
 // 表示するインフォメーション項目を定義
 const infomationItems = [
-  {
-    label: 'about.name',
-    content: t('about.name-co'),
-    hasLink: true,
-    linkHref: 'https://bento.me/ym/',
-  },
-  {
-    label: 'about.sex',
-    content: t('about.sex-co'),
-    hasLink: false,
-  },
-  {
-    label: 'about.birth',
-    content: t('about.birth-co'),
-    hasLink: false,
-  },
-  {
-    label: 'about.country',
-    content: t('about.country-co'),
-    hasLink: false,
-  },
-  {
-    label: 'about.live',
-    content: t('about.live-co'),
-    hasLink: false,
-  },
-  {
-    label: 'about.study',
-    content: t('about.study-co'),
-    hasLink: true,
-    linkHref: 'https://informatics.tcu.ac.jp/',
-  },
-  {
-    label: 'about.research',
-    content: t('about.research-co'),
-    hasLink: true,
-    linkHref: 'https://www.comm.tcu.ac.jp/seki_lab/',
-  },
-  {
-    label: 'about.like',
-    content: `${t('about.like-co')} &#x1F34C;`,
-    hasLink: false,
-  },
+  { label: 'about.name', contentKey: 'about.name-co', hasLink: true, linkHref: 'https://bento.me/ym/' },
+  { label: 'about.sex', contentKey: 'about.sex-co', hasLink: false },
+  { label: 'about.birth', contentKey: 'about.birth-co', hasLink: false },
+  { label: 'about.country', contentKey: 'about.country-co', hasLink: false },
+  { label: 'about.live', contentKey: 'about.live-co', hasLink: false },
+  { label: 'about.job', contentKey: 'about.job-co', hasLink: false },
+  { label: 'about.music', contentKey: 'about.music-co', hasLink: false },
+  { label: 'about.movie', contentKey: 'about.movie-co', hasLink: false },
+  { label: 'about.like', contentKey: 'about.like-co', hasLink: false },
 ];
 
 // テーブル行の参照を格納する配列

@@ -1,5 +1,37 @@
 <template>
-  <div v-if="creative" class="creative-detail">
+  <!-- スケルトン表示 -->
+  <div v-if="isLoading && !creative" class="creative-detail creative-detail--skeleton">
+    <SkeletonBase width="8rem" height="1rem" border-radius="0.25rem" />
+
+    <div id="main-contents">
+      <SkeletonBase width="60%" height="2rem" border-radius="0.25rem" style="margin: 1.5rem 0 1rem" />
+
+      <div class="skeleton-tags-row">
+        <SkeletonBase width="4rem" height="1.8rem" :rounded="true" />
+        <SkeletonBase width="5rem" height="1.8rem" :rounded="true" />
+        <SkeletonBase width="3.5rem" height="1.8rem" :rounded="true" />
+      </div>
+
+      <div class="content-wrapper">
+        <div class="left-column">
+          <SkeletonBase aspect-ratio="16/9" border-radius="0.5rem" />
+        </div>
+        <div class="right-column">
+          <SkeletonBase width="100%" height="1rem" style="margin-bottom: 0.8rem" />
+          <SkeletonBase width="95%" height="1rem" style="margin-bottom: 0.8rem" />
+          <SkeletonBase width="88%" height="1rem" style="margin-bottom: 0.8rem" />
+          <SkeletonBase width="70%" height="1rem" style="margin-bottom: 1.5rem" />
+          <SkeletonBase width="40%" height="0.95rem" />
+        </div>
+      </div>
+    </div>
+
+    <div class="cta-section">
+      <SkeletonBase width="200px" height="3rem" border-radius="2rem" />
+    </div>
+  </div>
+
+  <div v-else-if="creative" class="creative-detail">
     <!-- 戻るボタン -->
     <router-link to="/creatives" class="back-link">
       <font-awesome-icon :icon="faArrowLeft" />
@@ -127,7 +159,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onBeforeUnmount, type Ref } from 'vue';
+import { computed, ref, watch, nextTick, onMounted, onBeforeUnmount, type Ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useHead } from '@vueuse/head';
@@ -136,6 +168,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faArrowLeft, faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import { useCreativesAPI, getOptimizedImageUrl } from '@/composables/useCreativesAPI';
 import Btn from '@/components/Btn.vue';
+import SkeletonBase from '@/components/SkeletonBase.vue';
 import type { Locale, CreativeDetail, CtaButton } from '@/types';
 
 const route = useRoute();
@@ -146,7 +179,7 @@ const category = computed<string>(() => route.params.category as string);
 const id = computed<string>(() => route.params.id as string);
 
 // microCMS APIから作品データを取得
-const { getCreativeById, fetchCreatives } = useCreativesAPI();
+const { getCreativeById, fetchCreatives, isLoading } = useCreativesAPI();
 const creative = computed(() => getCreativeById(id.value, locale.value as 'ja' | 'en').value);
 
 // データ取得
@@ -230,73 +263,81 @@ const handleMediaQueryChange = (e: MediaQueryListEvent): void => {
   isDesktop.value = e.matches;
 };
 
-onMounted(async () => {
-  try {
-    mediaQueryList = window.matchMedia('(min-width: 968px)');
-    isDesktop.value = mediaQueryList.matches;
-    mediaQueryList.addEventListener('change', handleMediaQueryChange);
-
-    // GSAP アニメーション（Contact.vueパターン踏襲）
-    const { gsap } = await import('gsap');
-
-    tl = gsap.timeline();
-
-    // 1. 戻るボタン（最優先で表示）
-    tl.fromTo(
-      '.back-link',
-      { x: -20, opacity: 0 },
-      { x: 0, opacity: 1, duration: 0.4, ease: 'power2.out' }
-    );
-
-    // 2. タイトル
-    tl.fromTo(
-      '.creative-title',
-      { y: 15, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out' },
-      '-=0.2'
-    );
-
-    // 3. タグ
-    tl.fromTo(
-      '.creative-tags',
-      { y: 10, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out' },
-      '-=0.25'
-    );
-
-    // 4. 左カラム（画像ギャラリー）
-    tl.fromTo(
-      '.left-column',
-      { x: -30, opacity: 0 },
-      { x: 0, opacity: 1, duration: 0.5, ease: 'power2.out' },
-      '-=0.2'
-    );
-
-    // 5. 右カラム（説明文・メタ情報）
-    tl.fromTo(
-      '.right-column > *',
-      { y: 15, opacity: 0 },
-      {
-        y: 0,
-        opacity: 1,
-        duration: 0.45,
-        stagger: 0.06,
-        ease: 'power2.out',
-      },
-      '-=0.3'
-    );
-
-    // 6. CTAセクション（固定位置）
-    tl.fromTo(
-      '.cta-section',
-      { y: 20, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out' },
-      '-=0.2'
-    );
-  } catch (error) {
-    console.error('Animation or media query error:', error);
-  }
+onMounted(() => {
+  mediaQueryList = window.matchMedia('(min-width: 968px)');
+  isDesktop.value = mediaQueryList.matches;
+  mediaQueryList.addEventListener('change', handleMediaQueryChange);
 });
+
+// creativeデータが利用可能になった時にGSAPアニメーション開始
+watch(
+  () => creative.value,
+  async (val) => {
+    if (val && !tl) {
+      await nextTick();
+      try {
+        const { gsap } = await import('gsap');
+
+        tl = gsap.timeline();
+
+        // 1. 戻るボタン（最優先で表示）
+        tl.fromTo(
+          '.back-link',
+          { x: -20, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.4, ease: 'power2.out' }
+        );
+
+        // 2. タイトル
+        tl.fromTo(
+          '.creative-title',
+          { y: 15, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out' },
+          '-=0.2'
+        );
+
+        // 3. タグ
+        tl.fromTo(
+          '.creative-tags',
+          { y: 10, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out' },
+          '-=0.25'
+        );
+
+        // 4. 左カラム（画像ギャラリー）
+        tl.fromTo(
+          '.left-column',
+          { x: -30, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.5, ease: 'power2.out' },
+          '-=0.2'
+        );
+
+        // 5. 右カラム（説明文・メタ情報）
+        tl.fromTo(
+          '.right-column > *',
+          { y: 15, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.45,
+            stagger: 0.06,
+            ease: 'power2.out',
+          },
+          '-=0.3'
+        );
+
+        // 6. CTAセクション（固定位置）
+        tl.fromTo(
+          '.cta-section',
+          { y: 20, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out' },
+          '-=0.2'
+        );
+      } catch (error) {
+        console.error('Animation error:', error);
+      }
+    }
+  }
+);
 
 onBeforeUnmount(() => {
   tl?.kill();
@@ -501,6 +542,12 @@ useHead({
   color: var(--color-text, #111);
   display: flex;
   flex-direction: column;
+}
+
+.skeleton-tags-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
 }
 
 #main-contents {

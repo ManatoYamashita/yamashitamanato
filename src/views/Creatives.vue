@@ -8,7 +8,14 @@
         <section v-if="activeFilter === 'all' || activeFilter === 'animation'" id="animation">
           <h2>Animation</h2>
           <p>{{ $t('creatives.animation.paragraph') }}</p>
-          <ul>
+          <ul v-if="isLoading && !animationCreatives.length">
+            <li v-for="n in 1" :key="`sk-anim-${n}`" class="skeleton-card">
+              <SkeletonBase aspect-ratio="16/9" border-radius="0.5rem" />
+              <SkeletonBase width="70%" height="1.2rem" border-radius="0.25rem" style="margin-top: 0.5rem" />
+              <div class="skeleton-tags"><SkeletonBase width="4rem" height="1.5rem" :rounded="true" /><SkeletonBase width="5rem" height="1.5rem" :rounded="true" /></div>
+            </li>
+          </ul>
+          <ul v-else>
             <CreativeItem
               v-for="(creative, index) in animationCreatives"
               :key="creative.id"
@@ -29,7 +36,14 @@
         <section v-if="activeFilter === 'all' || activeFilter === 'development'" id="development">
           <h2>Development</h2>
           <p>{{ $t('creatives.dev.paragraph') }}</p>
-          <ul>
+          <ul v-if="isLoading && !randomizedDevelopment.length">
+            <li v-for="n in 3" :key="`sk-dev-${n}`" class="skeleton-card">
+              <SkeletonBase aspect-ratio="16/9" border-radius="0.5rem" />
+              <SkeletonBase width="70%" height="1.2rem" border-radius="0.25rem" style="margin-top: 0.5rem" />
+              <div class="skeleton-tags"><SkeletonBase width="4rem" height="1.5rem" :rounded="true" /><SkeletonBase width="5rem" height="1.5rem" :rounded="true" /></div>
+            </li>
+          </ul>
+          <ul v-else>
             <CreativeItem
               v-for="(creative, index) in randomizedDevelopment"
               :key="creative.id"
@@ -49,7 +63,14 @@
         <section v-if="activeFilter === 'all' || activeFilter === 'illustration'" id="illustration">
           <h2>Illustration</h2>
           <p>{{ $t('creatives.illustration.paragraph') }}</p>
-          <ul>
+          <ul v-if="isLoading && !illustrationCreatives.length">
+            <li v-for="n in 1" :key="`sk-illust-${n}`" class="skeleton-card">
+              <SkeletonBase aspect-ratio="16/9" border-radius="0.5rem" />
+              <SkeletonBase width="70%" height="1.2rem" border-radius="0.25rem" style="margin-top: 0.5rem" />
+              <div class="skeleton-tags"><SkeletonBase width="4rem" height="1.5rem" :rounded="true" /><SkeletonBase width="5rem" height="1.5rem" :rounded="true" /></div>
+            </li>
+          </ul>
+          <ul v-else>
             <CreativeItem
               v-for="(creative, index) in illustrationCreatives"
               :key="creative.id"
@@ -69,7 +90,14 @@
         <section v-if="activeFilter === 'all' || activeFilter === 'video'" id="video">
           <h2>Video</h2>
           <p>{{ $t('creatives.video.paragraph') }}</p>
-          <ul>
+          <ul v-if="isLoading && !videoCreatives.length">
+            <li v-for="n in 3" :key="`sk-video-${n}`" class="skeleton-card">
+              <SkeletonBase aspect-ratio="16/9" border-radius="0.5rem" />
+              <SkeletonBase width="70%" height="1.2rem" border-radius="0.25rem" style="margin-top: 0.5rem" />
+              <div class="skeleton-tags"><SkeletonBase width="4rem" height="1.5rem" :rounded="true" /><SkeletonBase width="5rem" height="1.5rem" :rounded="true" /></div>
+            </li>
+          </ul>
+          <ul v-else>
             <CreativeItem
               v-for="(creative, index) in videoCreatives"
               :key="creative.id"
@@ -89,7 +117,14 @@
         <section v-if="activeFilter === 'all' || activeFilter === 'design'" id="design">
           <h2>Design</h2>
           <p>{{ $t('creatives.design.paragraph') }}</p>
-          <ul>
+          <ul v-if="isLoading && !designCreatives.length">
+            <li v-for="n in 3" :key="`sk-design-${n}`" class="skeleton-card">
+              <SkeletonBase aspect-ratio="16/9" border-radius="0.5rem" />
+              <SkeletonBase width="70%" height="1.2rem" border-radius="0.25rem" style="margin-top: 0.5rem" />
+              <div class="skeleton-tags"><SkeletonBase width="4rem" height="1.5rem" :rounded="true" /><SkeletonBase width="5rem" height="1.5rem" :rounded="true" /></div>
+            </li>
+          </ul>
+          <ul v-else>
             <CreativeItem
               v-for="(creative, index) in designCreatives"
               :key="creative.id"
@@ -126,6 +161,7 @@
 <script setup lang="ts">
 import CreativeItem from '@/components/CreativeItem.vue';
 import CreativesHero from '@/components/CreativesHero.vue';
+import SkeletonBase from '@/components/SkeletonBase.vue';
 import { useCreativesAPI } from '@/composables/useCreativesAPI';
 import { computed, ref, watch, nextTick, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -135,7 +171,7 @@ import type { Locale, CreativeCategory, CMSCreative } from '@/types';
 const { locale } = useI18n<{ message: string }, Locale>();
 
 // microCMS API統合
-const { fetchCreatives, getCreativesByCategory } = useCreativesAPI();
+const { fetchCreatives, getCreativesByCategory, isLoading } = useCreativesAPI();
 
 // 各カテゴリの作品を取得
 const animationCreatives = computed(
@@ -415,6 +451,14 @@ ul {
 }
 li {
   list-style: none;
+}
+.skeleton-card {
+  margin: 1rem 0;
+}
+.skeleton-tags {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
 }
 a {
   text-decoration: none;

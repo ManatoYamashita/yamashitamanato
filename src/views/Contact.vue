@@ -195,7 +195,7 @@ onUnmounted(() => {
             <p>{{ t('contact.email.description') }}</p>
             <a href="mailto:g2172117@tcu.ac.jp" class="contact-link">
               <span class="email-address"
-                >info<span class="at-symbol">[at]</span>yamashitamana.to</span
+                >mail<span class="at-symbol">[at]</span>yamashitamana.to</span
               >
               <span class="email-note">（[at]の部分を<mark>@</mark>と読み替えてください。）</span>
             </a>
@@ -218,6 +218,7 @@ onUnmounted(() => {
 <style lang="css" scoped>
 main.contact {
   width: 100%;
+  max-width: 1024px;
   margin: 0 auto;
   padding: 1rem;
   pointer-events: all;

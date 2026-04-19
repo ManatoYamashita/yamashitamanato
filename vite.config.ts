@@ -4,8 +4,23 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { visualizer } from 'rollup-plugin-visualizer'
 
+// vite-ssg 設定
+// 静的ルート（Home/About/Creatives/Contact）のみプリレンダリング対象。
+// 動的ルート `/creatives/:category/:id` および 404 キャッチオールは
+// 引き続きクライアントサイドレンダリングのフォールバック扱い。
+const ssgOptions = {
+  script: 'async' as const,
+  formatting: 'minify' as const,
+  includedRoutes(paths: string[]): string[] {
+    const STATIC_ROUTES = ['/', '/about', '/creatives', '/contact'];
+    return paths.filter((p) => STATIC_ROUTES.includes(p));
+  },
+};
+
 // https://vitejs.dev/config/
 export default defineConfig({
+  // @ts-expect-error vite-ssg がdefineConfigの型を拡張しないためキャストで対応
+  ssgOptions,
   plugins: [
     vue(),
     visualizer(),

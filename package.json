@@ -15,7 +15,7 @@
   "scripts": {
     "dev": "vite",
     "dev:netlify": "netlify dev",
-    "build": "vue-tsc --noEmit && vite build && tsx scripts/generate-sitemap.ts",
+    "build": "vue-tsc --noEmit && vite-ssg build && tsx scripts/generate-sitemap.ts",
     "preview": "vite preview",
     "preview:netlify": "netlify build && netlify serve",
     "analyze": "vite build --mode=analyze",
@@ -64,6 +64,7 @@
     "tsx": "^4.21.0",
     "typescript": "^5.3.3",
     "vite": "^6.2.3",
+    "vite-ssg": "^28.3.0",
     "vue-template-compiler": "^0.1.0",
     "vue-tsc": "^3.2.2"
   }

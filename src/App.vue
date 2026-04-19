@@ -146,8 +146,11 @@ const updateHomePageState = (): void => {
 };
 
 // <html lang> を locale と同期（WCAG 3.1.1対応）
+// SSG段階では document 不在のためクライアントのみで実行
 watch(locale, (newLocale) => {
-  document.documentElement.lang = newLocale;
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = newLocale;
+  }
 }, { immediate: true });
 
 watch(route, () => {

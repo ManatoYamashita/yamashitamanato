@@ -62,7 +62,11 @@ import Cta from '@/components/Cta.vue';
 const { t, locale } = useI18n<{ message: string }, Locale>();
 
 // 画像パスの配列
-const imageOptions = ['/山下真和都(マナト).webp', '/山下真和都(マナト)2.webp'];
+const imageOptions = [
+  '/山下真和都(マナト).webp',
+  '/山下真和都(マナト)2.webp',
+  '/山下真和都(マナト)3.webp',
+];
 
 // ランダムに画像を選択
 const imageSrc = imageOptions[Math.floor(Math.random() * imageOptions.length)];

@@ -34,8 +34,13 @@ async function fetchMicroCMS<T>(
   endpoint: string,
   params?: Record<string, string | number>
 ): Promise<T> {
-  // Netlify Functionプロキシを経由
-  const url = new URL(PROXY_ENDPOINT, window.location.origin);
+  // Netlify Functionプロキシを経由。
+  // データ取得は各ビューの onMounted（クライアント専用）からのみ発火するため、
+  // SSG/SSRプリレンダ段階でこの関数が呼ばれることは無い。下記の本番originフォールバックは
+  // 万一サーバ側で評価された場合に new URL() が throw しないための防御的措置。
+  const origin =
+    typeof window !== 'undefined' ? window.location.origin : 'https://www.yamashitamana.to';
+  const url = new URL(PROXY_ENDPOINT, origin);
   url.searchParams.append('endpoint', endpoint);
 
   // クエリパラメータを追加
@@ -61,6 +66,7 @@ async function fetchMicroCMS<T>(
  * LocalStorageキャッシュ管理
  */
 function getCachedData<T>(key: string): T | null {
+  if (typeof window === 'undefined') return null;
   try {
     const cached = localStorage.getItem(key);
     const timestamp = localStorage.getItem(`${key}${CACHE_KEYS.TIMESTAMP}`);
@@ -85,6 +91,7 @@ function getCachedData<T>(key: string): T | null {
 }
 
 function setCachedData<T>(key: string, data: T): void {
+  if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(key, JSON.stringify(data));
     localStorage.setItem(`${key}${CACHE_KEYS.TIMESTAMP}`, Date.now().toString());

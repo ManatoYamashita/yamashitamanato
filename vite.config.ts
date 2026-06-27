@@ -17,9 +17,16 @@ const ssgOptions = {
   },
 };
 
+// vite-ssg は Vite の UserConfig を型拡張しないため、ssgOptions を正規プロパティとして
+// 認識させるためにモジュール拡張する（@ts-expect-error の脆い抑止を避ける）。
+declare module 'vite' {
+  interface UserConfig {
+    ssgOptions?: typeof ssgOptions;
+  }
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
-  // @ts-expect-error vite-ssg がdefineConfigの型を拡張しないためキャストで対応
   ssgOptions,
   plugins: [
     vue(),

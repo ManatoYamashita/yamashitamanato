@@ -87,7 +87,10 @@ import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
-const isHomePage = ref<boolean>(true);
+// SSG/SSRプリレンダ段階では onMounted が走らないため、route から同期初期化する。
+// これを怠ると非ホームの静的ページが「ホーム扱い」でプリレンダされ、本文が
+// 不可視コンテナ（appStyles）に包まれ、ホームのsr-only H1が混入する。
+const isHomePage = ref<boolean>(route.name === 'home');
 
 // テンプレート ref（vue-tsc がテンプレート参照を追跡するためコンポーネント側で宣言）
 const splashOverlayRef = ref<HTMLDivElement | null>(null);

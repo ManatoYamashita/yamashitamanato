@@ -39,6 +39,3 @@
 
 [build.environment]
   NODE_VERSION = "22.22.0"
-  # vite-ssg@28 が @unhead/vue@2 を要求する一方、@vueuse/head@2 は @unhead/vue@1 に依存しており
-  # npm@10 の strict peer deps で install が失敗するため legacy peer deps モードを有効化
-  NPM_FLAGS = "--legacy-peer-deps"

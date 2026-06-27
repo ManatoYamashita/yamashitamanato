@@ -165,7 +165,7 @@ import SkeletonBase from '@/components/SkeletonBase.vue';
 import { useCreativesAPI } from '@/composables/useCreativesAPI';
 import { computed, ref, watch, nextTick, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useHead } from '@vueuse/head';
+import { useHead } from '@unhead/vue';
 import type { Locale, CreativeCategory, CMSCreative } from '@/types';
 
 const { locale } = useI18n<{ message: string }, Locale>();

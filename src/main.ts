@@ -54,17 +54,15 @@ export const createApp = ViteSSG(
           | undefined;
         if (conn && (conn.effectiveType === 'slow-2g' || conn.effectiveType === '2g')) return;
 
-        const [{ createApp: createMetaBallApp }, { default: MetaBall }, { createHead }] =
-          await Promise.all([
-            import('vue'),
-            import('@/components/MetaBall.vue'),
-            import('@vueuse/head'),
-          ]);
+        const [{ createApp: createMetaBallApp }, { default: MetaBall }] = await Promise.all([
+          import('vue'),
+          import('@/components/MetaBall.vue'),
+        ]);
 
+        // MetaBall は useHead を使わないため head プラグインは不要。
         const metaball = createMetaBallApp(MetaBall);
         metaball.use(router);
         metaball.use(i18n);
-        metaball.use(createHead());
         metaball.mount('#back');
       });
 

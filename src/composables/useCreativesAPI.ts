@@ -34,8 +34,10 @@ async function fetchMicroCMS<T>(
   endpoint: string,
   params?: Record<string, string | number>
 ): Promise<T> {
-  // Netlify Functionプロキシを経由
-  // SSR環境ではwindow未定義のため、絶対URLのベースをフォールバックで使用
+  // Netlify Functionプロキシを経由。
+  // データ取得は各ビューの onMounted（クライアント専用）からのみ発火するため、
+  // SSG/SSRプリレンダ段階でこの関数が呼ばれることは無い。下記の本番originフォールバックは
+  // 万一サーバ側で評価された場合に new URL() が throw しないための防御的措置。
   const origin =
     typeof window !== 'undefined' ? window.location.origin : 'https://www.yamashitamana.to';
   const url = new URL(PROXY_ENDPOINT, origin);

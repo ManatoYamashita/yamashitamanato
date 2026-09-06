@@ -151,5 +151,4 @@ useHead({
   margin: 0 auto;
   pointer-events: all;
 }
-
 </style>

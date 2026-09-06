@@ -2,8 +2,15 @@
   <div id="main">
     <!-- スプラッシュオーバーレイ -->
     <div v-if="showSplash" ref="splashOverlayRef" class="splash-overlay" aria-hidden="true">
-      <img ref="splashLogoRef" :src="logoSvg" alt="" class="splash-logo"
-           width="800" height="200" draggable="false" />
+      <img
+        ref="splashLogoRef"
+        :src="logoSvg"
+        alt=""
+        class="splash-logo"
+        width="800"
+        height="200"
+        draggable="false"
+      />
     </div>
 
     <!-- ナビゲーション視覚フィードバック用プログレスバー -->
@@ -114,23 +121,12 @@ const homeNavRef = ref<HTMLElement | null>(null);
 const langDropdownHome = ref<InstanceType<typeof LanguageDropdown> | null>(null);
 
 // 言語切替 composable
-const {
-  locale,
-  languages,
-  isDropdownOpen,
-  currentLanguageLabel,
-  toggleDropdown,
-  selectLanguage,
-} = useLanguageSwitcher(() => [langDropdownHome.value?.rootRef ?? null]);
+const { locale, languages, isDropdownOpen, currentLanguageLabel, toggleDropdown, selectLanguage } =
+  useLanguageSwitcher(() => [langDropdownHome.value?.rootRef ?? null]);
 
 // イントロアニメーション composable
-const {
-  showSplash,
-  introComplete,
-  revealComplete,
-  initAnimation,
-  skipIntroIfNeeded,
-} = useIntroAnimation({ isHomePage, splashOverlayRef, splashLogoRef, centerLogoRef, homeNavRef });
+const { showSplash, introComplete, revealComplete, initAnimation, skipIntroIfNeeded } =
+  useIntroAnimation({ isHomePage, splashOverlayRef, splashLogoRef, centerLogoRef, homeNavRef });
 
 const checkRouterReady = async (): Promise<void> => {
   await router.isReady();
@@ -284,7 +280,10 @@ const styleObject = computed<CSSProperties>(() => {
   margin: 0 auto;
   padding: 0.5rem;
   border-radius: 10px;
-  transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out, transform 0.5s ease-in-out;
+  transition:
+    opacity 0.5s ease-in-out,
+    visibility 0.5s ease-in-out,
+    transform 0.5s ease-in-out;
   will-change: opacity, transform;
   overflow-y: auto;
   scrollbar-width: thin;
@@ -445,7 +444,7 @@ const styleObject = computed<CSSProperties>(() => {
     width: min(85vw, 400px);
   }
   .app {
-    margin: .5rem 0;
+    margin: 0.5rem 0;
     width: 100%;
     max-height: 77vh;
   }

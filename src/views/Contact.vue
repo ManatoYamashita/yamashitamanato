@@ -170,7 +170,7 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  tweens.forEach(t => t.kill());
+  tweens.forEach((t) => t.kill());
   tweens = [];
 });
 </script>

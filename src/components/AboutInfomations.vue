@@ -10,7 +10,14 @@
               {{ t(item.contentKey) }}
               <font-awesome-icon :icon="faArrowUpRightFromSquare" />
             </a>
-            <span v-else v-html="item.contentKey === 'about.like-co' ? `${t(item.contentKey)} &#x1F34C;` : t(item.contentKey)"></span>
+            <span
+              v-else
+              v-html="
+                item.contentKey === 'about.like-co'
+                  ? `${t(item.contentKey)} &#x1F34C;`
+                  : t(item.contentKey)
+              "
+            ></span>
           </td>
         </tr>
       </tbody>
@@ -28,7 +35,12 @@ const { t } = useI18n();
 
 // 表示するインフォメーション項目を定義
 const infomationItems = [
-  { label: 'about.name', contentKey: 'about.name-co', hasLink: true, linkHref: 'https://bento.me/ym/' },
+  {
+    label: 'about.name',
+    contentKey: 'about.name-co',
+    hasLink: true,
+    linkHref: 'https://bento.me/ym/',
+  },
   { label: 'about.sex', contentKey: 'about.sex-co', hasLink: false },
   { label: 'about.birth', contentKey: 'about.birth-co', hasLink: false },
   { label: 'about.country', contentKey: 'about.country-co', hasLink: false },

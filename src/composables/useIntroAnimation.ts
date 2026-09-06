@@ -23,7 +23,7 @@ export function useIntroAnimation(options: UseIntroAnimationOptions) {
   const playRevealStagger = (
     gsap: typeof import('gsap').gsap,
     targets: Element[],
-    onDone?: () => void,
+    onDone?: () => void
   ): void => {
     if (targets.length === 0) {
       onDone?.();
@@ -51,7 +51,7 @@ export function useIntroAnimation(options: UseIntroAnimationOptions) {
           });
           onDone?.();
         },
-      },
+      }
     );
   };
 
@@ -104,25 +104,29 @@ export function useIntroAnimation(options: UseIntroAnimationOptions) {
       ease: 'power2.in',
       delay: 0.3,
     })
-    .to(overlayEl, {
-      yPercent: -100,
-      duration: 0.7,
-      ease: 'power3.inOut',
-    })
-    // スライドアウト開始と同時にナビのみ先行リビール（ロゴは元タイミング維持）
-    .call(() => {
-      // v-show解除時の一瞬のopacity:1表示を防ぐため、事前に初期状態を焼き付ける
-      if (options.homeNavRef.value) {
-        gsap.set(Array.from(options.homeNavRef.value.children), { opacity: 0, y: -30 });
-      }
-      introComplete.value = true;
-      void nextTick().then(() => {
-        const navTargets = options.homeNavRef.value
-          ? Array.from(options.homeNavRef.value.children)
-          : [];
-        playRevealStagger(gsap, navTargets);
-      });
-    }, [], '<');
+      .to(overlayEl, {
+        yPercent: -100,
+        duration: 0.7,
+        ease: 'power3.inOut',
+      })
+      // スライドアウト開始と同時にナビのみ先行リビール（ロゴは元タイミング維持）
+      .call(
+        () => {
+          // v-show解除時の一瞬のopacity:1表示を防ぐため、事前に初期状態を焼き付ける
+          if (options.homeNavRef.value) {
+            gsap.set(Array.from(options.homeNavRef.value.children), { opacity: 0, y: -30 });
+          }
+          introComplete.value = true;
+          void nextTick().then(() => {
+            const navTargets = options.homeNavRef.value
+              ? Array.from(options.homeNavRef.value.children)
+              : [];
+            playRevealStagger(gsap, navTargets);
+          });
+        },
+        [],
+        '<'
+      );
   };
 
   // 初期化（onMounted から呼ぶ）

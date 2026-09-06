@@ -306,7 +306,7 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   // GSAP tweenのクリーンアップ（メモリリーク防止）
-  tweens.forEach(t => t.kill());
+  tweens.forEach((t) => t.kill());
   tweens = [];
 
   // コンポーネント破棄時にリスナーを削除

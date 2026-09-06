@@ -28,6 +28,7 @@ coverage
 ## vue
 dist/
 .vite/
+.vite-ssg-temp/
 
 stats.html
 

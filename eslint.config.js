@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { includeIgnoreFile } from '@eslint/compat';
 import js from '@eslint/js';
 import pluginVue from 'eslint-plugin-vue';
 import globals from 'globals';
@@ -5,7 +7,15 @@ import tseslint from '@typescript-eslint/eslint-plugin';
 import tsparser from '@typescript-eslint/parser';
 import vueParser from 'vue-eslint-parser';
 
+// `.gitignore` を lint 除外の単一の真実にする。ESLint の flat config は `.gitignore` を
+// 自動参照しないため、生成物ディレクトリが増えるたびに両方へ書き足す二重管理になっていた。
+// 実際 `.netlify/`（PR #70）と `.vite-ssg-temp/`（PR #72）で同じ穴を2度踏んでいる。
+const gitignorePath = fileURLToPath(new URL('.gitignore', import.meta.url));
+
 export default [
+  // Git が無視するものは lint も無視する。以後、生成物は `.gitignore` へ足すだけでよい。
+  includeIgnoreFile(gitignorePath),
+
   // JavaScript recommended rules
   js.configs.recommended,
 
@@ -143,21 +153,9 @@ export default [
 
   // Ignore patterns
   {
-    ignores: [
-      'dist/**',
-      'node_modules/**',
-      '.github/**',
-      '*.config.js',
-      'public/**',
-      // `netlify dev` / `netlify build` が生成するローカル成果物。`.gitignore` にはあるが、
-      // ESLint の flat config は `.gitignore` を自動参照しないため明示する。
-      // lint:check が `--max-warnings=0` になったあとは、これが無いと
-      // `netlify dev` を一度でも起動した開発者のローカルで 690 errors により必ず落ちる。
-      // CI はクリーンチェックアウトで `.netlify/` が存在しないため再現しない。
-      '.netlify/**',
-      // vite-ssg がプリレンダ中に作る一時ビルド出力（`.vite-ssg-temp/<random>/`）。
-      // ビルドが中断すると残り、ビルド済みJSとsourcemapを含むため lint を壊す。
-      '.vite-ssg-temp/**',
-    ],
+    // ここには **Git が追跡しているのに lint 対象外にしたいもの** だけを書く。
+    // 生成物（dist/ node_modules/ .netlify/ .vite-ssg-temp/ など）は
+    // `.gitignore` 側で一元管理されるため、ここへ重複して書かないこと。
+    ignores: ['.github/**', '*.config.js', 'public/**'],
   },
 ];

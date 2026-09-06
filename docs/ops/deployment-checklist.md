@@ -48,10 +48,13 @@ npm run preview
 
 ### 🚀 デプロイメント実行
 
-#### GitHub Actions による自動デプロイ
+#### Netlify による自動デプロイ
 - [ ] mainブランチへのプッシュが完了
-- [ ] GitHub Actions のビルドが成功
-- [ ] FTPデプロイが正常完了
+- [ ] Netlify の Deploys 画面でビルドが `Published` になっている
+
+> FTP デプロイ（`.github/workflows/deploy.yml`）は `895f3d0` で削除済み。現在の GitHub Actions は
+> `feature-ci.yml`（lint / format / build の品質チェックと feature ブランチの自動PR作成）だけで、
+> main へのプッシュでは走らない。本番デプロイは Netlify の Git 連携ビルドが担う。
 
 #### 本番環境での最終確認
 - [ ] デプロイされたサイトでMetaBallが正常動作
@@ -198,7 +201,8 @@ npx netlify deploy --prod
 - ビルドコマンド: `npm run build`
 - 公開ディレクトリ: `dist`
 - Node.js: `22.22.0`
-- SPAフォールバック: `/* → /index.html (200)`
+- SPAフォールバック: `/creatives/* → /index.html (200)`（ビルド後に microCMS へ追加された作品向け。プリレンダ済みの作品は静的ファイルが優先される）
+- 未定義パス: `/* → /404.html (404)`（以前は全パスが index.html を 200 で返し、任意のURLでホームの複製が配信されていた。Issue #8）
 - リダイレクト: `manapuraza.com` → `www.yamashitamana.to` (301)
 
 ### LobeHub Skills（エージェント用）

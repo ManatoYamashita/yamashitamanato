@@ -11,31 +11,41 @@
       <div class="progress-fill"></div>
     </div>
 
-    <!-- ホームページ用 h1（スクリーンリーダー向け） -->
-    <h1 v-if="isHomePage" class="sr-only">{{ t('home.title') }}</h1>
-
     <!-- Menu.vueをヘッダーとして統合 -->
     <header id="navbar">
       <Menu />
     </header>
 
-    <a href="https://www.yamashitamana.to" aria-current="page" class="home-logo">
-      <img
-        ref="centerLogoRef"
-        fetchpriority="high"
-        :src="logoSvg"
-        alt="ホームページに戻る"
-        width="800"
-        height="200"
-        draggable="false"
-        id="center-logo"
-        :class="className"
-        :style="styleObject"
-      />
-    </a>
+    <!-- 中央のブランドロゴ。ヘッダー（Menu.vue）に既にホームリンクがあり、
+         ここをリンクにするとホーム以外では不可視のままタブ順に残ってしまうため、
+         リンクを持たない装飾画像として扱う。 -->
+    <img
+      ref="centerLogoRef"
+      fetchpriority="high"
+      :src="logoSvg"
+      alt=""
+      width="800"
+      height="200"
+      draggable="false"
+      id="center-logo"
+      :class="className"
+      :style="styleObject"
+    />
 
-    <!-- ホームページ専用メニュー項目（中央ロゴの下） -->
-    <nav class="home-nav-links" ref="homeNavRef" v-show="isHomePage && introComplete">
+    <!-- ホームのメインランドマーク。/ ではルータービュー（.app.glass）が
+         visibility: hidden のため、そこに main を置いても支援技術へ露出しない。
+         position / transform / filter / contain は付けないこと。
+         .home-nav-links の包含ブロックを #main のまま保つ必要がある。 -->
+    <main v-if="isHomePage" class="home-main">
+      <h1 class="sr-only">{{ t('home.title') }}</h1>
+
+      <!-- ホームページ専用メニュー項目（中央ロゴの下） -->
+      <nav
+        class="home-nav-links"
+        ref="homeNavRef"
+        v-show="isHomePage && introComplete"
+        :aria-label="$t('navbar.homeLabel')"
+      >
         <RouterLink to="/about" class="home-nav-link">{{ $t('navbar.menu.about') }}</RouterLink>
         <RouterLink to="/creatives" class="home-nav-link">{{
           $t('navbar.menu.creatives')
@@ -56,6 +66,7 @@
           @close="isDropdownOpen = false"
         />
       </nav>
+    </main>
 
     <div class="app glass" :class="{ hidden: isHomePage }" :style="appStyles">
       <router-view v-slot="{ Component }" :key="$route.fullPath">
@@ -206,11 +217,6 @@ const styleObject = computed<CSSProperties>(() => {
   position: relative;
   width: 100%;
   height: 100%;
-}
-.home-logo {
-  pointer-events: all;
-  z-index: 1;
-  overflow-y: hidden;
 }
 /* スプラッシュオーバーレイ */
 .splash-overlay {

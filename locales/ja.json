@@ -7,6 +7,8 @@
     },
     "navbar": {
         "selectLanguage": "言語を選択",
+        "primaryLabel": "メインナビゲーション",
+        "homeLabel": "ホームナビゲーション",
         "menu": {
             "home": "ホーム",
             "about": "概要",
@@ -72,7 +74,10 @@
             "tags": "タグ",
             "video": "動画",
             "credits": "クレジット",
-            "notFound": "作品が見つかりません"
+            "notFound": "作品が見つかりません",
+            "categoryEmpty": "このカテゴリの作品はまだ公開されていません。",
+            "loadError": "作品を読み込めませんでした。通信環境をご確認のうえ、もう一度お試しください。",
+            "retry": "再読み込み"
         },
         "filters": {
             "toolbar": "カテゴリフィルター",

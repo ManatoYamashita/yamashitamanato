@@ -75,10 +75,10 @@ useHead({
 });
 </script>
 
-<template><main class="home"></main></template>
+<template><div class="home"></div></template>
 
 <style lang="css" scoped>
-main.home {
+.home {
   display: none;
   pointer-events: none;
   /* scroll-behavior: none; */

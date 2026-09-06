@@ -7,6 +7,8 @@
     },
     "navbar": {
       "selectLanguage": "Select Language",
+      "primaryLabel": "Main navigation",
+      "homeLabel": "Home navigation",
       "menu": {
         "home": "Home",
         "about": "About",
@@ -75,7 +77,10 @@
             "tags": "Tags",
             "video": "Video",
             "credits": "Credits",
-            "notFound": "Projects not found"
+            "notFound": "Projects not found",
+            "categoryEmpty": "No works have been published in this category yet.",
+            "loadError": "Could not load the works. Check your connection and try again.",
+            "retry": "Try again"
         },
         "filters": {
             "toolbar": "Category filter",

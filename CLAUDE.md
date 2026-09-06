@@ -390,6 +390,11 @@ build: {
 }
 ```
 
+**Enforced by lint:** `npm run lint:check` runs with `--max-warnings=0`, so a single
+`console.log` in browser-facing code fails CI. `console.warn` / `console.error` are allowed.
+Node-side build/CLI scripts (`scripts/**`, `vite.config.ts`) are exempt via an
+`eslint.config.js` override, since stdout is their actual output channel.
+
 **Manual Removal Required:**
 When adding new features, manually remove console statements from:
 - Component lifecycle hooks (`onMounted`, `watch`)

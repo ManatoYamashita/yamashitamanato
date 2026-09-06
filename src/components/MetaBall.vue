@@ -85,8 +85,6 @@ const setupCamera = (): void => {
 
   camera.value = markRaw(new PerspectiveCamera(fov, aspect, 1, 700));
   camera.value.position.set(100, 100, 400);
-
-  console.log('MetaBall: Camera initialized with Vue3 best practices');
 };
 
 // レンダラー初期化（Canvas解像度統一システム）
@@ -115,8 +113,6 @@ const setupRenderer = (): (() => void) | undefined => {
     const pixelRatio = Math.min(devicePixelRatio, 2); // 最大2xまで
     renderer.value!.setSize(width, height, false);
     renderer.value!.setPixelRatio(pixelRatio);
-
-    console.log(`MetaBall: Canvas resolution synchronized - ${width}x${height} @ ${pixelRatio}x`);
   };
 
   updateCanvasSize();
@@ -161,10 +157,6 @@ const setupMarchingCubes = async (): Promise<void> => {
     effect.value.position.set(0, 0, 0);
     effect.value.scale.set(300, 300, 300); // 統一スケール（逆補正で正円実現）
     scene.value!.add(effect.value);
-
-    console.log(
-      `MetaBall: Uniform scale MarchingCubes initialized - Resolution: ${resolution}, Scale: 300x300x300`
-    );
   } catch (error) {
     console.error('MetaBall: MarchingCubes initialization failed:', error);
   }
@@ -250,8 +242,7 @@ const handleResize = (): void => {
       const height = window.innerHeight;
       renderer.value.setSize(width, height, false);
 
-      // updateCubes()の逆補正システムが自動で正円維持
-      console.log(`MetaBall: Inverse correction maintains perfect sphere - ${width}x${height}`);
+      // MarchingCubes の再初期化は不要。updateCubes() の逆補正が毎フレーム正円を維持する。
     }
   }, 100); // 高速レスポンス（再初期化不要）
 };
@@ -297,14 +288,10 @@ const cleanupThreeJS = (): void => {
   // 参照のクリア
   camera.value = null;
   clock.value = null;
-
-  console.log('MetaBall: Cleanup completed with Vue3 best practices');
 };
 
 // 完全な初期化プロセス
 const init = async (): Promise<(() => void) | undefined> => {
-  console.log('MetaBall: Initializing with Vue3 Composition API...');
-
   // Clockの初期化
   clock.value = markRaw(new Clock());
 
@@ -323,7 +310,6 @@ const init = async (): Promise<(() => void) | undefined> => {
   const updateCanvasSize = setupRenderer();
   await setupMarchingCubes();
 
-  console.log('MetaBall: Vue3 Composition API initialization complete!');
   return updateCanvasSize;
 };
 
@@ -336,8 +322,6 @@ onMounted(async () => {
 
   // リサイズイベント登録
   window.addEventListener('resize', handleResize);
-
-  console.log('MetaBall: Vue3 Composition API fully activated!');
 });
 
 onUnmounted(() => {
@@ -346,8 +330,6 @@ onUnmounted(() => {
 
   // Three.jsリソース完全クリーンアップ
   cleanupThreeJS();
-
-  console.log('MetaBall: Vue3 Composition API cleanup complete!');
 });
 </script>
 

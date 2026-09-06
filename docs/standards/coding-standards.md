@@ -8,7 +8,11 @@
 ## コードスタイル
 - Lint/Format に従うことを前提に、可読性を重視した命名と早期 return を推奨。
 - 副作用は関数の先頭でまとめて記述し、DOM/Canvas 操作は責務を分離する。
-- ログは `console.error` を最小限に残し、デバッグログは開発時のみに限定。
+- ログは `console.error` / `console.warn` のみをブラウザ向けコードに残す。`console.log` は
+  `no-console` 警告となり、`lint:check` が `--max-warnings=0` のため CI を失敗させる。
+  ライフサイクルフックやイベントハンドラの動作確認ログは、コミット前に必ず削除する。
+- Node 側のビルド/CLI スクリプト（`scripts/**`、`vite.config.ts`）は標準出力が出力チャネル
+  そのものであるため、`no-console` を override で無効化している。
 
 ## テストと検証
 - UI・動作変更は `npm run build` / `npm run preview` を基本とし、再現手順と期待結果をドキュメント化。

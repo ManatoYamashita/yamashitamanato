@@ -103,9 +103,10 @@ on:
 > **ESLint / Prettier / ビルドのいずれかが失敗すると quality-check も失敗する。**
 > 各ステップは結果を `$GITHUB_STEP_SUMMARY` へ書き切ってから終了コードを引き継ぐため、
 > 失敗時もサマリーに原因が残る。
-> ESLint はルール重大度が `error` のもの（`no-debugger`、`no-undef`、`no-var`、
-> `vue/require-v-for-key` など）だけがジョブを落とす。`warning` はサマリーへ出力されるが
-> 失敗させないため、警告の削減は別途進める。
+> `lint:check` は `--max-warnings=0` で実行するため、`error` だけでなく **`warning` が
+> 1件でも出るとジョブが失敗する**。`no-console` などの警告を握り潰さずに解消すること。
+> Node 側のビルド/CLI スクリプト（`scripts/**`、`vite.config.ts`）は標準出力が本来の
+> 出力チャネルであるため、`eslint.config.js` の override で `no-console` を無効化している。
 
 - **ESLint チェック**
   ```bash

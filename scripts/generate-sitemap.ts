@@ -46,7 +46,7 @@ function formatDate(dateStr: string): string {
 
 // 今日の日付をISO形式で取得
 function today(): string {
-  return new Date().toISOString().split('T')[0]!;
+  return new Date().toISOString().slice(0, 10);
 }
 
 // XML特殊文字エスケープ

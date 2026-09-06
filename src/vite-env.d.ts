@@ -3,6 +3,8 @@
 // Vue SFC type declaration
 declare module '*.vue' {
   import type { DefineComponent } from 'vue';
+  // Vue 公式が案内する SFC シムの形。any を外すと任意の SFC が代入できなくなる。
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const component: DefineComponent<{}, {}, any>;
   export default component;
 }
@@ -35,6 +37,9 @@ declare module '*.svg' {
 
 // JSON imports type declaration
 declare module '*.json' {
+  // JSON の形状は import 先ごとに異なる。unknown にすると i18n の
+  // setLocaleMessage など既存の受け渡しが型エラーになるため any を許容する。
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const value: any;
   export default value;
 }

@@ -177,8 +177,6 @@ const credits = computed<ParsedCredit[]>(() => {
 
 // iframe読み込み完了ハンドラー（Vue3ベストプラクティス）
 const onIframeLoad = () => {
-  console.log('AnimationSection: YouTube iframe loaded successfully');
-
   // GSAP使用時は滑らかなフェードイン効果
   if (window.gsap) {
     window.gsap.to('.youtube-skeleton', {
@@ -207,7 +205,6 @@ const resetLoadingState = () => {
   }
 
   loadingTimeout = setTimeout(() => {
-    console.log('AnimationSection: Loading timeout - forcing iframe display');
     isVideoLoading.value = false;
   }, 10000);
 };
@@ -220,7 +217,6 @@ const handleMediaQueryChange = (e: MediaQueryListEvent): void => {
   // デバイス切り替え時は読み込み状態をリセット
   if (wasDesktop !== isDesktop.value) {
     resetLoadingState();
-    console.log(`AnimationSection: Device switched to ${isDesktop.value ? 'desktop' : 'mobile'}`);
   }
 };
 
@@ -298,8 +294,6 @@ onMounted(async () => {
 
   // GSAPアニメーションの実行
   initializeAnimations(gsap);
-
-  console.log('AnimationSection: YouTube skeleton loading system initialized');
 });
 
 onBeforeUnmount(() => {
@@ -317,8 +311,6 @@ onBeforeUnmount(() => {
     clearTimeout(loadingTimeout);
     loadingTimeout = null;
   }
-
-  console.log('AnimationSection: Cleanup completed');
 });
 </script>
 

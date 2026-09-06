@@ -149,6 +149,12 @@ export default [
       '.github/**',
       '*.config.js',
       'public/**',
+      // `netlify dev` / `netlify build` が生成するローカル成果物。`.gitignore` にはあるが、
+      // ESLint の flat config は `.gitignore` を自動参照しないため明示する。
+      // lint:check が `--max-warnings=0` になったあとは、これが無いと
+      // `netlify dev` を一度でも起動した開発者のローカルで 690 errors により必ず落ちる。
+      // CI はクリーンチェックアウトで `.netlify/` が存在しないため再現しない。
+      '.netlify/**',
     ],
   },
 ];

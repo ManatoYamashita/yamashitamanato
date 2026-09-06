@@ -276,9 +276,16 @@ home.title               — ホームページのh1テキスト
 creatives.filters.toolbar — カテゴリフィルターtoolbarのaria-label（コンテナのため可）
 creatives.filters.*       — カテゴリフィルターの.sr-only補足テキスト
 creatives.dcChanAlt       — DC-chan画像のaltテキスト
+creatives.dcChanLinkLabel — DC-chanリンクのaria-label（画像のみで可視テキストが無いため可）
 navbar.selectLanguage     — 言語切替トグルの.sr-only補足テキスト
 navbar.menu.home          — ロゴリンクの.sr-only補足テキスト（メニュー項目と共用）
+navbar.openMenu           — ハンバーガーのaria-label（閉→開。アイコンのみのため可）
+navbar.closeMenu          — ハンバーガーのaria-label（開→閉。アイコンのみのため可）
 ```
+
+**`aria-label` の値をテンプレートへ直書きしない。** アイコンのみの要素で `aria-label` を使うのは
+正しいが、値をハードコードすると `<html lang>` が英語へ切り替わっても日本語のまま読み上げられる。
+可視テキストと違って画面上で気づけないため、レビューでも見落とされやすい。必ず `$t()` を経由させること。
 
 ## reduced-motion対応コンポーネント一覧
 
@@ -293,4 +300,4 @@ navbar.menu.home          — ロゴリンクの.sr-only補足テキスト（メ
 
 ---
 
-最終更新日: 2026-09-06（ランドマーク構造 / Label in Name / 非同期エラーの伝え方の節を追加、`&nbsp;` 必須の理由を実測どおりに訂正、入れ子インタラクティブと `outline: none` をチェックリストへ追加）
+最終更新日: 2026-09-06（ランドマーク構造 / Label in Name / 非同期エラーの伝え方の節を追加、`&nbsp;` 必須の理由を実測どおりに訂正、入れ子インタラクティブと `outline: none` をチェックリストへ追加、ハードコード `aria-label` の禁止を明記）

@@ -239,6 +239,8 @@ grep -oh '<button class="primary"[^>]*><[a-z!/-]*' dist/creatives/*/*.html | sed
 - 未定義パスは `netlify.toml` が `dist/404.html` を HTTP 404 で返す。SPA フォールバック（`index.html` を 200 で返す経路）は `/creatives/*` に限定されている。
 - **内部遷移は必ず `<RouterLink to="/...">`。`<a href="https://www.yamashitamana.to">` のような絶対URLを書かない。** ドメインが固定されるため localhost と Netlify Deploy Preview から本番サイトへ離脱してしまい、プレビューでの検証が続けられなくなる。SPA遷移も失われフルリロードが走る（#21, #54）。
 - `RouterLink` のルート要素は `<a>`。scoped CSS の `data-v` 属性もそこへ付くため、`a.foo` のような要素セレクタで問題なくスタイルが当たる。
+- **`props: true` は、ビュー側が `defineProps` を宣言しているときだけ付ける。** 宣言が無いとルートパラメータがフォールスルー属性としてルート要素へ出力され、`<main class="creative-detail" category="development">` のようにHTML仕様上無効な属性になる（#34）。`useRoute()` でパラメータを読むビューには不要。
+- 上記を `inheritAttrs: false` で止めてはいけない。`src/App.vue` がフォールスルーで渡している `id="scrollable-aria"` も同時に消え、ビュー内が全てクリック不能になる。理由は `docs/standards/accessibility.md` の「ランドマーク構造」節を参照。
 
 ## 国際化 (i18n)
 

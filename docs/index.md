@@ -53,4 +53,4 @@
 
 ---
 
-最終更新日: 2026-09-06（規約類を standards/ へ集約し、索引のリンク切れを解消。frontend-guidelines にルーティング詳細・i18n 初期化設定・新規ページ追加チェックを統合。アクセシビリティガイドラインに Label in Name の節を追加。branch.md の CI トリガー記述を実態へ同期。frontend-guidelines にアイコン受け渡しの規約を追加。accessibility に入れ子インタラクティブと outline: none のチェック、ハードコード aria-label の禁止を追加。ssg-guidelines に useId() によるID採番と `__INITIAL_STATE__` の完全性フラグ・skeleton 焼き込みのビルドゲート、3分岐ルールの詳細ページ例外と0件カテゴリ追加時のトレードオフを追加。frontend-guidelines に未使用i18nキー削除時の注意を追加。frontend-guidelines に内部遷移の RouterLink 必須を追加）
+最終更新日: 2026-09-06（規約類を standards/ へ集約し、索引のリンク切れを解消。frontend-guidelines にルーティング詳細・i18n 初期化設定・新規ページ追加チェックを統合。アクセシビリティガイドラインに Label in Name の節を追加。branch.md の CI トリガー記述を実態へ同期。frontend-guidelines にアイコン受け渡しの規約を追加。accessibility に入れ子インタラクティブと outline: none のチェック、ハードコード aria-label の禁止を追加。ssg-guidelines に useId() によるID採番と `__INITIAL_STATE__` の完全性フラグ・skeleton 焼き込みのビルドゲート、3分岐ルールの詳細ページ例外と0件カテゴリ追加時のトレードオフを追加。frontend-guidelines に未使用i18nキー削除時の注意を追加。frontend-guidelines に内部遷移の RouterLink 必須を追加。frontend-guidelines に props: true の注意を追加）

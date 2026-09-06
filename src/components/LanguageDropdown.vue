@@ -8,20 +8,11 @@
     >
       <font-awesome-icon :icon="faGlobe" class="globe-icon" />
       <span class="current-lang-label">{{ currentLabel }}</span>
-      <font-awesome-icon
-        :icon="faChevronDown"
-        class="chevron-icon"
-        :class="{ rotated: isOpen }"
-      />
+      <font-awesome-icon :icon="faChevronDown" class="chevron-icon" :class="{ rotated: isOpen }" />
     </button>
 
     <transition name="dropdown-slide">
-      <ul
-        class="lang-dropdown-menu"
-        v-show="isOpen"
-        role="menu"
-        @keydown="handleMenuKeydown"
-      >
+      <ul class="lang-dropdown-menu" v-show="isOpen" role="menu" @keydown="handleMenuKeydown">
         <li v-for="(lang, index) in languages" :key="lang.code" role="none">
           <button
             ref="menuItemRefs"
@@ -77,14 +68,17 @@ const menuItemRefs = ref<HTMLButtonElement[]>([]);
 const focusedIndex = ref(0);
 
 // メニューが開いたら最初のアイテムにフォーカス
-watch(() => props.isOpen, (open) => {
-  if (open) {
-    focusedIndex.value = 0;
-    nextTick(() => {
-      menuItemRefs.value[0]?.focus();
-    });
+watch(
+  () => props.isOpen,
+  (open) => {
+    if (open) {
+      focusedIndex.value = 0;
+      nextTick(() => {
+        menuItemRefs.value[0]?.focus();
+      });
+    }
   }
-});
+);
 
 const handleMenuKeydown = (e: KeyboardEvent): void => {
   const items = menuItemRefs.value;

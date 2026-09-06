@@ -238,8 +238,12 @@ onUnmounted(() => {
 }
 
 @keyframes shine {
-  from { background-position: 150% center; }
-  to   { background-position: -50% center; }
+  from {
+    background-position: 150% center;
+  }
+  to {
+    background-position: -50% center;
+  }
 }
 
 .hero-description {

@@ -7,7 +7,12 @@
     <SkeletonBase width="8rem" height="1rem" border-radius="0.25rem" />
 
     <div id="main-contents">
-      <SkeletonBase width="60%" height="2rem" border-radius="0.25rem" style="margin: 1.5rem 0 1rem" />
+      <SkeletonBase
+        width="60%"
+        height="2rem"
+        border-radius="0.25rem"
+        style="margin: 1.5rem 0 1rem"
+      />
 
       <div class="skeleton-tags-row">
         <SkeletonBase width="4rem" height="1.8rem" :rounded="true" />
@@ -55,85 +60,85 @@
 
       <!-- 2カラムコンテンツ -->
       <div class="content-wrapper">
-      <!-- 左カラム: 画像・動画 -->
-      <div class="left-column">
-        <!-- 作品画像ギャラリー -->
-        <div class="image-gallery" v-if="detailData.images && detailData.images.length > 0">
-          <img
-            v-for="(image, index) in detailData.images"
-            :key="index"
-            :src="image"
-            :srcset="getImageSrcset(image)"
-            :sizes="imageSizes"
-            :alt="creative.title"
-            width="1200"
-            height="800"
-            class="gallery-image"
-            loading="lazy"
-          />
+        <!-- 左カラム: 画像・動画 -->
+        <div class="left-column">
+          <!-- 作品画像ギャラリー -->
+          <div class="image-gallery" v-if="detailData.images && detailData.images.length > 0">
+            <img
+              v-for="(image, index) in detailData.images"
+              :key="index"
+              :src="image"
+              :srcset="getImageSrcset(image)"
+              :sizes="imageSizes"
+              :alt="creative.title"
+              width="1200"
+              height="800"
+              class="gallery-image"
+              loading="lazy"
+            />
+          </div>
+
+          <!-- Animation 専用: YouTube 動画セクション -->
+          <div v-if="hasYoutube" class="youtube-section">
+            <h2>{{ $t('creatives.common.video') }}</h2>
+            <div class="video-container">
+              <iframe
+                v-if="!isDesktop && detailData.youtube"
+                :src="detailData.youtube.mobile"
+                :title="creative.title"
+                allow="
+                  accelerometer;
+                  autoplay;
+                  clipboard-write;
+                  encrypted-media;
+                  gyroscope;
+                  picture-in-picture;
+                "
+                allowfullscreen
+                loading="lazy"
+              ></iframe>
+              <iframe
+                v-else-if="detailData.youtube"
+                :src="detailData.youtube.desktop"
+                :title="creative.title"
+                allow="
+                  accelerometer;
+                  autoplay;
+                  clipboard-write;
+                  encrypted-media;
+                  gyroscope;
+                  picture-in-picture;
+                "
+                allowfullscreen
+                loading="lazy"
+              ></iframe>
+            </div>
+          </div>
         </div>
 
-        <!-- Animation 専用: YouTube 動画セクション -->
-        <div v-if="hasYoutube" class="youtube-section">
-          <h2>{{ $t('creatives.common.video') }}</h2>
-          <div class="video-container">
-            <iframe
-              v-if="!isDesktop && detailData.youtube"
-              :src="detailData.youtube.mobile"
-              :title="creative.title"
-              allow="
-                accelerometer;
-                autoplay;
-                clipboard-write;
-                encrypted-media;
-                gyroscope;
-                picture-in-picture;
-              "
-              allowfullscreen
-              loading="lazy"
-            ></iframe>
-            <iframe
-              v-else-if="detailData.youtube"
-              :src="detailData.youtube.desktop"
-              :title="creative.title"
-              allow="
-                accelerometer;
-                autoplay;
-                clipboard-write;
-                encrypted-media;
-                gyroscope;
-                picture-in-picture;
-              "
-              allowfullscreen
-              loading="lazy"
-            ></iframe>
+        <!-- 右カラム: 説明文・メタ情報 -->
+        <div class="right-column">
+          <!-- 作品説明文（Markdown対応） -->
+          <div class="creative-description" v-html="renderedDescription"></div>
+
+          <!-- 制作年 -->
+          <div v-if="detailData.productionYear" class="production-year">
+            <strong>{{ $t('creatives.common.productionYear') }}:</strong>
+            {{ detailData.productionYear }}
+          </div>
+
+          <!-- クレジット情報 -->
+          <div v-if="parsedCredits.length > 0" class="credits-section">
+            <h2>{{ $t('creatives.common.credits') }}</h2>
+            <dl class="credits-grid">
+              <template v-for="(credit, index) in parsedCredits" :key="index">
+                <dt v-if="credit.label" class="credit-label">{{ credit.label }}</dt>
+                <dd class="credit-value">{{ credit.value }}</dd>
+              </template>
+            </dl>
           </div>
         </div>
       </div>
-
-      <!-- 右カラム: 説明文・メタ情報 -->
-      <div class="right-column">
-        <!-- 作品説明文（Markdown対応） -->
-        <div class="creative-description" v-html="renderedDescription"></div>
-
-        <!-- 制作年 -->
-        <div v-if="detailData.productionYear" class="production-year">
-          <strong>{{ $t('creatives.common.productionYear') }}:</strong>
-          {{ detailData.productionYear }}
-        </div>
-
-        <!-- クレジット情報 -->
-        <div v-if="parsedCredits.length > 0" class="credits-section">
-          <h2>{{ $t('creatives.common.credits') }}</h2>
-          <dl class="credits-grid">
-            <template v-for="(credit, index) in parsedCredits" :key="index">
-              <dt v-if="credit.label" class="credit-label">{{ credit.label }}</dt>
-              <dd class="credit-value">{{ credit.value }}</dd>
-            </template>
-          </dl>
-        </div>
-      </div>
-    </div>
     </div>
 
     <!-- CTA ボタン -->
@@ -449,9 +454,7 @@ useHead({
     },
     {
       property: 'og:image:alt',
-      content: computed(() =>
-        creative.value ? t(creative.value.title) : 'yamashitamana.to'
-      ),
+      content: computed(() => (creative.value ? t(creative.value.title) : 'yamashitamana.to')),
     },
     {
       name: 'twitter:card',
@@ -467,9 +470,7 @@ useHead({
     },
     {
       name: 'twitter:description',
-      content: computed(() =>
-        creative.value ? t(creative.value.description) : ''
-      ),
+      content: computed(() => (creative.value ? t(creative.value.description) : '')),
     },
     {
       name: 'twitter:image',

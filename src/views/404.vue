@@ -21,6 +21,31 @@
   </main>
 </template>
 
+<script setup lang="ts">
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useHead } from '@unhead/vue';
+import type { Locale } from '@/types';
+
+const { locale } = useI18n<{ message: string }, Locale>();
+
+// このビューは dist/404.html としてプリレンダされ、Netlify が未定義パスへ
+// HTTP 404 とともに返す。静的HTMLの時点で noindex を持たせることで、
+// JSを実行しないクローラにもインデックス対象外であることが伝わる。
+// index.html 側の `robots: index, follow` は unhead が name 単位で上書きする。
+useHead({
+  title: computed(() =>
+    locale.value === 'ja'
+      ? 'ページが見つかりません | yamashitamana.to'
+      : 'Page Not Found | yamashitamana.to'
+  ),
+  meta: [
+    { name: 'robots', content: 'noindex, follow' },
+    { name: 'googlebot', content: 'noindex, follow' },
+  ],
+});
+</script>
+
 <style lang="css" scoped>
 * {
   margin: 0;

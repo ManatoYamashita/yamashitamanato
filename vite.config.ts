@@ -19,6 +19,10 @@ dotenv.config()
 // 404 キャッチオールと /underconstraction は引き続きCSRフォールバック扱い。
 const STATIC_ROUTES = ['/', '/about', '/creatives', '/contact'];
 
+// 未定義パスは Netlify が `dist/404.html` を HTTP 404 で返すため、静的生成しておく（Issue #8）。
+// ルーターのキャッチオール `/:pathMatch(.*)*` は routesToPaths に現れないので明示的に足す。
+const FALLBACK_ROUTE = '/404';
+
 // 作品データを必要とするルート。`/creatives/:category/:id` と一覧ページ。
 const DETAIL_ROUTE_PATTERN = /^\/creatives\/[^/]+\/[^/]+$/;
 
@@ -44,7 +48,7 @@ const ssgOptions = {
     // 生成してビルドを継続する。詳細ページはSPAフォールバックで従来どおり描画される。
     if (!hasMicroCMSConfig()) {
       console.warn('[ssg] microCMS credentials not found. Prerendering static routes only.');
-      return staticRoutes;
+      return [...staticRoutes, FALLBACK_ROUTE];
     }
 
     // 認証情報がある環境での取得失敗は縮退させない。静的4ページだけの成果物を
@@ -55,7 +59,7 @@ const ssgOptions = {
     console.log(
       `[ssg] Prerendering ${staticRoutes.length} static + ${detailRoutes.length} creative detail routes.`
     );
-    return [...staticRoutes, ...detailRoutes];
+    return [...staticRoutes, FALLBACK_ROUTE, ...detailRoutes];
   },
 
   // レンダリング結果を1ページずつ検証する。`__INITIAL_STATE__` が空のまま出力された

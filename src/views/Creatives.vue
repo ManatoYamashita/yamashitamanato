@@ -23,8 +23,19 @@
           <ul v-if="!hasSettled && !animationCreatives.length">
             <li v-for="n in 1" :key="`sk-anim-${n}`" class="skeleton-card">
               <SkeletonBase aspect-ratio="16/9" border-radius="0.5rem" />
-              <SkeletonBase width="70%" height="1.2rem" border-radius="0.25rem" style="margin-top: 0.5rem" />
-              <div class="skeleton-tags"><SkeletonBase width="4rem" height="1.5rem" :rounded="true" /><SkeletonBase width="5rem" height="1.5rem" :rounded="true" /></div>
+              <SkeletonBase
+                width="70%"
+                height="1.2rem"
+                border-radius="0.25rem"
+                style="margin-top: 0.5rem"
+              />
+              <div class="skeleton-tags">
+                <SkeletonBase width="4rem" height="1.5rem" :rounded="true" /><SkeletonBase
+                  width="5rem"
+                  height="1.5rem"
+                  :rounded="true"
+                />
+              </div>
             </li>
           </ul>
           <ul v-else-if="animationCreatives.length">
@@ -42,7 +53,9 @@
               :youtubeUrl="creative.detail?.youtube?.desktop || null"
             />
           </ul>
-          <p v-else-if="!loadError" class="section-empty">{{ $t('creatives.common.categoryEmpty') }}</p>
+          <p v-else-if="!loadError" class="section-empty">
+            {{ $t('creatives.common.categoryEmpty') }}
+          </p>
         </section>
 
         <!-- Development Section -->
@@ -52,8 +65,19 @@
           <ul v-if="!hasSettled && !randomizedDevelopment.length">
             <li v-for="n in 3" :key="`sk-dev-${n}`" class="skeleton-card">
               <SkeletonBase aspect-ratio="16/9" border-radius="0.5rem" />
-              <SkeletonBase width="70%" height="1.2rem" border-radius="0.25rem" style="margin-top: 0.5rem" />
-              <div class="skeleton-tags"><SkeletonBase width="4rem" height="1.5rem" :rounded="true" /><SkeletonBase width="5rem" height="1.5rem" :rounded="true" /></div>
+              <SkeletonBase
+                width="70%"
+                height="1.2rem"
+                border-radius="0.25rem"
+                style="margin-top: 0.5rem"
+              />
+              <div class="skeleton-tags">
+                <SkeletonBase width="4rem" height="1.5rem" :rounded="true" /><SkeletonBase
+                  width="5rem"
+                  height="1.5rem"
+                  :rounded="true"
+                />
+              </div>
             </li>
           </ul>
           <ul v-else-if="randomizedDevelopment.length">
@@ -70,7 +94,9 @@
               :tags="creative.tags"
             />
           </ul>
-          <p v-else-if="!loadError" class="section-empty">{{ $t('creatives.common.categoryEmpty') }}</p>
+          <p v-else-if="!loadError" class="section-empty">
+            {{ $t('creatives.common.categoryEmpty') }}
+          </p>
         </section>
 
         <!-- Illustration Section -->
@@ -80,8 +106,19 @@
           <ul v-if="!hasSettled && !illustrationCreatives.length">
             <li v-for="n in 1" :key="`sk-illust-${n}`" class="skeleton-card">
               <SkeletonBase aspect-ratio="16/9" border-radius="0.5rem" />
-              <SkeletonBase width="70%" height="1.2rem" border-radius="0.25rem" style="margin-top: 0.5rem" />
-              <div class="skeleton-tags"><SkeletonBase width="4rem" height="1.5rem" :rounded="true" /><SkeletonBase width="5rem" height="1.5rem" :rounded="true" /></div>
+              <SkeletonBase
+                width="70%"
+                height="1.2rem"
+                border-radius="0.25rem"
+                style="margin-top: 0.5rem"
+              />
+              <div class="skeleton-tags">
+                <SkeletonBase width="4rem" height="1.5rem" :rounded="true" /><SkeletonBase
+                  width="5rem"
+                  height="1.5rem"
+                  :rounded="true"
+                />
+              </div>
             </li>
           </ul>
           <ul v-else-if="illustrationCreatives.length">
@@ -98,7 +135,9 @@
               :tags="creative.tags"
             />
           </ul>
-          <p v-else-if="!loadError" class="section-empty">{{ $t('creatives.common.categoryEmpty') }}</p>
+          <p v-else-if="!loadError" class="section-empty">
+            {{ $t('creatives.common.categoryEmpty') }}
+          </p>
         </section>
 
         <!-- Video Section -->
@@ -108,8 +147,19 @@
           <ul v-if="!hasSettled && !videoCreatives.length">
             <li v-for="n in 3" :key="`sk-video-${n}`" class="skeleton-card">
               <SkeletonBase aspect-ratio="16/9" border-radius="0.5rem" />
-              <SkeletonBase width="70%" height="1.2rem" border-radius="0.25rem" style="margin-top: 0.5rem" />
-              <div class="skeleton-tags"><SkeletonBase width="4rem" height="1.5rem" :rounded="true" /><SkeletonBase width="5rem" height="1.5rem" :rounded="true" /></div>
+              <SkeletonBase
+                width="70%"
+                height="1.2rem"
+                border-radius="0.25rem"
+                style="margin-top: 0.5rem"
+              />
+              <div class="skeleton-tags">
+                <SkeletonBase width="4rem" height="1.5rem" :rounded="true" /><SkeletonBase
+                  width="5rem"
+                  height="1.5rem"
+                  :rounded="true"
+                />
+              </div>
             </li>
           </ul>
           <ul v-else-if="videoCreatives.length">
@@ -126,7 +176,9 @@
               :tags="creative.tags"
             />
           </ul>
-          <p v-else-if="!loadError" class="section-empty">{{ $t('creatives.common.categoryEmpty') }}</p>
+          <p v-else-if="!loadError" class="section-empty">
+            {{ $t('creatives.common.categoryEmpty') }}
+          </p>
         </section>
 
         <!-- Design Section -->
@@ -136,8 +188,19 @@
           <ul v-if="!hasSettled && !designCreatives.length">
             <li v-for="n in 3" :key="`sk-design-${n}`" class="skeleton-card">
               <SkeletonBase aspect-ratio="16/9" border-radius="0.5rem" />
-              <SkeletonBase width="70%" height="1.2rem" border-radius="0.25rem" style="margin-top: 0.5rem" />
-              <div class="skeleton-tags"><SkeletonBase width="4rem" height="1.5rem" :rounded="true" /><SkeletonBase width="5rem" height="1.5rem" :rounded="true" /></div>
+              <SkeletonBase
+                width="70%"
+                height="1.2rem"
+                border-radius="0.25rem"
+                style="margin-top: 0.5rem"
+              />
+              <div class="skeleton-tags">
+                <SkeletonBase width="4rem" height="1.5rem" :rounded="true" /><SkeletonBase
+                  width="5rem"
+                  height="1.5rem"
+                  :rounded="true"
+                />
+              </div>
             </li>
           </ul>
           <ul v-else-if="designCreatives.length">
@@ -154,7 +217,9 @@
               :tags="creative.tags"
             />
           </ul>
-          <p v-else-if="!loadError" class="section-empty">{{ $t('creatives.common.categoryEmpty') }}</p>
+          <p v-else-if="!loadError" class="section-empty">
+            {{ $t('creatives.common.categoryEmpty') }}
+          </p>
         </section>
       </div>
 

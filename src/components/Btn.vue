@@ -168,13 +168,14 @@ button.secondary:hover {
 <template>
   <button
     @click="handleClick"
-    :aria-label="alt"
     :aria-describedby="subText ? tooltipId : undefined"
     :class="[category, variant]"
   >
-    <component v-if="icon" :is="icon" :size="20" class="icon" />
+    <font-awesome-icon v-if="icon" :icon="icon" class="icon" />
     <span class="label">{{ text }}</span>
-    <span v-if="subText" class="tooltip" role="tooltip" :id="tooltipId">{{ subText }}</span>
+    <span v-if="subText" class="tooltip" role="tooltip" :id="tooltipId" aria-hidden="true">
+      {{ subText }}
+    </span>
     <font-awesome-icon v-if="showArrow" :icon="faArrowRight" class="icon" />
   </button>
 </template>
@@ -182,8 +183,8 @@ button.secondary:hover {
 <script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { computed } from 'vue';
-import type { Component } from 'vue';
 
 let btnIdCounter = 0;
 
@@ -193,8 +194,7 @@ interface Props {
   link?: string;
   href?: string;
   target?: string;
-  icon?: Component | null;
-  alt?: string;
+  icon?: IconDefinition | null;
   showArrow?: boolean;
   category?: '' | 'animation' | 'programming' | 'graphics' | 'video';
   variant?: '' | 'simple' | 'primary' | 'secondary';
@@ -210,7 +210,6 @@ const props = withDefaults(defineProps<Props>(), {
   href: '',
   target: '',
   icon: null,
-  alt: 'button link(view more)',
   showArrow: false,
   category: '',
   variant: '',

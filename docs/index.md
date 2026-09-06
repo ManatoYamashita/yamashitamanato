@@ -8,24 +8,24 @@
 - 機密情報（PII 等）は保存禁止。コミット時は `DOC:` プレフィックスを推奨します。
 
 ## ディレクトリ構成（最小セット）
-- `standards/`: コーディング規約や共通ルール。
+- `standards/`: コーディング規約・設計/実装ガイドラインなど共通ルール。
 - `ops/`: 運用・手順書やチェックリスト。
 - `analytics/`: アクセス解析・トラッキング設定ガイド。
-- `dev/`: 開発環境構築とパフォーマンス最適化。
+- `dev/`: 開発環境構築と移行記録。
 
 ## ドキュメント一覧
 
 ### TypeScript移行
-- typescript-migration.md — TypeScript完全移行の全工程記録（Phase 1-4、Strictモード有効化、型エラーゼロ達成）。
+- dev/typescript-migration.md — TypeScript完全移行の全工程記録（Phase 1-4、Strictモード有効化、型エラーゼロ達成）。
 - standards/typescript-coding-standards.md — TypeScript Strictモードのコーディング規約（型定義、null安全、best practices）。
 
 ### Standards（コーディング規約・ガイドライン）
 - standards/architecture.md — エントリ/初期化/責務分離とフォールバック方針。
-- standards/frontend-guidelines.md — Vue SFC規約、ルーティング、i18n、新規ページ追加の手順。
+- standards/frontend-guidelines.md — Vue SFC規約、コンポーネント設計（Props/Emit、アイコンの受け渡し）、ルーティング、i18n、新規ページ追加の手順。
 - standards/design-system.md — カラー/フォント/背景/モーション/コンポーネントなどのデザインシステム全体。
 - standards/performance-and-build.md — 遅延/分割、アセット方針、Three.js、ビルド設定。
 - standards/security-and-seo.md — セキュリティ、アクセシビリティ、SEO/アナリティクス。
-- standards/accessibility.md — WCAG 2.1 AA準拠ガイドライン（ランドマーク構造とビューのルート要素ルール、focus-visible、reduced-motion、ARIA、キーボード操作）。
+- standards/accessibility.md — WCAG 2.1 AA準拠ガイドライン（ランドマーク構造とビューのルート要素ルール、Label in Name（可視テキストとアクセシブル名の一致）、focus-visible、reduced-motion、ARIA、キーボード操作）。
 - standards/ssg-guidelines.md — vite-ssg プリレンダの実装ガイドライン（head既定値の上書き、onMounted依存の初期値、SSRガード、動的ルートの列挙とビルド時データ取得、`__INITIAL_STATE__` の受け渡し、縮退判定の集約とビルドゲート、APIキー非混入の検証、生成HTMLの検証手順）。
 - standards/coding-standards.md — コーディングスタイルとレビュー/コミットの基本。
 
@@ -53,4 +53,4 @@
 
 ---
 
-最終更新日: 2026-09-06（アクセシビリティガイドラインにランドマーク構造を追加）
+最終更新日: 2026-09-06（規約類を standards/ へ集約し、索引のリンク切れを解消。frontend-guidelines にルーティング詳細・i18n 初期化設定・新規ページ追加チェックを統合。アクセシビリティガイドラインに Label in Name の節を追加。branch.md の CI トリガー記述を実態へ同期。frontend-guidelines にアイコン受け渡しの規約を追加）

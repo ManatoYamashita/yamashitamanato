@@ -1,27 +1,14 @@
 <template>
   <div ref="rootRef" :class="['lang-dropdown', variantClass]">
-    <button
-      class="lang-dropdown-toggle"
-      @click="$emit('toggle')"
-      :aria-expanded="isOpen"
-      :aria-label="ariaLabel"
-    >
+    <button class="lang-dropdown-toggle" @click="$emit('toggle')" :aria-expanded="isOpen">
       <font-awesome-icon :icon="faGlobe" class="globe-icon" />
       <span class="current-lang-label">{{ currentLabel }}</span>
-      <font-awesome-icon
-        :icon="faChevronDown"
-        class="chevron-icon"
-        :class="{ rotated: isOpen }"
-      />
+      <span class="sr-only">&nbsp;{{ descriptionLabel }}</span>
+      <font-awesome-icon :icon="faChevronDown" class="chevron-icon" :class="{ rotated: isOpen }" />
     </button>
 
     <transition name="dropdown-slide">
-      <ul
-        class="lang-dropdown-menu"
-        v-show="isOpen"
-        role="menu"
-        @keydown="handleMenuKeydown"
-      >
+      <ul class="lang-dropdown-menu" v-show="isOpen" role="menu" @keydown="handleMenuKeydown">
         <li v-for="(lang, index) in languages" :key="lang.code" role="none">
           <button
             ref="menuItemRefs"
@@ -60,7 +47,7 @@ const props = defineProps<{
   currentLabel: string;
   languages: Language[];
   currentLocale: Locale;
-  ariaLabel: string;
+  descriptionLabel: string;
   variant?: 'desktop' | 'mobile' | 'home';
 }>();
 
@@ -77,14 +64,17 @@ const menuItemRefs = ref<HTMLButtonElement[]>([]);
 const focusedIndex = ref(0);
 
 // メニューが開いたら最初のアイテムにフォーカス
-watch(() => props.isOpen, (open) => {
-  if (open) {
-    focusedIndex.value = 0;
-    nextTick(() => {
-      menuItemRefs.value[0]?.focus();
-    });
+watch(
+  () => props.isOpen,
+  (open) => {
+    if (open) {
+      focusedIndex.value = 0;
+      nextTick(() => {
+        menuItemRefs.value[0]?.focus();
+      });
+    }
   }
-});
+);
 
 const handleMenuKeydown = (e: KeyboardEvent): void => {
   const items = menuItemRefs.value;

@@ -3,7 +3,7 @@
     <!-- デスクトップナビゲーション -->
     <nav class="desktop-nav" :aria-label="$t('navbar.primaryLabel')">
       <div class="logo">
-        <RouterLink to="/" aria-label="ホームページに戻る">
+        <RouterLink to="/">
           <transition name="slide" mode="out-in">
             <img
               v-if="!logoError"
@@ -18,6 +18,7 @@
             />
             <span v-else class="logo-fallback">yamashitamana.to</span>
           </transition>
+          <span class="sr-only">&nbsp;{{ $t('navbar.menu.home') }}</span>
         </RouterLink>
       </div>
 
@@ -45,7 +46,7 @@
         :current-label="currentLanguageLabel"
         :languages="languages"
         :current-locale="locale"
-        :ariaLabel="$t('navbar.selectLanguage')"
+        :description-label="$t('navbar.selectLanguage')"
         @toggle="toggleDropdown"
         @select="selectLanguage"
         @close="isDropdownOpen = false"
@@ -56,7 +57,7 @@
     <nav class="mobile-nav" v-show="shouldShowMobileNav" :aria-label="$t('navbar.primaryLabel')">
       <div class="mobile-header">
         <div class="logo">
-          <RouterLink to="/" aria-label="ホームページに戻る">
+          <RouterLink to="/">
             <img
               v-if="!logoError"
               :src="logoSvg"
@@ -69,6 +70,7 @@
               @error="handleLogoError"
             />
             <span v-else class="logo-fallback">yamashitamana.to</span>
+            <span class="sr-only">&nbsp;{{ $t('navbar.menu.home') }}</span>
           </RouterLink>
         </div>
 
@@ -81,7 +83,7 @@
           :current-label="currentLanguageLabel"
           :languages="languages"
           :current-locale="locale"
-          :ariaLabel="$t('navbar.selectLanguage')"
+          :description-label="$t('navbar.selectLanguage')"
           @toggle="toggleDropdown"
           @select="selectLanguage"
           @close="isDropdownOpen = false"
@@ -136,7 +138,12 @@
           </div>
 
           <!-- メニューリスト -->
-          <ul ref="menuCardRef" v-show="isMobileMenuOpen" class="mobile-menu-card" id="mobile-menu-links">
+          <ul
+            ref="menuCardRef"
+            v-show="isMobileMenuOpen"
+            class="mobile-menu-card"
+            id="mobile-menu-links"
+          >
             <li class="mobile-menu-item">
               <RouterLink to="/about" class="mobile-menu-link">{{
                 $t('navbar.menu.about')
@@ -188,23 +195,19 @@ const langDropdownDesktop = ref<InstanceType<typeof LanguageDropdown> | null>(nu
 const langDropdownMobile = ref<InstanceType<typeof LanguageDropdown> | null>(null);
 
 // 言語切替 composable
-const {
-  locale,
-  languages,
-  isDropdownOpen,
-  currentLanguageLabel,
-  toggleDropdown,
-  selectLanguage,
-} = useLanguageSwitcher(() => [
-  langDropdownDesktop.value?.rootRef ?? null,
-  langDropdownMobile.value?.rootRef ?? null,
-]);
+const { locale, languages, isDropdownOpen, currentLanguageLabel, toggleDropdown, selectLanguage } =
+  useLanguageSwitcher(() => [
+    langDropdownDesktop.value?.rootRef ?? null,
+    langDropdownMobile.value?.rootRef ?? null,
+  ]);
 
 // モバイルメニューアニメーション composable
-const {
-  isMobileMenuOpen,
-  handleMorphButtonClick,
-} = useMobileMenuAnimation({ router, isDropdownOpen, pageTitleRef, menuCardRef });
+const { isMobileMenuOpen, handleMorphButtonClick } = useMobileMenuAnimation({
+  router,
+  isDropdownOpen,
+  pageTitleRef,
+  menuCardRef,
+});
 
 // モバイルメニューの表示判定
 const shouldShowMobileNav = computed<boolean>(() => {
@@ -376,7 +379,7 @@ onErrorCaptured(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: .7rem;
+  margin-bottom: 0.7rem;
 }
 
 .mobile-header .logo {
@@ -391,7 +394,7 @@ onErrorCaptured(() => {
 .mobile-bottom-menu {
   position: fixed;
   left: 1rem;
-  margin-top: .7rem;
+  margin-top: 0.7rem;
   bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
   width: min(60vw, 420px);
   min-width: 280px;

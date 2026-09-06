@@ -134,7 +134,7 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  tweens.forEach(t => t.kill());
+  tweens.forEach((t) => t.kill());
   tweens = [];
 });
 </script>
@@ -205,14 +205,7 @@ onUnmounted(() => {
   margin: 0;
 
   /* ShinyText: グラデーションシャイン効果 */
-  background-image: linear-gradient(
-    120deg,
-    #111 0%,
-    #111 35%,
-    #888 50%,
-    #111 65%,
-    #111 100%
-  );
+  background-image: linear-gradient(120deg, #111 0%, #111 35%, #888 50%, #111 65%, #111 100%);
   background-size: 200% auto;
   background-clip: text;
   -webkit-background-clip: text;

@@ -33,11 +33,15 @@ feature/<feature-name>
 #### その他のブランチ（必要に応じて）
 
 ```
-bugfix/<bug-description>    # バグ修正
+bugfix/<bug-description>     # バグ修正
 hotfix/<urgent-fix>          # 緊急修正
 docs/<doc-update>            # ドキュメント更新のみ
 refactor/<refactor-target>   # リファクタリング
+chore/<chore-target>         # 依存・設定・ツール類の整備
 ```
+
+上記はすべて `Branch CI/CD` の quality-check 対象。プレフィックスを追加・変更するときは
+`.github/workflows/feature-ci.yml` の `on.push.branches` も同時に更新する（Issue #48）。
 
 ### ブランチのライフサイクル
 
@@ -67,7 +71,7 @@ refactor/<refactor-target>   # リファクタリング
 
 ## GitHub Actions ワークフロー
 
-### Feature Branch CI/CD
+### Branch CI/CD
 
 **ファイル:** `.github/workflows/feature-ci.yml`
 
@@ -77,13 +81,22 @@ on:
   push:
     branches:
       - 'feature/**'
+      - 'bugfix/**'
+      - 'hotfix/**'
+      - 'docs/**'
+      - 'refactor/**'
+      - 'chore/**'
 ```
 
 **ワークフロー概要:**
 
 #### 1. Quality Check Job
 
-feature ブランチへの push 時に自動実行される品質チェック：
+上記いずれかのプレフィックスを持つブランチへの push 時に自動実行される品質チェック：
+
+> **ジョブを失敗させるのはビルド関連ステップのみ。** ESLint と Prettier は `|| true` を付けて
+> 実行し、結果を `$GITHUB_STEP_SUMMARY` へ出力するだけで成否には影響しない。
+> quality-check が緑でも lint が通っているとは限らないため、サマリー本文を確認すること。
 
 - **ESLint チェック**
   ```bash
@@ -115,8 +128,11 @@ feature ブランチへの push 時に自動実行される品質チェック：
 **実行条件:**
 ```yaml
 needs: quality-check
-if: success()
+if: success() && startsWith(github.ref, 'refs/heads/feature/')
 ```
+
+PR の自動作成は `feature/` ブランチ専用。他のプレフィックスではタイトル生成時の
+プレフィックス除去（`BRANCH_NAME#feature/`）が効かないため対象外とし、PR は手動で作成する。
 
 **PR 作成内容:**
 - **タイトル:** `🚀 [<feature-name>] Auto-generated PR`

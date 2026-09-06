@@ -61,7 +61,7 @@ defineProps<{
 
 .learn-more .circle .icon.arrow::before {
   position: absolute;
-  content: "";
+  content: '';
   top: -0.29rem;
   right: 0.0625rem;
   width: 0.625rem;

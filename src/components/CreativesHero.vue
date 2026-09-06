@@ -11,55 +11,55 @@
             @click="setFilter('all')"
             :class="['filter-tag', { active: activeFilter === 'all' }]"
             :aria-pressed="activeFilter === 'all'"
-            :aria-label="$t('creatives.filters.all')"
           >
             <font-awesome-icon :icon="faTableCells" class="tag-icon" />
             <span>All</span>
+            <span class="sr-only">&nbsp;{{ $t('creatives.filters.all') }}</span>
           </button>
           <button
             @click="setFilter('animation')"
             :class="['filter-tag', { active: activeFilter === 'animation' }]"
             :aria-pressed="activeFilter === 'animation'"
-            :aria-label="$t('creatives.filters.animation')"
           >
             <font-awesome-icon :icon="faFilm" class="tag-icon" />
             <span>Anime</span>
+            <span class="sr-only">&nbsp;{{ $t('creatives.filters.animation') }}</span>
           </button>
           <button
             @click="setFilter('development')"
             :class="['filter-tag', { active: activeFilter === 'development' }]"
             :aria-pressed="activeFilter === 'development'"
-            :aria-label="$t('creatives.filters.development')"
           >
             <font-awesome-icon :icon="faCode" class="tag-icon" />
             <span>Dev</span>
+            <span class="sr-only">&nbsp;{{ $t('creatives.filters.development') }}</span>
           </button>
           <button
             @click="setFilter('illustration')"
             :class="['filter-tag', { active: activeFilter === 'illustration' }]"
             :aria-pressed="activeFilter === 'illustration'"
-            :aria-label="$t('creatives.filters.illustration')"
           >
             <font-awesome-icon :icon="faPalette" class="tag-icon" />
             <span>Illust</span>
+            <span class="sr-only">&nbsp;{{ $t('creatives.filters.illustration') }}</span>
           </button>
           <button
             @click="setFilter('video')"
             :class="['filter-tag', { active: activeFilter === 'video' }]"
             :aria-pressed="activeFilter === 'video'"
-            :aria-label="$t('creatives.filters.video')"
           >
             <font-awesome-icon :icon="faVideo" class="tag-icon" />
             <span>Video</span>
+            <span class="sr-only">&nbsp;{{ $t('creatives.filters.video') }}</span>
           </button>
           <button
             @click="setFilter('design')"
             :class="['filter-tag', { active: activeFilter === 'design' }]"
             :aria-pressed="activeFilter === 'design'"
-            :aria-label="$t('creatives.filters.design')"
           >
             <font-awesome-icon :icon="faPencilAlt" class="tag-icon" />
             <span>Design</span>
+            <span class="sr-only">&nbsp;{{ $t('creatives.filters.design') }}</span>
           </button>
         </div>
       </div>
@@ -238,8 +238,12 @@ onUnmounted(() => {
 }
 
 @keyframes shine {
-  from { background-position: 150% center; }
-  to   { background-position: -50% center; }
+  from {
+    background-position: 150% center;
+  }
+  to {
+    background-position: -50% center;
+  }
 }
 
 .hero-description {

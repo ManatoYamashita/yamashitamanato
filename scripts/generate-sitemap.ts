@@ -59,14 +59,9 @@ function escapeXml(str: string): string {
     .replace(/'/g, '&apos;');
 }
 
-// hreflangリンクを生成
-function hreflangLinks(url: string): string {
-  return [
-    `        <xhtml:link rel="alternate" hreflang="ja" href="${url}" />`,
-    `        <xhtml:link rel="alternate" hreflang="en" href="${url}" />`,
-    `        <xhtml:link rel="alternate" hreflang="x-default" href="${url}" />`,
-  ].join('\n');
-}
+// NOTE: hreflang / xhtml:link は出力しない。日本語と英語が同一URLでクライアント側だけ
+// 切り替わる方式のため、言語ごとの代替URLが存在せず、宣言すると全言語が同一URLを指す
+// 不整合になる（Issue #7、docs/standards/security-and-seo.md）。
 
 // 静的ページ定義
 interface StaticPage {
@@ -129,7 +124,6 @@ async function generateSitemap(): Promise<void> {
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 `;
 
@@ -142,7 +136,6 @@ async function generateSitemap(): Promise<void> {
         <lastmod>${todayDate}</lastmod>
         <changefreq>${page.changefreq}</changefreq>
         <priority>${page.priority}</priority>
-${hreflangLinks(url)}
 `;
     if (page.image) {
       xml += `        <image:image>
@@ -167,7 +160,6 @@ ${hreflangLinks(url)}
         <lastmod>${lastmod}</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
-${hreflangLinks(url)}
 `;
     if (thumbnailUrl) {
       xml += `        <image:image>

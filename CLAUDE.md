@@ -58,7 +58,7 @@ This is a Vue.js 3 portfolio website using:
 **Type Coverage**: 100% TypeScript across all components, utilities, and configuration files
 - Zero type errors required for commits
 - Zero ESLint errors required for commits
-- See `docs/typescript-migration.md` for migration details
+- See `docs/dev/typescript-migration.md` for migration details
 - See `docs/standards/typescript-coding-standards.md` for coding standards
 
 ### Performance Optimizations

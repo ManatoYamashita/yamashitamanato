@@ -181,13 +181,62 @@ const handleClick = (data) => {
 };
 ```
 
+### アイコンの受け渡し
+
+**FontAwesome の `IconDefinition` を `<component :is>` へ渡してはいけない。**
+
+`faArrowUpRightFromSquare` などの実体は `{ prefix, iconName, icon: [...] }` という素のオブジェクトで、
+Vue コンポーネントではない。`<component :is>` に渡すと Vue は Options API のコンポーネント定義として
+解釈するが、`render` も `template` も `setup` も持たないため**何も描画されない**。
+
+```vue
+<!-- NG: 何も出ない。vue-tsc も通ってしまう（Component 型がゆるいため） -->
+<component v-if="icon" :is="icon" class="icon" />
+
+<!-- OK -->
+<font-awesome-icon v-if="icon" :icon="icon" class="icon" />
+```
+
+prop の型も実体に合わせる。`Component`（vue）ではなく `IconDefinition` を使うこと。
+
+```ts
+import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+
+interface Props {
+  icon?: IconDefinition | null;
+}
+```
+
+サイズは CSS の `font-size` で制御する。`font-awesome-icon` の `size` prop は `'lg'` / `'2x'` 等の
+**文字列のみ**を受け付けるため、`:size="20"` のような数値は prop バリデーションに落ちる
+（開発ビルドでは警告、本番ビルドでは無言で無視される）。
+
+**検証方法**: プリレンダ済みHTMLにアイコンの `<svg>` が実際に出ているかを確認する。
+描画されていなくても型検査もビルドも通るため、目視かこの種の grep でしか気づけない。
+
+```bash
+npm run build
+
+# 各CTAボタンの最初の子ノードを列挙する。
+# `<svg` ならアイコンが出ており、`<!--` なら v-if が偽か描画に失敗している。
+grep -oh '<button class="primary"[^>]*><[a-z!/-]*' dist/creatives/*/*.html | sed 's/.*>//' | sort | uniq -c
+```
+
+なお FontAwesome の `<svg>` は既定で `aria-hidden="true"` を持つため、アイコンを足しても
+ボタンのアクセシブル名は変わらない（`docs/standards/accessibility.md` の Label in Name を参照）。
+
 ## ルーティング
 
 ### Vue Router の基本
 
-- ルート定義は`src/router/index.js`
-- 遅延ロードを活用：`component: () => import('../views/About.vue')`
-- ナビゲーションガードで進行状況を表示
+- ルート定義は `src/router/routes.ts`。`src/router/index.ts` はその再エクスポートと、クライアント専用の副作用登録（`setupClientRouterEffects()`）を担う。
+- ルーター本体は `src/main.ts` の `ViteSSG()` が `routes` と `scrollBehavior` から生成する。`createRouter()` を直接呼ばない。
+- `Home` のみ静的 import、それ以外は遅延ロード：`component: () => import('../views/About.vue')`。
+- キャッチオール `/:pathMatch(.*)*` を `src/views/404.vue` へ割り当て、必ず配列の末尾に置く。
+- 作品詳細 `/creatives/:category/:id` は `beforeEnter` で `isValidCategory()` を検証し、不正なカテゴリは `/404` へ返す。
+- 画面遷移は `App.vue` の `<transition name="slide" mode="out-in">`。`:key="$route.fullPath"` で再マウントを保証する。
+- ナビゲーション進行バーとコンポーネントのプリロードは `setupClientRouterEffects()` に集約する。SSR 段階では `document`/`window` が存在しないため呼ばれない。
+- 未定義パスは `netlify.toml` が `dist/404.html` を HTTP 404 で返す。SPA フォールバック（`index.html` を 200 で返す経路）は `/creatives/*` に限定されている。
 
 ## 国際化 (i18n)
 
@@ -224,6 +273,35 @@ import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 </script>
 ```
+
+### 初期化設定
+
+i18n インスタンスは `src/main.ts` の `createI18n()` で 1 度だけ生成する。
+
+| オプション | 値 | 理由 |
+| --- | --- | --- |
+| `legacy` | `false` | Composition API モード（`useI18n()`）を使う |
+| `locale` | `'ja'` | 既定ロケール |
+| `fallbackLocale` | `'en'` | キー欠損時に英語へフォールバックする |
+| `globalInjection` | `true` | テンプレートで `$t()` を直接使えるようにする |
+| `warnHtmlMessage` | `false` | HTML を含む訳文の警告を抑止する |
+
+- 辞書は `ja` を同期 import し、`en` は `requestIdleCallback` で遅延させて `i18n.global.setLocaleMessage('en', ...)` へ流し込む。SSG のプリレンダ段階は日本語のみを同期ロードする。
+- 翻訳を追加するときは `locales/ja.json` と `locales/en.json` の**両方**を更新する。英語は遅延ロード完了後に反映される。
+- `vite.config.ts` の `define` で `__VUE_I18N_FULL_INSTALL__` / `__VUE_I18N_LEGACY_API__` / `__INTLIFY_PROD_DEVTOOLS__` を `false` に固定し、未使用の Legacy API と devtools をバンドルから落とす。
+
+## 新規ページ追加チェック
+
+静的ページを 1 枚追加するときに触るファイルは 1 か所ではない。以下をすべて満たすまで完了としない。
+
+- [ ] `src/views/Name.vue` を追加し、`src/router/routes.ts` へ遅延 import として登録する（キャッチオールより前に置く）。
+- [ ] プリレンダ対象にするなら `vite.config.ts` の `STATIC_ROUTES` へパスを追加する。漏れると静的 HTML が生成されず、`netlify.toml` の最終ルールで `dist/404.html` が HTTP 404 として返る。
+- [ ] `scripts/generate-sitemap.ts` の `staticPages` へ追加する。漏れると sitemap.xml に載らない。
+- [ ] `locales/ja.json` と `locales/en.json` の両方へ翻訳キーを追加する。
+- [ ] `src/components/Menu.vue` のデスクトップリンクとモバイルメニューリンクを両方更新する。
+- [ ] SSR 段階で `document`/`window` を参照しない。`onMounted` 前提の初期化は `isClient` ガードの内側へ置く（詳細は `docs/standards/ssg-guidelines.md`）。
+- [ ] GSAP など重い依存はページ側で動的 import する。
+- [ ] 540px 以下でのレイアウト崩れと `pointer-events` の指定を確認する。
 
 ## パフォーマンス最適化
 

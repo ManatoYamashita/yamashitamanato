@@ -110,7 +110,6 @@
               :icon="faCirclePlay"
               :text="$t('creatives.animation.tcuAnimation.watchMain')"
               :subText="$t('creatives.animation.tcuAnimation.watchSub')"
-              :alt="'本編動画を見る（世田谷区公式YouTube）'"
               :variant="'primary'"
             />
             <Btn
@@ -119,7 +118,6 @@
               :icon="faGlobe"
               :text="$t('creatives.animation.tcuAnimation.siteMain')"
               :subText="$t('creatives.animation.tcuAnimation.siteSub')"
-              :alt="'公式サイトへ（都市大アニメーション）'"
               :variant="'secondary'"
             />
           </div>
@@ -306,7 +304,7 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   // GSAP tweenのクリーンアップ（メモリリーク防止）
-  tweens.forEach(t => t.kill());
+  tweens.forEach((t) => t.kill());
   tweens = [];
 
   // コンポーネント破棄時にリスナーを削除

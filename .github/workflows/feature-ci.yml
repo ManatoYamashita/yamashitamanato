@@ -81,6 +81,53 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
           exit "$rc"
 
+      - name: Verify Service Worker tombstone
+        id: sw_tombstone
+        run: |
+          # public/sw.js は ESLint（ignores に public/**）・Prettier（src/** 限定）・
+          # vite の publicDir コピーのいずれからも検査されない。Issue #28 以降、
+          # このファイルは「旧 Service Worker 登録を解除する唯一の経路」であり、
+          # 壊れても症状が出ないまま旧SWが生き延びる。最低限の不変条件をここで守る。
+          # 背景と根拠: docs/standards/performance-and-build.md
+          rc=0
+          fail() { echo "❌ $1"; rc=1; }
+
+          # 構文エラーは install の失敗＝旧SWの生存を意味する。
+          if ! node --check public/sw.js; then
+            fail "public/sw.js に構文エラーがある（install が失敗し旧SWが生き残る）"
+          fi
+
+          # 以降はコメント行を除いた実コードだけを対象にする。さらに空白を全て潰す。
+          # Prettier の折り返しで `self.registration` と `.unregister()` が別行になるため、
+          # 行単位の grep では正しいコードを誤検出してしまう。
+          flat="$(grep -vE '^[[:space:]]*//' public/sw.js | tr -d '[:space:]')"
+
+          if ! printf '%s' "$flat" | grep -q 'self\.registration\.unregister()'; then
+            fail "public/sw.js が self.registration.unregister() を呼んでいない（旧登録が解除されない）"
+          fi
+
+          # トゥームストーンは通信に介入してはならない。ハンドラが無ければ
+          # リクエストはブラウザ既定の経路へ流れる。
+          if printf '%s' "$flat" | grep -q "addEventListener('fetch'"; then
+            fail "public/sw.js に fetch ハンドラがある（素通しを壊す）"
+          fi
+
+          # 中核の不変条件。register() が復活すると、登録を持たないブラウザにも
+          # 「起動直後に自分を消すだけのSW」を新規配布してしまう。
+          if grep -rnE "serviceWorker\.register" src/ index.html; then
+            fail "Service Worker を登録するコードが復活している"
+          fi
+
+          {
+            echo "### Service Worker Tombstone"
+            if [ "$rc" -eq 0 ]; then
+              echo "✅ 自己解除スクリプトのまま、登録コードも復活していない"
+            else
+              echo "❌ 不変条件の違反あり（上のログを参照）"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "$rc"
+
       - name: Build project
         id: build
         run: |

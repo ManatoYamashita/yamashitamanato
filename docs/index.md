@@ -26,11 +26,11 @@
 - standards/performance-and-build.md — 遅延/分割、アセット方針、Three.js、ビルド設定。
 - standards/security-and-seo.md — セキュリティ、アクセシビリティ、SEO/アナリティクス。
 - standards/accessibility.md — WCAG 2.1 AA準拠ガイドライン（focus-visible、reduced-motion、ARIA、キーボード操作）。
-- standards/ssg-guidelines.md — vite-ssg プリレンダの実装ガイドライン（head既定値の上書き、onMounted依存の初期値、SSRガード、生成HTMLの検証手順）。
+- standards/ssg-guidelines.md — vite-ssg プリレンダの実装ガイドライン（head既定値の上書き、onMounted依存の初期値、SSRガード、動的ルートの列挙とビルド時データ取得、`__INITIAL_STATE__` の受け渡し、縮退判定の集約とビルドゲート、APIキー非混入の検証、生成HTMLの検証手順）。
 - standards/coding-standards.md — コーディングスタイルとレビュー/コミットの基本。
 
 ### Ops（運用・手順書）
-- ops/microcms-setup.md — microCMS初期セットアップガイド（アカウント作成、API設定、環境変数、初期データ登録）。
+- ops/microcms-setup.md — microCMS初期セットアップガイド（アカウント作成、API設定、環境変数の命名規約と`VITE_`禁止理由、初期データ登録）。
 - ops/creatives-guide.md — microCMSでのポートフォリオ作品管理手順（categories/creatives API、データフロー、詳細ページルーティング `/creatives/:category/:id`）。
 - ops/deployment-checklist.md — デプロイ前後の確認項目とトラブルシュート。Netlify CLIローカルデプロイ手順を含む。
 - ops/branch.md — ブランチ戦略、GitHub Actions CI/CD、コミットメッセージ規約。
@@ -53,4 +53,4 @@
 
 ---
 
-最終更新日: 2026-09-06
+最終更新日: 2026-09-06（SSGガイドライン更新）

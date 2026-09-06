@@ -116,17 +116,44 @@
 
 ```env
 # microCMS API設定
-VITE_MICROCMS_API_ENDPOINT=https://manapuraza.microcms.io/api/v1
-VITE_MICROCMS_API_KEY=your-read-only-api-key-here
-
-# データ移行用（一時的、オプション）
-VITE_MICROCMS_WRITE_API_KEY=your-write-api-key-here
+MICROCMS_API_ENDPOINT=https://manapuraza.microcms.io/api/v1
+MICROCMS_API_KEY=your-read-only-api-key-here
 ```
 
 **設定値:**
-- `VITE_MICROCMS_API_ENDPOINT`: サービスIDを含むエンドポイント（例: `https://manapuraza.microcms.io/api/v1`）
-- `VITE_MICROCMS_API_KEY`: 手順3.1で取得した読み取り専用APIキー
-- `VITE_MICROCMS_WRITE_API_KEY`: （オプション）手順3.2で取得した書き込み可能APIキー
+- `MICROCMS_API_ENDPOINT`: サービスIDを含むエンドポイント（例: `https://manapuraza.microcms.io/api/v1`）
+- `MICROCMS_API_KEY`: 手順3.1で取得した読み取り専用APIキー
+
+> **`VITE_` プレフィックスを付けてはいけません。**
+> Vite は `VITE_` で始まる環境変数をクライアントバンドルへ**インライン展開**するため、
+> APIキーがブラウザから読み取れる状態になります。本プロジェクトでAPIキーを使うのは
+> 次の3か所だけで、いずれもサーバ側（Node）です。
+>
+> | 利用箇所 | 実行環境 |
+> | --- | --- |
+> | `netlify/functions/microcms-proxy.ts` | Netlify Functions（クライアントはここを経由） |
+> | `scripts/lib/microcms.ts` | ビルド時（SSGルート列挙・sitemap生成） |
+> | `src/composables/microcmsServer.ts` | SSGプリレンダ時（`import.meta.env.SSR` 分岐からのみ） |
+>
+> クライアントバンドルへ混入していないことは、ビルド後に次で検証できます。
+> 空文字を `grep` へ渡すと全ファイルに一致するため、値の存在を先に確かめます。
+>
+> ```bash
+> npm run build
+> value=$(sed -n 's/^MICROCMS_API_KEY=//p' .env)
+> [ -n "$value" ] && grep -rl -F -- "$value" dist/ | wc -l   # 0 であること
+> ```
+>
+> 認証情報を持たない環境では、構造だけで同じことを確認できます。
+>
+> ```bash
+> ls dist/assets/ | grep -i microcms          # 何も出ないこと
+> grep -rl "process\.env\." dist/assets/*.js  # 何も出ないこと
+> ```
+
+> **既知の例外**: `scripts/migrate-to-microcms.ts` と `scripts/update-csv-image-urls.ts` は
+> 初期移行用の使い捨てスクリプトで、現在も `VITE_MICROCMS_*` を読みます。実行する場合のみ
+> 一時的にその名前で環境変数を与えてください（通常運用では不要）。
 
 ### 4.2. .gitignore確認
 
@@ -235,9 +262,12 @@ npm run dev
 デプロイサービスの環境変数設定で以下を追加:
 
 ```
-VITE_MICROCMS_API_ENDPOINT=https://manapuraza.microcms.io/api/v1
-VITE_MICROCMS_API_KEY=your-read-only-api-key-here
+MICROCMS_API_ENDPOINT=https://manapuraza.microcms.io/api/v1
+MICROCMS_API_KEY=your-read-only-api-key-here
 ```
+
+Netlify では、これらを **Builds と Functions の両方**から参照できるスコープで設定してください。
+ビルド時のSSGルート列挙とプリレンダがビルド環境の値を、プロキシ関数が Functions 環境の値を使います。
 
 ### 8.2. ビルド確認
 

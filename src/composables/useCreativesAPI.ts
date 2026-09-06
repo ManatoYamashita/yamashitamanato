@@ -14,6 +14,12 @@ const PROXY_ENDPOINT = '/.netlify/functions/microcms-proxy';
 // キャッシュ有効期限（30分）
 const CACHE_DURATION = 30 * 60 * 1000;
 
+// microCMS list API の1リクエストあたり上限
+const PAGE_SIZE = 100;
+
+// ページングの安全弁。1万件を超える運用は想定していない。
+const MAX_PAGES = 100;
+
 // キャッシュキー定義
 const CACHE_KEYS = {
   CATEGORIES: 'microcms_categories',
@@ -27,6 +33,11 @@ const categories = ref<CategoryData[]>([]);
 const isLoading = ref(false);
 const error = ref<Error | null>(null);
 
+// ストアの中身が一覧向けの軽量投影（detail/detailEn を落としたもの）かどうか。
+// プリレンダされた `/creatives` から詳細ページへ遷移した直後だけ真になり、
+// `fetchCreatives()` が全フィールドで置き換えた時点で偽へ戻る。
+const creativesArePartial = ref(false);
+
 /**
  * microCMS API共通クライアント（Netlify Functions プロキシ経由）
  */
@@ -34,13 +45,16 @@ async function fetchMicroCMS<T>(
   endpoint: string,
   params?: Record<string, string | number>
 ): Promise<T> {
-  // Netlify Functionプロキシを経由。
-  // データ取得は各ビューの onMounted（クライアント専用）からのみ発火するため、
-  // SSG/SSRプリレンダ段階でこの関数が呼ばれることは無い。下記の本番originフォールバックは
-  // 万一サーバ側で評価された場合に new URL() が throw しないための防御的措置。
-  const origin =
-    typeof window !== 'undefined' ? window.location.origin : 'https://www.yamashitamana.to';
-  const url = new URL(PROXY_ENDPOINT, origin);
+  // SSG/SSRプリレンダ段階では Netlify Functions が起動していないため、microCMS へ直接
+  // アクセスする。Vite はクライアントビルドで `import.meta.env.SSR` を false へ静的置換
+  // するため、この分岐と APIキーを参照するモジュールはクライアントバンドルに含まれない。
+  if (import.meta.env.SSR) {
+    const { fetchMicroCMSDirect } = await import('./microcmsServer');
+    return fetchMicroCMSDirect<T>(endpoint, params);
+  }
+
+  // クライアントは Netlify Function プロキシを経由（APIキーをブラウザへ露出させない）
+  const url = new URL(PROXY_ENDPOINT, window.location.origin);
   url.searchParams.append('endpoint', endpoint);
 
   // クエリパラメータを追加
@@ -193,30 +207,119 @@ async function fetchCreatives(categoryFilter?: string): Promise<void> {
     const cached = getCachedData<CreativeData[]>(cacheKey);
     if (cached) {
       creatives.value = cached;
+      creativesArePartial.value = false;
       return;
     }
 
-    // API呼び出しパラメータ
-    const params: Record<string, string | number> = {
-      limit: 100, // 作品数に応じて調整
-      depth: 2, // カテゴリ参照を含める
-    };
+    // 作品数が PAGE_SIZE を超えても欠落しないよう totalCount までページングする。
+    // ビルド時のルート列挙（scripts/lib/microcms.ts）も同じ件数を前提にしているため、
+    // ここで打ち切るとプリレンダ済み詳細ページがクライアント再描画で消える。
+    const collected: CreativeData[] = [];
+    let totalCount = Number.POSITIVE_INFINITY;
 
-    // カテゴリフィルタリング
-    if (categoryFilter) {
-      params.filters = `majorCategory[equals]${categoryFilter}`;
+    for (let page = 0; page < MAX_PAGES && collected.length < totalCount; page += 1) {
+      const params: Record<string, string | number> = {
+        limit: PAGE_SIZE,
+        offset: collected.length,
+        depth: 2, // カテゴリ参照を含める
+      };
+
+      // カテゴリフィルタリング
+      if (categoryFilter) {
+        params.filters = `majorCategory[equals]${categoryFilter}`;
+      }
+
+      const response = await fetchMicroCMS<MicroCMSListResponse<CreativeData>>('creatives', params);
+      totalCount = response.totalCount;
+
+      // 進捗しない応答での無限ループを防ぐ。
+      if (response.contents.length === 0) break;
+
+      collected.push(...response.contents);
     }
 
-    // API呼び出し
-    const response = await fetchMicroCMS<MicroCMSListResponse<CreativeData>>('creatives', params);
-
-    creatives.value = response.contents;
-    setCachedData(cacheKey, response.contents);
+    creatives.value = collected;
+    creativesArePartial.value = false;
+    setCachedData(cacheKey, collected);
   } catch (err) {
     error.value = err instanceof Error ? err : new Error('Failed to fetch creatives');
     throw error.value;
   } finally {
     isLoading.value = false;
+  }
+}
+
+/**
+ * 一覧ページ向けの軽量投影
+ *
+ * `__INITIAL_STATE__` に全作品を素のまま載せると 156KB になる。一覧描画に不要な
+ * 詳細本文（detail/detailEn）と、参照展開で肥大するカテゴリ・画像のメタデータを落として
+ * 約 40KB（gzip 約 8KB）に収める。型は `CreativeData` のまま保つ。
+ */
+function slimCategory(category: CategoryData): CategoryData {
+  return {
+    id: category.id,
+    createdAt: category.createdAt,
+    updatedAt: category.updatedAt,
+    name: category.name,
+    nameEn: category.nameEn,
+    type: category.type,
+  };
+}
+
+function slimForList(creative: CreativeData): CreativeData {
+  const { detail: _detail, detailEn: _detailEn, ...rest } = creative;
+  return {
+    ...rest,
+    thumbnail: { url: creative.thumbnail.url },
+    majorCategory: slimCategory(creative.majorCategory),
+    minorCategory: creative.minorCategory?.map(slimCategory),
+    images: creative.images?.map((image) => ({ url: image.url })),
+  };
+}
+
+/**
+ * プリレンダしたHTMLへ埋め込む状態を、ルートごとに最小限で組み立てる。
+ *
+ * vite-ssg はハイドレーションせずクライアントで全再描画するため、状態を渡さないと
+ * 「本文 → 空表示 → 本文」のちらつきが出る。全ページに全件を載せると肥大するので、
+ * 詳細ページは該当1件のみ、一覧ページは軽量投影した全件を渡す。
+ */
+export function getPrerenderState(routePath: string): {
+  creatives: CreativeData[];
+  partial?: boolean;
+} {
+  const detailMatch = /^\/creatives\/[^/]+\/([^/?#]+)/.exec(routePath);
+  if (detailMatch) {
+    const target = creatives.value.find((creative) => creative.id === detailMatch[1]);
+    return { creatives: target ? [target] : [] };
+  }
+
+  if (routePath === '/creatives') {
+    // 投影であることを明示する。受け取った側が詳細ページで本文を代用しないための印。
+    return { creatives: creatives.value.map(slimForList), partial: true };
+  }
+
+  return { creatives: [] };
+}
+
+/**
+ * プリレンダHTMLに埋め込まれた状態、または LocalStorage キャッシュでストアを初期化する。
+ * マウント前に呼ぶことで、初回描画が空リストになるのを防ぐ。
+ */
+export function hydrateCreatives(data: CreativeData[], options: { partial?: boolean } = {}): void {
+  if (data.length > 0) {
+    creatives.value = data;
+    creativesArePartial.value = options.partial === true;
+  }
+}
+
+/** LocalStorage キャッシュから同期的にストアを温める（再訪時のちらつき防止）。 */
+export function hydrateCreativesFromCache(): void {
+  const cached = getCachedData<CreativeData[]>(CACHE_KEYS.CREATIVES);
+  if (cached && cached.length > 0) {
+    creatives.value = cached;
+    creativesArePartial.value = false;
   }
 }
 
@@ -275,6 +378,7 @@ export function useCreativesAPI() {
     creatives: creatives as Ref<CreativeData[]>,
     categories: categories as Ref<CategoryData[]>,
     isLoading: isLoading as Ref<boolean>,
+    creativesArePartial: creativesArePartial as Ref<boolean>,
     error: error as Ref<Error | null>,
 
     // Actions

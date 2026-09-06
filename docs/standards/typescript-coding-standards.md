@@ -628,7 +628,7 @@ Before submitting code for review, verify:
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html)
 - [Vue 3 TypeScript Guide](https://vuejs.org/guide/typescript/overview.html)
 - [TypeScript Do's and Don'ts](https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html)
-- [Project Migration Guide](../typescript-migration.md)
+- [Project Migration Guide](../dev/typescript-migration.md)
 
 ## Updates
 

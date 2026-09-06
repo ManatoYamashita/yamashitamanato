@@ -1,9 +1,9 @@
 <template>
   <div class="menu">
     <!-- デスクトップナビゲーション -->
-    <nav class="desktop-nav">
+    <nav class="desktop-nav" :aria-label="$t('navbar.primaryLabel')">
       <div class="logo">
-        <RouterLink to="/" aria-current="page" aria-label="ホームページに戻る">
+        <RouterLink to="/" aria-label="ホームページに戻る">
           <transition name="slide" mode="out-in">
             <img
               v-if="!logoError"
@@ -53,10 +53,10 @@
     </nav>
 
     <!-- モバイルナビゲーション -->
-    <nav class="mobile-nav" v-show="shouldShowMobileNav">
+    <nav class="mobile-nav" v-show="shouldShowMobileNav" :aria-label="$t('navbar.primaryLabel')">
       <div class="mobile-header">
         <div class="logo">
-          <RouterLink to="/" aria-current="page" aria-label="ホームページに戻る">
+          <RouterLink to="/" aria-label="ホームページに戻る">
             <img
               v-if="!logoError"
               :src="logoSvg"
@@ -89,7 +89,7 @@
       </div>
 
       <!-- モバイル下部メニュー -->
-      <nav
+      <div
         class="mobile-bottom-menu"
         :class="{ 'mobile-menu-animate': isInitialLoad }"
         v-show="shouldShowMobileNav && currentPath !== '/'"
@@ -154,7 +154,7 @@
             </li>
           </ul>
         </div>
-      </nav>
+      </div>
     </nav>
   </div>
 </template>

@@ -1,9 +1,21 @@
 <template>
-  <div class="creatives">
+  <main class="creatives">
     <CreativesHero @filter-change="handleFilterChange" />
 
-    <main>
+    <div class="creatives-body">
       <div id="main-contents">
+        <!-- 読み込み状態のライブリージョン。role="status" はテキスト更新より前から
+             DOM に存在している必要があるため、内容が空でも常に描画する。 -->
+        <div class="creatives-status" role="status" aria-live="polite">
+          <template v-if="loadError">
+            <p class="creatives-status__message">{{ $t('creatives.common.loadError') }}</p>
+            <button type="button" class="creatives-status__retry" @click="load">
+              <FontAwesomeIcon :icon="faRotateRight" class="tag-icon" />
+              <span>{{ $t('creatives.common.retry') }}</span>
+            </button>
+          </template>
+        </div>
+
         <!-- Animation Section -->
         <section v-if="activeFilter === 'all' || activeFilter === 'animation'" id="animation">
           <h2>Animation</h2>
@@ -15,7 +27,7 @@
               <div class="skeleton-tags"><SkeletonBase width="4rem" height="1.5rem" :rounded="true" /><SkeletonBase width="5rem" height="1.5rem" :rounded="true" /></div>
             </li>
           </ul>
-          <ul v-else>
+          <ul v-else-if="animationCreatives.length">
             <CreativeItem
               v-for="(creative, index) in animationCreatives"
               :key="creative.id"
@@ -30,6 +42,7 @@
               :youtubeUrl="creative.detail?.youtube?.desktop || null"
             />
           </ul>
+          <p v-else-if="!loadError" class="section-empty">{{ $t('creatives.common.categoryEmpty') }}</p>
         </section>
 
         <!-- Development Section -->
@@ -43,7 +56,7 @@
               <div class="skeleton-tags"><SkeletonBase width="4rem" height="1.5rem" :rounded="true" /><SkeletonBase width="5rem" height="1.5rem" :rounded="true" /></div>
             </li>
           </ul>
-          <ul v-else>
+          <ul v-else-if="randomizedDevelopment.length">
             <CreativeItem
               v-for="(creative, index) in randomizedDevelopment"
               :key="creative.id"
@@ -57,6 +70,7 @@
               :tags="creative.tags"
             />
           </ul>
+          <p v-else-if="!loadError" class="section-empty">{{ $t('creatives.common.categoryEmpty') }}</p>
         </section>
 
         <!-- Illustration Section -->
@@ -70,7 +84,7 @@
               <div class="skeleton-tags"><SkeletonBase width="4rem" height="1.5rem" :rounded="true" /><SkeletonBase width="5rem" height="1.5rem" :rounded="true" /></div>
             </li>
           </ul>
-          <ul v-else>
+          <ul v-else-if="illustrationCreatives.length">
             <CreativeItem
               v-for="(creative, index) in illustrationCreatives"
               :key="creative.id"
@@ -84,6 +98,7 @@
               :tags="creative.tags"
             />
           </ul>
+          <p v-else-if="!loadError" class="section-empty">{{ $t('creatives.common.categoryEmpty') }}</p>
         </section>
 
         <!-- Video Section -->
@@ -97,7 +112,7 @@
               <div class="skeleton-tags"><SkeletonBase width="4rem" height="1.5rem" :rounded="true" /><SkeletonBase width="5rem" height="1.5rem" :rounded="true" /></div>
             </li>
           </ul>
-          <ul v-else>
+          <ul v-else-if="videoCreatives.length">
             <CreativeItem
               v-for="(creative, index) in videoCreatives"
               :key="creative.id"
@@ -111,6 +126,7 @@
               :tags="creative.tags"
             />
           </ul>
+          <p v-else-if="!loadError" class="section-empty">{{ $t('creatives.common.categoryEmpty') }}</p>
         </section>
 
         <!-- Design Section -->
@@ -124,7 +140,7 @@
               <div class="skeleton-tags"><SkeletonBase width="4rem" height="1.5rem" :rounded="true" /><SkeletonBase width="5rem" height="1.5rem" :rounded="true" /></div>
             </li>
           </ul>
-          <ul v-else>
+          <ul v-else-if="designCreatives.length">
             <CreativeItem
               v-for="(creative, index) in designCreatives"
               :key="creative.id"
@@ -138,6 +154,7 @@
               :tags="creative.tags"
             />
           </ul>
+          <p v-else-if="!loadError" class="section-empty">{{ $t('creatives.common.categoryEmpty') }}</p>
         </section>
       </div>
 
@@ -154,8 +171,8 @@
           />
         </div>
       </a>
-    </main>
-  </div>
+    </div>
+  </main>
 </template>
 
 <script setup lang="ts">
@@ -166,6 +183,8 @@ import { useCreativesAPI } from '@/composables/useCreativesAPI';
 import { computed, ref, watch, nextTick, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useHead } from '@unhead/vue';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { faRotateRight } from '@fortawesome/free-solid-svg-icons';
 import type { Locale, CreativeCategory, CMSCreative } from '@/types';
 
 const { locale } = useI18n<{ message: string }, Locale>();
@@ -197,16 +216,27 @@ const designCreatives = computed(
   () => getCreativesByCategory('design', locale.value as 'ja' | 'en').value
 );
 
-// データ取得
-onMounted(async () => {
+// 取得に失敗したかどうか。useCreativesAPI が export する error ref は
+// モジュールスコープのシングルトンで CreativeDetail と共有され、アンマウント時にも
+// クリアされないため、このビュー専用のローカルな状態として持つ。
+const loadError = ref(false);
+
+// データ取得。再読み込みボタンからも同じ関数を呼ぶ。
+// hasSettled を false へ戻すことで、再試行中は skeleton が再表示される。
+const load = async (): Promise<void> => {
+  hasSettled.value = false;
+  loadError.value = false;
   try {
     await fetchCreatives();
   } catch (err) {
+    loadError.value = true;
     console.error('Failed to fetch creatives:', err);
   } finally {
     hasSettled.value = true;
   }
-});
+};
+
+onMounted(load);
 
 // フィルター状態管理
 const activeFilter = ref<'all' | CreativeCategory>('all');
@@ -463,6 +493,50 @@ li {
 }
 .skeleton-card {
   margin: 1rem 0;
+}
+
+/* 読み込み状態のライブリージョン。エラーが無いときは高さを持たない。 */
+.creatives-status:empty {
+  display: none;
+}
+.creatives-status {
+  margin: 0 0 2rem;
+  padding: 1.5rem;
+  border: 2px solid #000;
+  border-radius: 0.75rem;
+  text-align: center;
+}
+.creatives-status__message {
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+/* 意匠は同ページの CreativesHero .filter-tag に合わせる */
+.creatives-status__retry {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.2rem;
+  background: transparent;
+  border: 2px solid #000;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #000;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.creatives-status__retry:hover {
+  background: #000;
+  border-color: #000;
+  color: #fff;
+}
+
+/* 取得完了かつ0件のときのカテゴリ内表示 */
+.section-empty {
+  margin: 1rem 0;
+  color: #555;
+  font-size: 0.95rem;
 }
 .skeleton-tags {
   display: flex;

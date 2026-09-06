@@ -38,7 +38,7 @@ header {
   /* height: 10vh; */
   width: 100%;
 }
-main#app {
+#app {
   position: relative;
   top: 0;
   left: 0;

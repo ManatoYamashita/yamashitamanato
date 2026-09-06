@@ -164,9 +164,10 @@ See `docs/ops/creatives-guide.md` for operational procedures:
 - **Assets**: Supports robots.txt as included asset
 
 ### Deployment
-- **CI/CD**: GitHub Actions workflow (`.github/workflows/deploy.yml`)
-- **Target**: FTP server deployment to `/manapuraza/` directory
-- **Node version**: 22.13.1 in CI environment
+- **Hosting**: Netlify. Production deploys run through Netlify's Git integration using `netlify.toml` (`npm run build` → publish `dist`)
+- **CI/CD**: `.github/workflows/feature-ci.yml` runs lint / format / build quality checks on branch pushes and opens PRs. **It does not deploy.**
+- **Node version**: 22.22.0, consistent across `.nvmrc`, `netlify.toml` (`NODE_VERSION`), `package.json` `engines`, and the CI workflow
+- **Removed**: FTP deployment (`.github/workflows/deploy.yml`, FTP-Deploy-Action to `/manapuraza/`) was deleted in `895f3d0` (2026-01-14). No FTP path exists.
 
 ## Development Guidelines
 
@@ -357,7 +358,7 @@ This codebase follows comprehensive development rules defined in `.cursor/rules/
 ## Important Notes
 
 - **No testing framework**: Manual testing only via dev server and DevTools
-- **FTP deployment**: GitHub Actions with FTP-Deploy-Action to `/manapuraza/` directory
+- **Netlify deployment**: Production is deployed by Netlify's Git integration, not by GitHub Actions. Verify a release by the Published SHA on Netlify, not by the GitHub commit status (see `docs/ops/deployment-checklist.md`)
 - **Single Vue instance with MetaBall**: Main app + MetaBall (sharing router/i18n/head)
 - **microCMS Integration**: Portfolio data managed via microCMS API, not static files
 - **Image optimization**: All portfolio images hosted on microCMS, must be WebP format

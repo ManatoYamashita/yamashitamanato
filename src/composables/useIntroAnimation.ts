@@ -71,7 +71,20 @@ export function useIntroAnimation(options: UseIntroAnimationOptions) {
       return;
     }
 
+    const logoEl = options.splashLogoRef.value;
+    const overlayEl = options.splashOverlayRef.value;
+
     const { gsap } = await import('gsap');
+
+    // 導入フェード（.splash-logo の splash-logo-in）は CSS が担当する。
+    // 実行中の CSS アニメーションはインラインスタイルより優先されるため、
+    // 完了を待たずに GSAP で opacity を触ると Phase 2 が打ち消される。
+    if (typeof logoEl.getAnimations === 'function') {
+      await Promise.all(logoEl.getAnimations().map((anim) => anim.finished.catch(() => undefined)));
+    }
+    // 完了後は fill による保持を解除し、以降の制御を GSAP へ明け渡す。
+    logoEl.style.animation = 'none';
+
     const tl = gsap.timeline({
       onComplete: () => {
         showSplash.value = false;
@@ -83,20 +96,15 @@ export function useIntroAnimation(options: UseIntroAnimationOptions) {
       },
     });
 
-    // Phase 1: 黄色レイヤー上にロゴがフェードイン
-    tl.fromTo(
-      options.splashLogoRef.value,
-      { opacity: 0, scale: 0.92 },
-      { opacity: 1, scale: 1, duration: 0.5, ease: 'power2.out' },
-    )
     // Phase 2: ロゴフェードアウト → レイヤースライドアウト
-    .to(options.splashLogoRef.value, {
+    // （Phase 1 のフェードインは CSS の splash-logo-in が担当する）
+    tl.to(logoEl, {
       opacity: 0,
       duration: 0.3,
       ease: 'power2.in',
       delay: 0.3,
     })
-    .to(options.splashOverlayRef.value, {
+    .to(overlayEl, {
       yPercent: -100,
       duration: 0.7,
       ease: 'power3.inOut',

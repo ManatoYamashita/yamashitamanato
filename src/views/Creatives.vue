@@ -8,7 +8,7 @@
         <section v-if="activeFilter === 'all' || activeFilter === 'animation'" id="animation">
           <h2>Animation</h2>
           <p>{{ $t('creatives.animation.paragraph') }}</p>
-          <ul v-if="isLoading && !animationCreatives.length">
+          <ul v-if="!hasSettled && !animationCreatives.length">
             <li v-for="n in 1" :key="`sk-anim-${n}`" class="skeleton-card">
               <SkeletonBase aspect-ratio="16/9" border-radius="0.5rem" />
               <SkeletonBase width="70%" height="1.2rem" border-radius="0.25rem" style="margin-top: 0.5rem" />
@@ -36,7 +36,7 @@
         <section v-if="activeFilter === 'all' || activeFilter === 'development'" id="development">
           <h2>Development</h2>
           <p>{{ $t('creatives.dev.paragraph') }}</p>
-          <ul v-if="isLoading && !randomizedDevelopment.length">
+          <ul v-if="!hasSettled && !randomizedDevelopment.length">
             <li v-for="n in 3" :key="`sk-dev-${n}`" class="skeleton-card">
               <SkeletonBase aspect-ratio="16/9" border-radius="0.5rem" />
               <SkeletonBase width="70%" height="1.2rem" border-radius="0.25rem" style="margin-top: 0.5rem" />
@@ -63,7 +63,7 @@
         <section v-if="activeFilter === 'all' || activeFilter === 'illustration'" id="illustration">
           <h2>Illustration</h2>
           <p>{{ $t('creatives.illustration.paragraph') }}</p>
-          <ul v-if="isLoading && !illustrationCreatives.length">
+          <ul v-if="!hasSettled && !illustrationCreatives.length">
             <li v-for="n in 1" :key="`sk-illust-${n}`" class="skeleton-card">
               <SkeletonBase aspect-ratio="16/9" border-radius="0.5rem" />
               <SkeletonBase width="70%" height="1.2rem" border-radius="0.25rem" style="margin-top: 0.5rem" />
@@ -90,7 +90,7 @@
         <section v-if="activeFilter === 'all' || activeFilter === 'video'" id="video">
           <h2>Video</h2>
           <p>{{ $t('creatives.video.paragraph') }}</p>
-          <ul v-if="isLoading && !videoCreatives.length">
+          <ul v-if="!hasSettled && !videoCreatives.length">
             <li v-for="n in 3" :key="`sk-video-${n}`" class="skeleton-card">
               <SkeletonBase aspect-ratio="16/9" border-radius="0.5rem" />
               <SkeletonBase width="70%" height="1.2rem" border-radius="0.25rem" style="margin-top: 0.5rem" />
@@ -117,7 +117,7 @@
         <section v-if="activeFilter === 'all' || activeFilter === 'design'" id="design">
           <h2>Design</h2>
           <p>{{ $t('creatives.design.paragraph') }}</p>
-          <ul v-if="isLoading && !designCreatives.length">
+          <ul v-if="!hasSettled && !designCreatives.length">
             <li v-for="n in 3" :key="`sk-design-${n}`" class="skeleton-card">
               <SkeletonBase aspect-ratio="16/9" border-radius="0.5rem" />
               <SkeletonBase width="70%" height="1.2rem" border-radius="0.25rem" style="margin-top: 0.5rem" />
@@ -171,7 +171,14 @@ import type { Locale, CreativeCategory, CMSCreative } from '@/types';
 const { locale } = useI18n<{ message: string }, Locale>();
 
 // microCMS API統合
-const { fetchCreatives, getCreativesByCategory, isLoading } = useCreativesAPI();
+const { fetchCreatives, getCreativesByCategory } = useCreativesAPI();
+
+// 初回取得が決着したかどうか。
+// isLoading は onMounted 内でしか true にならないため、SSGプリレンダ段階では
+// false のまま静的HTMLへ出力され、skeleton 分岐が丸ごと抜け落ちてしまう。
+// 「まだ取得していない」を初期値 false のこのフラグで表すことで、
+// プリレンダHTMLにも skeleton が焼き込まれ、初回ペイントが空リストにならない。
+const hasSettled = ref(false);
 
 // 各カテゴリの作品を取得
 const animationCreatives = computed(
@@ -196,6 +203,8 @@ onMounted(async () => {
     await fetchCreatives();
   } catch (err) {
     console.error('Failed to fetch creatives:', err);
+  } finally {
+    hasSettled.value = true;
   }
 });
 

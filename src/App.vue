@@ -226,8 +226,24 @@ const styleObject = computed<CSSProperties>(() => {
 .splash-logo {
   width: min(75vw, 700px);
   height: auto;
-  opacity: 0;
+  /* 導入フェードは CSS で行う。プリレンダされた / は JS 到達前に描画されるため、
+     ここを opacity: 0 で固定すると静的HTMLが無地の黄色一枚になってしまう。
+     CSS アニメーションは初回ペイント時点から走り、完了後に GSAP が Phase 2
+     （フェードアウト → レイヤースライドアウト）を引き継ぐ。
+     動作軽減環境では main.css のグローバル指定が duration を潰すため、
+     ここでの個別指定は不要（both により最終状態 opacity: 1 で停止する）。 */
+  animation: splash-logo-in 0.5s cubic-bezier(0.2, 0, 0, 1) both;
   will-change: opacity, transform;
+}
+@keyframes splash-logo-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 #center-logo {
   position: absolute;

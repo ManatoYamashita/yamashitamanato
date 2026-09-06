@@ -562,7 +562,7 @@ try {
 - [TypeScript Official Documentation](https://www.typescriptlang.org/docs/)
 - [Vue 3 TypeScript Guide](https://vuejs.org/guide/typescript/overview.html)
 - [Migration Plan](/.claude/plans/dapper-juggling-pizza.md)
-- [TypeScript Coding Standards](./standards/typescript-coding-standards.md)
+- [TypeScript Coding Standards](../standards/typescript-coding-standards.md)
 
 ## Conclusion
 

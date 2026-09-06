@@ -84,7 +84,7 @@ npm run update-csv-from-urls   # URL一覧からCSV更新
 - **Strictモード有効**: `strict: true` + 追加の厳格オプション
 - **100%型カバレッジ**: 全コンポーネント、ユーティリティ、設定ファイル
 - **ゼロエラーポリシー**: コミット時に型エラー・ESLintエラーゼロを要求
-- 詳細: `docs/typescript-migration.md`, `docs/standards/typescript-coding-standards.md`
+- 詳細: `docs/dev/typescript-migration.md`, `docs/standards/typescript-coding-standards.md`
 
 ### microCMS統合
 - **ヘッドレスCMS**: ポートフォリオ作品データをmicroCMSで管理

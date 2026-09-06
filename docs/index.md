@@ -8,15 +8,15 @@
 - 機密情報（PII 等）は保存禁止。コミット時は `DOC:` プレフィックスを推奨します。
 
 ## ディレクトリ構成（最小セット）
-- `standards/`: コーディング規約や共通ルール。
+- `standards/`: コーディング規約・設計/実装ガイドラインなど共通ルール。
 - `ops/`: 運用・手順書やチェックリスト。
 - `analytics/`: アクセス解析・トラッキング設定ガイド。
-- `dev/`: 開発環境構築とパフォーマンス最適化。
+- `dev/`: 開発環境構築と移行記録。
 
 ## ドキュメント一覧
 
 ### TypeScript移行
-- typescript-migration.md — TypeScript完全移行の全工程記録（Phase 1-4、Strictモード有効化、型エラーゼロ達成）。
+- dev/typescript-migration.md — TypeScript完全移行の全工程記録（Phase 1-4、Strictモード有効化、型エラーゼロ達成）。
 - standards/typescript-coding-standards.md — TypeScript Strictモードのコーディング規約（型定義、null安全、best practices）。
 
 ### Standards（コーディング規約・ガイドライン）
@@ -53,4 +53,4 @@
 
 ---
 
-最終更新日: 2026-09-06（アクセシビリティガイドラインにランドマーク構造を追加）
+最終更新日: 2026-09-06（規約類を standards/ へ集約し、索引のリンク切れを解消）

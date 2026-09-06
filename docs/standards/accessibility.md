@@ -229,6 +229,60 @@ const load = async (): Promise<void> => {
 OGP）すべてで区別する。エラー状態のフラグは**成功時にだけ**倒す。冒頭でクリアすると
 再取得の往復の間だけ「見つかりません」へ落ちる。
 
+### 6. フォーカス移動は祖先の `visibility` に潰される
+
+`focus()` が呼ばれたことと、フォーカスが移ったことは別物である。
+**`visibility: hidden` の子孫はフォーカス不可**なので、祖先が隠れていれば
+`focus()` は例外も戻り値も出さずに no-op になる。
+
+`App.vue` のルータービュー（`.app`）は、ホーム表示中だけ `visibility: hidden` で
+隠している。ここで `transition` に `visibility` を含めると、ホームから他ルートへ
+クライアント遷移した直後に罠になる。
+
+- トランジション中の計算値は、progress 0 の時点では**変更前の値**（= `hidden`）
+- トランジションが進むのは次のフレーム
+- Vue の `nextTick()` は**マイクロタスク**で、フレームより前に走る
+
+つまり `await nextTick(); el.focus()` の時点で祖先はまだ `hidden` と評価され、
+フォーカスは body に残る（#56）。非ホーム起点の遷移では `.app` が最初から
+`visible` なので再現せず、**ホーム起点のときだけ効かない**という形で出る。
+
+対処は「隠す方向だけを遅らせ、表示する方向は即座に確定させる」こと。
+
+```css
+.app {
+  /* visibility はトランジションさせない */
+  transition:
+    opacity 0.5s ease-in-out,
+    transform 0.5s ease-in-out;
+}
+.app.hidden {
+  visibility: hidden;
+  transition:
+    opacity 0.5s ease-in-out,
+    transform 0.5s ease-in-out,
+    visibility 0s linear 0.5s;  /* 非表示化のみ 0.5s 遅らせフェードを見せる */
+}
+```
+
+`.hidden` と `.app` は詳細度が同じで、後に書いた方が勝つ。`transition` を確実に
+上書きするため、セレクタは `.app.hidden` にして詳細度で勝たせる。
+
+検証は `focus()` の呼び出しと `document.activeElement` の**両方**を見ること。
+呼び出しの時点で祖先の計算値も一緒に記録すると、原因まで一度で分かる。
+
+```js
+const native = HTMLElement.prototype.focus;
+HTMLElement.prototype.focus = function (...a) {
+  console.log(this.tagName, getComputedStyle(this).visibility, document.contains(this));
+  return native.apply(this, a);
+};
+```
+
+なお自動操作の非アクティブタブでは `requestAnimationFrame` が止まり、
+トランジションが progress 0 で固まる。「いつまでも `hidden` のまま」に見えても、
+それは計測環境の副作用で、原因の切り分けとは分けて考える。
+
 ## 開発時のチェックリスト
 
 ### 新規コンポーネント作成時
@@ -239,6 +293,7 @@ OGP）すべてで区別する。エラー状態のフラグは**成功時にだ
 - [ ] インタラクティブ要素を入れ子にしていないか（`<button>` の中の `<a>` など。Tabが2回止まり、ロールも不正になる。ボタン見た目のリンクは `<a>` に class を当てる）
 - [ ] `outline: none` を書いていないか。**scoped CSS では詳細度がグローバルの `:focus-visible` を上回り、フォーカスの輪郭が消える**（`a.goback[data-v-x]` = 0,2,1 > `:focus-visible` = 0,1,0）
 - [ ] `:focus-visible` スタイルが適用されるか（グローバルスタイルでカバー）
+- [ ] プログラム的にフォーカスを移すなら、**その時点で祖先が `visibility: hidden` でないか**（`transition` に `visibility` を含めると、遷移直後の1フレームだけ隠れたままになり `focus()` が no-op になる）
 - [ ] 装飾的な画像には `aria-hidden="true"` または空 `alt=""` を設定
 - [ ] 意味のある画像には説明的な `alt` テキストを設定
 - [ ] 画像に `width`/`height` 属性を設定（CLS防止）

@@ -2,7 +2,7 @@
  * Portfolio creative item data structures
  */
 
-import type { Component } from 'vue';
+import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 // Creative categories (literal type for type safety)
 export type CreativeCategory = 'animation' | 'development' | 'illustration' | 'video' | 'design';
@@ -11,7 +11,7 @@ export type CreativeCategory = 'animation' | 'development' | 'illustration' | 'v
 export interface CtaButton {
   href: string;
   target: string;
-  icon?: Component;
+  icon?: IconDefinition;
   text: string; // i18n key (e.g., "creatives.cta.viewSite")
   subText: string; // i18n key (e.g., "creatives.cta.viewSiteSub")
   variant: '' | 'primary' | 'secondary' | 'simple';

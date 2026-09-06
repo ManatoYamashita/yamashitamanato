@@ -60,7 +60,7 @@
     <!-- メインコンテンツ -->
     <div id="main-contents">
       <!-- 作品タイトル -->
-      <h1 class="creative-title">{{ creative.title }}</h1>
+      <h1 ref="contentHeading" tabindex="-1" class="creative-title">{{ creative.title }}</h1>
 
       <!-- タグ -->
       <div class="creative-tags" v-if="creative.tags && creative.tags.length > 0">
@@ -183,7 +183,7 @@
 
   <!-- 作品が見つからない場合 -->
   <main v-else class="not-found">
-    <h1>{{ $t('creatives.common.notFound') }}</h1>
+    <h1 ref="contentHeading" tabindex="-1">{{ $t('creatives.common.notFound') }}</h1>
     <router-link to="/creatives" class="back-link">
       <font-awesome-icon :icon="faArrowLeft" />
       {{ $t('creatives.common.backToList') }}
@@ -247,6 +247,10 @@ const retryStatus = ref('');
 // 取得失敗の見出しへフォーカスを移すための参照。
 const errorHeading = ref<HTMLHeadingElement | null>(null);
 
+// 再試行が成功したときのフォーカス引き継ぎ先。本文の見出しと「見つかりません」の
+// 見出しは排他分岐なので、同じ ref 名を共有できる。
+const contentHeading = ref<HTMLHeadingElement | null>(null);
+
 // データ取得。再読み込みボタンからも同じ関数を呼ぶ。
 // Creatives.vue と違い hasSettled は false へ戻さない。戻すと skeleton 分岐へ切り替わって
 // 再読み込みボタンが DOM から消え、フォーカスが失われるため。
@@ -258,21 +262,45 @@ const load = async (): Promise<void> => {
   isReloading.value = true;
   retryStatus.value = '';
 
+  // エラー表示から復帰する再試行かどうか。成功時のフォーカス引き継ぎと、
+  // 失敗時に「見出しへフォーカスが移らない経路か」の判定に使う。
+  const recovering = loadError.value;
+  let failed = false;
+
   try {
     await fetchCreatives();
     // 冒頭ではなく成功時にだけ倒す。冒頭でクリアすると再取得の往復の間だけ
     // 分岐が「作品が見つかりません」へ落ちてしまう。
     loadError.value = false;
   } catch (err) {
+    failed = true;
     loadError.value = true;
-    // hasSettled が既に真 = 再試行。初回の失敗はフォーカス移動で伝わるため空のまま。
-    if (hasSettled.value) {
-      retryStatus.value = t('creatives.common.loadError');
-    }
     console.error('Failed to fetch creative:', err);
   } finally {
     hasSettled.value = true;
     isReloading.value = false;
+  }
+
+  // 分岐が確定して DOM へ反映されるまで待つ。ライブリージョンもフォーカス先も
+  // ここで初めて存在する。
+  await nextTick();
+
+  if (failed) {
+    // 本文が無く load-error 分岐へ落ちる初回失敗だけは、見出しへのフォーカス移動が
+    // 同じ文言を読み上げるためライブリージョンでは伝えない。それ以外（本文が残る
+    // 軽量投影での初回失敗、および2回目以降の失敗）は、領域が挿入された後に
+    // 空 → 本文 と更新して差分を作る。挿入と同時にテキストが入るライブリージョンは
+    // 読み上げが実装依存になるため、挿入より後で更新する必要がある。
+    if (recovering || creative.value) {
+      retryStatus.value = t('creatives.common.loadError');
+    }
+    return;
+  }
+
+  // 再試行の成功。押されたボタンは DOM から消えるため、放置するとフォーカスが body へ
+  // 落ち、位置と「成功した」という結果の両方が失われる。本文の見出しへ引き継ぐ。
+  if (recovering) {
+    contentHeading.value?.focus();
   }
 };
 
@@ -897,16 +925,19 @@ useHead({
 
 /* プログラム的なフォーカス移動で枠を出さない
    （グローバルの指定は :focus-visible なので通常は出ないが、実装差の保険） */
-.load-error h1:focus {
+.load-error h1:focus,
+.creative-title:focus,
+.not-found h1:focus {
   outline: none;
 }
 
+/* ボタンを中央の block 相当にして、次の復帰リンクを自然に改行させる。
+   back-link 側の display を上書きすると、768px 以下で固定の円形アイコンになる際の
+   flex 中央寄せを詳細度で打ち消してアイコンがずれるため、そちらは触らない。 */
 .load-error .retry-button {
-  margin-bottom: 2rem;
-}
-
-.load-error .back-link {
-  display: block;
+  display: flex;
+  width: fit-content;
+  margin: 0 auto 2rem;
 }
 
 /* 本文が代用値へ落ちたまま取得に失敗した状態の告知 */

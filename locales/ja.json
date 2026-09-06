@@ -142,7 +142,8 @@
     "404": {
         "title": "404",
         "notfound": "ページが見つかりません",
-        "message": "URLが間違っているか、ページが削除された可能性があります。あるいはリンク切れとか。"
+        "message": "URLが間違っているか、ページが削除された可能性があります。あるいはリンク切れとか。",
+        "back": "ホームへ戻る"
     },
     "underconstraction": {
         "title": "Under Constraction",

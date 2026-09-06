@@ -40,9 +40,10 @@ refactor/<refactor-target>   # リファクタリング
 chore/<chore-target>         # 依存・設定・ツール類の整備
 ```
 
-バグ修正は `fix/` を使う。コミットの PREFIX 一覧が `FIX` であり、`bugfix/` は
-実際のブランチ名として一度も使われていなかったため統一した。既存ブランチを
-取りこぼさないよう `bugfix/**` もトリガーには残してあるが、新規作成では使わない。
+バグ修正は `fix/` を使う。`fix/` と `bugfix/` が両方とも実運用で使われており
+（`fix/ssg-empty-category-skeleton`、`bugfix/nested-interactive-goback`）、
+同じ用途に名前が2つある状態だったため、コミットの PREFIX 一覧に合わせて `FIX` 側へ寄せた。
+既存ブランチを取りこぼさないよう `bugfix/**` もトリガーには残すが、新規作成では使わない。
 
 上記はすべて `Branch CI/CD` の quality-check 対象。プレフィックスを追加・変更するときは
 `.github/workflows/feature-ci.yml` の `on.push.branches` も同時に更新する（Issue #48）。

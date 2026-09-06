@@ -6,6 +6,9 @@
 - サブディレクトリは必要最小限に留め、命名は `kebab-case` に統一します。
 - 追加・更新時は本索引を必ず更新し、重複やリンク切れをチェックします。
 - 機密情報（PII 等）は保存禁止。コミット時は `DOC:` プレフィックスを推奨します。
+- 各ドキュメント末尾の `最終更新日:` は**日付のみ**を記録します。変更内容を追記すると行が
+  際限なく伸び、並行して走る PR がすべて同じ 1 行で競合するためです。何を変えたかは
+  各ドキュメント本文・PR 本文・git 履歴に残ります。
 
 ## ディレクトリ構成（最小セット）
 - `standards/`: コーディング規約・設計/実装ガイドラインなど共通ルール。
@@ -53,4 +56,4 @@
 
 ---
 
-最終更新日: 2026-09-06（規約類を standards/ へ集約し、索引のリンク切れを解消。frontend-guidelines にルーティング詳細・i18n 初期化設定・新規ページ追加チェックを統合。アクセシビリティガイドラインに Label in Name の節を追加。branch.md の CI トリガー記述を実態へ同期。frontend-guidelines にアイコン受け渡しの規約を追加。accessibility に入れ子インタラクティブと outline: none のチェック、ハードコード aria-label の禁止を追加。ssg-guidelines に useId() によるID採番を追加。frontend-guidelines に未使用i18nキー削除時の注意を追加。frontend-guidelines に内部遷移の RouterLink 必須を追加。frontend-guidelines に props: true の注意を追加）
+最終更新日: 2026-09-06

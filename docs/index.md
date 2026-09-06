@@ -53,4 +53,4 @@
 
 ---
 
-最終更新日: 2026-09-06（規約類を standards/ へ集約し、索引のリンク切れを解消。frontend-guidelines にルーティング詳細・i18n 初期化設定・新規ページ追加チェックを統合。アクセシビリティガイドラインに Label in Name の節を追加。branch.md の CI トリガー記述を実態へ同期）
+最終更新日: 2026-09-06（規約類を standards/ へ集約し、索引のリンク切れを解消。frontend-guidelines にルーティング詳細・i18n 初期化設定・新規ページ追加チェックを統合。アクセシビリティガイドラインに Label in Name の節を追加。branch.md の CI トリガー記述を実態へ同期。ブランチ規約を fix/ へ統一し lint/format を実ゲート化）

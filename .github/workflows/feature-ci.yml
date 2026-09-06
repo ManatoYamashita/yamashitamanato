@@ -6,7 +6,8 @@ on:
   push:
     branches:
       - 'feature/**'
-      - 'bugfix/**'
+      - 'fix/**'
+      - 'bugfix/**' # 旧称。新規ブランチでは fix/ を使う
       - 'hotfix/**'
       - 'docs/**'
       - 'refactor/**'
@@ -40,7 +41,12 @@ jobs:
       - name: Run ESLint
         id: lint
         run: |
-          npm run lint:check > lint-output.txt 2>&1 || true
+          # `|| true` を外して実ゲート化した。サマリーを書き切ってから
+          # 終了コードを引き継ぐため、失敗時も出力が残る。
+          set +e
+          npm run lint:check > lint-output.txt 2>&1
+          status=$?
+          set -e
           echo "### Lint Results" >> $GITHUB_STEP_SUMMARY
           if [ -s lint-output.txt ]; then
             echo '```' >> $GITHUB_STEP_SUMMARY
@@ -49,11 +55,17 @@ jobs:
           else
             echo "✅ No linting issues found" >> $GITHUB_STEP_SUMMARY
           fi
+          exit $status
 
       - name: Run Prettier Check
         id: format
         run: |
-          npm run format:check > format-output.txt 2>&1 || true
+          # `|| true` を外して実ゲート化した。サマリーを書き切ってから
+          # 終了コードを引き継ぐため、失敗時も出力が残る。
+          set +e
+          npm run format:check > format-output.txt 2>&1
+          status=$?
+          set -e
           echo "### Format Check Results" >> $GITHUB_STEP_SUMMARY
           if [ -s format-output.txt ]; then
             echo '```' >> $GITHUB_STEP_SUMMARY
@@ -62,6 +74,7 @@ jobs:
           else
             echo "✅ Code formatting is correct" >> $GITHUB_STEP_SUMMARY
           fi
+          exit $status
 
       - name: Build project
         id: build

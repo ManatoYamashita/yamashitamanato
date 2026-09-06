@@ -104,6 +104,15 @@ HTMLへ出力され、**JS未実行のクライアントではその状態が固
   setup 後に真になる情報を取り込めないうえ、`onMounted` の取得処理が
   それを偽へ打ち消して skeleton が一瞬巻き戻る、という二次的な問題が出る。
 
+  **例外: プリレンダ状態が対象データを必ず含むビューはこのルールの対象外。**
+  `CreativeDetail.vue` は `hasSettled = ref(false)` を今も使っているが、これは違反ではない。
+  詳細ページの `__INITIAL_STATE__` には該当作品が必ず1件入るため、SSR段階の分岐は
+  `!hasSettled && (!creative || creativesArePartial)` の第2項が偽になり、skeleton へ倒れない。
+  ここを「ルール違反」として `hasAllCreatives` 由来へ書き換えると、軽量投影から遷移した
+  直後に skeleton を出す `partial` の仕様が壊れ、本文が `description` で代用される。
+  判定軸は「ビュー由来かストア由来か」ではなく、
+  **そのルートのプリレンダ状態だけで3つ目の分岐を確定できるか**である。
+
 - **エラー状態は空状態の代理にならない。** 「エラーでないなら空」（`v-else-if="!loadError"`）は、
   プリレンダ済みの全件を保持したまま再取得だけ失敗したケースを取りこぼし、
   0件カテゴリが h2 と説明段落だけの無言セクションになる。
@@ -364,6 +373,13 @@ curl -sSL https://deploy-preview-<PR>--yamashitamanato.netlify.app/about -o /tmp
 - プリレンダされた `/creatives` の状態は `detail`/`detailEn` を落とした投影のため、
   そこから詳細ページへ遷移した直後は本文を持たない。`partial` フラグで区別し、
   `fetchCreatives()` が決着するまで詳細ページは skeleton を出す。
+- **ビルド時に0件だったカテゴリへ作品を追加すると、再ビルドまでは空状態の文言が
+  「嘘」になる。** `all` フラグはビルド時点の実値なので、追加後の初回描画は
+  クライアント取得が決着するまで `creatives.common.categoryEmpty` を表示し続ける。
+  これは skeleton を出し続ける旧挙動（Issue #38）との意図的なトレードオフで、
+  JS未実行のクローラへ正しい状態を渡すことを優先した結果である。
+  窓は取得1往復ぶんで、上の「ビルド後の追加はプリレンダされない」と同じ根で、
+  microCMS Webhook による自動再ビルド（Issue #29）が入れば併せて解消する。
 - hreflang は ja/en/x-default がすべて `/` を指したまま（Issue #7）。
 - 存在しないパスが 200 を返す（Issue #8）。
 

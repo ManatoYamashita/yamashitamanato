@@ -87,6 +87,21 @@ const ssgOptions = {
   },
 
   onFinished(): void {
+    // 原因側（データ供給の失敗）を先に投げる。レンダリング時の取得が失敗すると
+    // 一覧も skeleton のまま出力されるため、skeleton を先に投げると
+    // データ供給障害が分岐条件の欠陥として誤診される。
+    // 早期 return で skeleton 検査を飛ばさないよう、条件は肯定形で書く。
+    if (routesMissingData.length > 0) {
+      const sample = routesMissingData.slice(0, 5).join(', ');
+      const rest = routesMissingData.length > 5 ? ` (+${routesMissingData.length - 5} more)` : '';
+      throw new Error(
+        `[ssg] ${routesMissingData.length} route(s) were prerendered without creative data: ${sample}${rest}. ` +
+          'These pages ship as <title>Not Found</title> at HTTP 200. ' +
+          'Check that MICROCMS_API_ENDPOINT / MICROCMS_API_KEY are readable from the build scope and that microCMS responded.'
+      );
+    }
+
+    // データは供給できているのに skeleton が残っている場合だけ、分岐条件の欠陥として投げる。
     if (creativesShippedSkeleton) {
       throw new Error(
         '[ssg] /creatives was prerendered with skeleton placeholders still in the HTML. ' +
@@ -95,16 +110,6 @@ const ssgOptions = {
           'Check that the branch conditions derive from the store (hasAllCreatives), not from onMounted.'
       );
     }
-
-    if (routesMissingData.length === 0) return;
-
-    const sample = routesMissingData.slice(0, 5).join(', ');
-    const rest = routesMissingData.length > 5 ? ` (+${routesMissingData.length - 5} more)` : '';
-    throw new Error(
-      `[ssg] ${routesMissingData.length} route(s) were prerendered without creative data: ${sample}${rest}. ` +
-        'These pages ship as <title>Not Found</title> at HTTP 200. ' +
-        'Check that MICROCMS_API_ENDPOINT / MICROCMS_API_KEY are readable from the build scope and that microCMS responded.'
-    );
   },
 };
 

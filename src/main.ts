@@ -2,8 +2,36 @@ import { ViteSSG } from 'vite-ssg';
 import App from '@/App.vue';
 import { routes } from '@/router/routes';
 import { setupClientRouterEffects } from '@/router';
-import type { Locale } from '@/types';
+import {
+  getPrerenderState,
+  hydrateCreatives,
+  hydrateCreativesFromCache,
+  useCreativesAPI,
+} from '@/composables/useCreativesAPI';
+import type { CreativeData, Locale } from '@/types';
 import '@/assets/main.css';
+
+/**
+ * プリレンダ時の作品データ取得は全ルートで1回だけ行う。
+ * vite-ssg はサーバエントリを一度だけ読み込み、ルートごとに createApp を呼ぶため、
+ * モジュールスコープのこのPromiseが全ページのレンダリングで共有される。
+ */
+let prerenderCreativesPromise: Promise<void> | null = null;
+
+function loadCreativesForPrerender(): Promise<void> {
+  if (!prerenderCreativesPromise) {
+    prerenderCreativesPromise = useCreativesAPI()
+      .fetchCreatives()
+      .catch((err: unknown) => {
+        // 認証情報が無い環境や一時的な取得失敗でビルドを落とさない。
+        // 作品データを含まない静的HTMLが出力され、クライアントで従来どおり取得される。
+        console.warn(
+          `[ssg] Failed to load creatives for prerendering: ${err instanceof Error ? err.message : String(err)}`
+        );
+      });
+  }
+  return prerenderCreativesPromise;
+}
 
 export const createApp = ViteSSG(
   App,
@@ -16,7 +44,7 @@ export const createApp = ViteSSG(
       return { top: 0 };
     },
   },
-  async ({ app, router, isClient }) => {
+  async ({ app, router, isClient, initialState, onSSRAppRendered }) => {
     const { createI18n } = await import('vue-i18n');
     const ja = await import('/locales/ja.json');
 
@@ -36,7 +64,30 @@ export const createApp = ViteSSG(
 
     app.use(i18n);
 
+    if (!isClient) {
+      // プリレンダ段階では onMounted が走らないため、レンダリング前にストアを充填する。
+      await loadCreativesForPrerender();
+
+      // レンダリング後に、そのルートが必要とする分だけを __INITIAL_STATE__ へ載せる。
+      // vite-ssg は onSSRAppRendered の後に transformState(initialState) を呼ぶため、
+      // 同一参照へのin-place変異がシリアライズ結果に反映される。
+      onSSRAppRendered(() => {
+        Object.assign(initialState, getPrerenderState(router.currentRoute.value.path));
+      });
+    }
+
     if (isClient) {
+      // プリレンダHTMLに埋め込まれた作品データでストアを初期化する。
+      // クライアントは createApp で全再描画するため、これが無いと
+      // 「本文 → 空表示 → 本文」のちらつきが出る。
+      const embedded = (initialState as { creatives?: CreativeData[] }).creatives;
+      if (embedded && embedded.length > 0) {
+        hydrateCreatives(embedded);
+      } else {
+        // プリレンダ対象外のルートは LocalStorage キャッシュで温める（再訪時のみ有効）。
+        hydrateCreativesFromCache();
+      }
+
       setupClientRouterEffects(router);
 
       // 英語辞書を遅延ロード

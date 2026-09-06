@@ -275,7 +275,7 @@ microCMSのセットアップ方法については `docs/ops/microcms-setup.md` 
 ## トラブルシューティング
 
 ### APIエラーが発生する
-- `.env` ファイルに `VITE_MICROCMS_API_ENDPOINT` と `VITE_MICROCMS_API_KEY` が設定されているか確認
+- `.env` ファイルに `MICROCMS_API_ENDPOINT` と `MICROCMS_API_KEY` が設定されているか確認（`VITE_` プレフィックスは付けない。理由は [microcms-setup.md](./microcms-setup.md) 参照）
 - microCMS管理画面でAPIキーが有効か確認
 - ブラウザコンソールでエラーメッセージを確認
 

@@ -1,6 +1,6 @@
 <template>
   <!-- スケルトン表示 -->
-  <div v-if="isLoading && !creative" class="creative-detail creative-detail--skeleton">
+  <div v-if="!hasSettled && !creative" class="creative-detail creative-detail--skeleton">
     <SkeletonBase width="8rem" height="1rem" border-radius="0.25rem" />
 
     <div id="main-contents">
@@ -179,8 +179,14 @@ const category = computed<string>(() => route.params.category as string);
 const id = computed<string>(() => route.params.id as string);
 
 // microCMS APIから作品データを取得
-const { getCreativeById, fetchCreatives, isLoading } = useCreativesAPI();
+const { getCreativeById, fetchCreatives } = useCreativesAPI();
 const creative = computed(() => getCreativeById(id.value, locale.value as 'ja' | 'en').value);
+
+// 初回取得が決着したかどうか。
+// isLoading は onMounted 内でしか true にならないため、SSGプリレンダ段階では false のまま
+// 出力され、データが無いときに skeleton ではなく「作品が見つかりません」の h1 が
+// 静的HTMLへ焼き込まれてしまう。「まだ取得していない」を初期値 false のこのフラグで表す。
+const hasSettled = ref(false);
 
 // データ取得
 onMounted(async () => {
@@ -188,6 +194,8 @@ onMounted(async () => {
     await fetchCreatives();
   } catch (err) {
     console.error('Failed to fetch creative:', err);
+  } finally {
+    hasSettled.value = true;
   }
 });
 

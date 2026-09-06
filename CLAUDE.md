@@ -14,13 +14,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run typecheck` - Run TypeScript type checking (vue-tsc)
 
 ### SSG (静的サイト生成)
-本プロジェクトは `vite-ssg` を使用して静的4ページをビルド時にプリレンダリング。
-- **対象ルート**: `/`, `/about`, `/creatives`, `/contact`（`vite.config.ts` の `ssgOptions.includedRoutes` で制御）
-- **対象外**: `/creatives/:category/:id`（動的ルート、クライアントサイドレンダリング継続）、`/404`、`/underconstraction`
+本プロジェクトは `vite-ssg` を使用して静的4ページと全作品詳細ページをビルド時にプリレンダリング。
+詳細は `docs/standards/ssg-guidelines.md` を参照（SSG関連の変更前に必読）。
+- **対象ルート**: `/`, `/about`, `/creatives`, `/contact` + `/creatives/:category/:id` 全件（`vite.config.ts` の async `ssgOptions.includedRoutes` で制御）
+- **対象外**: `/404`、`/underconstraction`、ビルド後に追加された作品（SPAフォールバック）
 - **エントリ**: `src/main.ts` の `ViteSSG` ファクトリ形式。SSR段階で `document`/`window` を参照しないよう `isClient` ガードを使用
+- **ビルド時データ取得**: `scripts/lib/microcms.ts`（ルート列挙・sitemap）、`src/composables/microcmsServer.ts`（プリレンダ、`import.meta.env.SSR` 分岐からのみ）
+- **状態受け渡し**: `onSSRAppRendered` で `initialState` をルート別にin-place変異させ `__INITIAL_STATE__` へ埋め込む
 - **i18n**: SSG段階は日本語のみ同期ロード、英語はクライアントで遅延ロード
 - **MetaBall (Three.js)**: `isClient` ガード内で `requestIdleCallback` により遅延マウント、SSR段階では実行されない
-- **生成物**: `dist/index.html`, `dist/about.html`, `dist/creatives.html`, `dist/contact.html`
+- **生成物**: `dist/index.html`, `about.html`, `creatives.html`, `contact.html`, `dist/creatives/{category}/{id}.html`
+- **注意**: microCMS で作品を追加・更新したら再デプロイが必要（再ビルドまで初期HTMLに反映されない）
 
 ### Testing & Quality
 - **Type Checking**: `npm run typecheck` - TypeScript compilation check (zero errors required)
@@ -104,7 +108,7 @@ microCMS API → useCreativesAPI composable → LocalStorage cache → Vue compo
 **Key Files:**
 - `src/composables/useCreativesAPI.ts` - Data fetching, caching, and adaptation logic
 - `src/types/microcms.ts` - Type definitions for categories and creatives APIs
-- `.env` - Environment variables (`VITE_MICROCMS_API_ENDPOINT`, `VITE_MICROCMS_API_KEY`)
+- `.env` - Environment variables (`MICROCMS_API_ENDPOINT`, `MICROCMS_API_KEY`)。`VITE_` プレフィックスは付けない（クライアントバンドルへインライン展開され、APIキーが露出するため）
 
 **Categories:**
 - 5 major categories: `animation`, `development`, `illustration`, `video`, `design`

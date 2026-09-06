@@ -20,6 +20,11 @@ import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import * as dotenv from 'dotenv';
+import {
+  fetchAllCreatives,
+  hasMicroCMSConfig,
+  type BuildCreativeData,
+} from './lib/microcms';
 
 dotenv.config();
 
@@ -27,67 +32,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const projectRoot = path.join(__dirname, '..');
 
-const API_ENDPOINT =
-  process.env.VITE_MICROCMS_API_ENDPOINT || process.env.MICROCMS_API_ENDPOINT;
-const API_KEY =
-  process.env.VITE_MICROCMS_API_KEY || process.env.MICROCMS_API_KEY;
-
-const hasMicroCMSConfig = Boolean(API_ENDPOINT && API_KEY);
-
 const BASE_URL = 'https://www.yamashitamana.to';
 
-// microCMS APIレスポンス型
-interface MicroCMSMeta {
-  id: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt?: string;
-}
-
-interface CategoryData extends MicroCMSMeta {
-  name: string;
-  nameEn?: string;
-}
-
-interface CreativeData extends MicroCMSMeta {
-  majorCategory: CategoryData;
-  title: string;
-  thumbnail: { url: string; width?: number; height?: number };
-}
-
-interface MicroCMSListResponse<T> {
-  contents: T[];
-  totalCount: number;
-  offset: number;
-  limit: number;
-}
-
-// microCMS APIベースURLを正規化（/api/v1 を保証）
-function normalizeEndpoint(endpoint: string): string {
-  const base = endpoint.replace(/\/+$/, '');
-  return base.includes('/api/v1') ? base : `${base}/api/v1`;
-}
-
-// microCMS APIからデータ取得
-async function fetchCreatives(): Promise<CreativeData[]> {
-  const baseUrl = normalizeEndpoint(API_ENDPOINT as string);
-  const url = `${baseUrl}/creatives?limit=100&depth=1`;
-  const response = await fetch(url, {
-    headers: {
-      'X-MICROCMS-API-KEY': API_KEY as string,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`microCMS API error: ${response.status} ${response.statusText}`);
-  }
-
-  const data = (await response.json()) as MicroCMSListResponse<CreativeData>;
-  return data.contents;
-}
-
 // カテゴリIDをURL用スラッグとして使用
-function getCategorySlug(creative: CreativeData): string {
+function getCategorySlug(creative: BuildCreativeData): string {
   return creative.majorCategory.id;
 }
 
@@ -168,10 +116,10 @@ const staticPages: StaticPage[] = [
 
 // sitemap.xml生成
 async function generateSitemap(): Promise<void> {
-  let creatives: CreativeData[] = [];
-  if (hasMicroCMSConfig) {
+  let creatives: BuildCreativeData[] = [];
+  if (hasMicroCMSConfig()) {
     console.log('Fetching creatives from microCMS...');
-    creatives = await fetchCreatives();
+    creatives = await fetchAllCreatives();
     console.log(`Fetched ${creatives.length} creatives.`);
   } else {
     console.warn('Warning: microCMS API credentials not found. Generating sitemap with static pages only.');

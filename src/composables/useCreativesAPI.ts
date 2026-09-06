@@ -34,13 +34,16 @@ async function fetchMicroCMS<T>(
   endpoint: string,
   params?: Record<string, string | number>
 ): Promise<T> {
-  // Netlify Functionプロキシを経由。
-  // データ取得は各ビューの onMounted（クライアント専用）からのみ発火するため、
-  // SSG/SSRプリレンダ段階でこの関数が呼ばれることは無い。下記の本番originフォールバックは
-  // 万一サーバ側で評価された場合に new URL() が throw しないための防御的措置。
-  const origin =
-    typeof window !== 'undefined' ? window.location.origin : 'https://www.yamashitamana.to';
-  const url = new URL(PROXY_ENDPOINT, origin);
+  // SSG/SSRプリレンダ段階では Netlify Functions が起動していないため、microCMS へ直接
+  // アクセスする。Vite はクライアントビルドで `import.meta.env.SSR` を false へ静的置換
+  // するため、この分岐と APIキーを参照するモジュールはクライアントバンドルに含まれない。
+  if (import.meta.env.SSR) {
+    const { fetchMicroCMSDirect } = await import('./microcmsServer');
+    return fetchMicroCMSDirect<T>(endpoint, params);
+  }
+
+  // クライアントは Netlify Function プロキシを経由（APIキーをブラウザへ露出させない）
+  const url = new URL(PROXY_ENDPOINT, window.location.origin);
   url.searchParams.append('endpoint', endpoint);
 
   // クエリパラメータを追加
@@ -217,6 +220,74 @@ async function fetchCreatives(categoryFilter?: string): Promise<void> {
     throw error.value;
   } finally {
     isLoading.value = false;
+  }
+}
+
+/**
+ * 一覧ページ向けの軽量投影
+ *
+ * `__INITIAL_STATE__` に全作品を素のまま載せると 156KB になる。一覧描画に不要な
+ * 詳細本文（detail/detailEn）と、参照展開で肥大するカテゴリ・画像のメタデータを落として
+ * 約 40KB（gzip 約 8KB）に収める。型は `CreativeData` のまま保つ。
+ */
+function slimCategory(category: CategoryData): CategoryData {
+  return {
+    id: category.id,
+    createdAt: category.createdAt,
+    updatedAt: category.updatedAt,
+    name: category.name,
+    nameEn: category.nameEn,
+    type: category.type,
+  };
+}
+
+function slimForList(creative: CreativeData): CreativeData {
+  const { detail: _detail, detailEn: _detailEn, ...rest } = creative;
+  return {
+    ...rest,
+    thumbnail: { url: creative.thumbnail.url },
+    majorCategory: slimCategory(creative.majorCategory),
+    minorCategory: creative.minorCategory?.map(slimCategory),
+    images: creative.images?.map((image) => ({ url: image.url })),
+  };
+}
+
+/**
+ * プリレンダしたHTMLへ埋め込む状態を、ルートごとに最小限で組み立てる。
+ *
+ * vite-ssg はハイドレーションせずクライアントで全再描画するため、状態を渡さないと
+ * 「本文 → 空表示 → 本文」のちらつきが出る。全ページに全件を載せると肥大するので、
+ * 詳細ページは該当1件のみ、一覧ページは軽量投影した全件を渡す。
+ */
+export function getPrerenderState(routePath: string): { creatives: CreativeData[] } {
+  const detailMatch = /^\/creatives\/[^/]+\/([^/?#]+)/.exec(routePath);
+  if (detailMatch) {
+    const target = creatives.value.find((creative) => creative.id === detailMatch[1]);
+    return { creatives: target ? [target] : [] };
+  }
+
+  if (routePath === '/creatives') {
+    return { creatives: creatives.value.map(slimForList) };
+  }
+
+  return { creatives: [] };
+}
+
+/**
+ * プリレンダHTMLに埋め込まれた状態、または LocalStorage キャッシュでストアを初期化する。
+ * マウント前に呼ぶことで、初回描画が空リストになるのを防ぐ。
+ */
+export function hydrateCreatives(data: CreativeData[]): void {
+  if (data.length > 0) {
+    creatives.value = data;
+  }
+}
+
+/** LocalStorage キャッシュから同期的にストアを温める（再訪時のちらつき防止）。 */
+export function hydrateCreativesFromCache(): void {
+  const cached = getCachedData<CreativeData[]>(CACHE_KEYS.CREATIVES);
+  if (cached && cached.length > 0) {
+    creatives.value = cached;
   }
 }
 

@@ -3,17 +3,51 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { visualizer } from 'rollup-plugin-visualizer'
+import * as dotenv from 'dotenv'
+import {
+  creativeDetailPath,
+  fetchAllCreatives,
+  hasMicroCMSConfig,
+} from './scripts/lib/microcms'
+
+// Netlify のビルド環境では process.env に注入済みだが、ローカルビルドでは .env から読む。
+dotenv.config()
 
 // vite-ssg 設定
-// 静的ルート（Home/About/Creatives/Contact）のみプリレンダリング対象。
-// 動的ルート `/creatives/:category/:id` および 404 キャッチオールは
-// 引き続きクライアントサイドレンダリングのフォールバック扱い。
+// 静的ルート（Home/About/Creatives/Contact）に加え、microCMS の全作品について
+// 動的ルート `/creatives/:category/:id` をビルド時に列挙してプリレンダリングする。
+// 404 キャッチオールと /underconstraction は引き続きCSRフォールバック扱い。
+const STATIC_ROUTES = ['/', '/about', '/creatives', '/contact'];
+
 const ssgOptions = {
   script: 'async' as const,
   formatting: 'minify' as const,
-  includedRoutes(paths: string[]): string[] {
-    const STATIC_ROUTES = ['/', '/about', '/creatives', '/contact'];
-    return paths.filter((p) => STATIC_ROUTES.includes(p));
+  async includedRoutes(paths: string[]): Promise<string[]> {
+    const staticRoutes = paths.filter((p) => STATIC_ROUTES.includes(p));
+
+    // 認証情報が無い環境（フォーク、CI のシークレット未設定など）では静的ページのみを
+    // 生成してビルドを継続する。詳細ページはSPAフォールバックで従来どおり描画される。
+    if (!hasMicroCMSConfig()) {
+      console.warn(
+        '[ssg] microCMS credentials not found. Prerendering static routes only.'
+      );
+      return staticRoutes;
+    }
+
+    try {
+      const creatives = await fetchAllCreatives();
+      const detailRoutes = creatives.map(creativeDetailPath);
+      console.log(
+        `[ssg] Prerendering ${staticRoutes.length} static + ${detailRoutes.length} creative detail routes.`
+      );
+      return [...staticRoutes, ...detailRoutes];
+    } catch (err) {
+      // 取得失敗でビルド全体を落とさない。静的ページのSSGは維持する。
+      console.warn(
+        `[ssg] Failed to fetch creatives (${err instanceof Error ? err.message : String(err)}). Prerendering static routes only.`
+      );
+      return staticRoutes;
+    }
   },
 };
 

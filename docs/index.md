@@ -21,12 +21,12 @@
 
 ### Standards（コーディング規約・ガイドライン）
 - standards/architecture.md — エントリ/初期化/責務分離とフォールバック方針。
-- standards/frontend-guidelines.md — Vue SFC規約、ルーティング、i18n、新規ページ追加の手順。
+- standards/frontend-guidelines.md — Vue SFC規約、コンポーネント設計（Props/Emit、アイコンの受け渡し）、ルーティング、i18n、新規ページ追加の手順。
 - standards/design-system.md — カラー/フォント/背景/モーション/コンポーネントなどのデザインシステム全体。
 - standards/performance-and-build.md — 遅延/分割、アセット方針、Three.js、ビルド設定。
 - standards/security-and-seo.md — セキュリティ、アクセシビリティ、SEO/アナリティクス。
-- standards/accessibility.md — WCAG 2.1 AA準拠ガイドライン（ランドマーク構造とビューのルート要素ルール、focus-visible、reduced-motion、ARIA、キーボード操作）。
-- standards/ssg-guidelines.md — vite-ssg プリレンダの実装ガイドライン（head既定値の上書き、onMounted依存の初期値、SSRガード、動的ルートの列挙とビルド時データ取得、`__INITIAL_STATE__` の受け渡しと完全性フラグ（partial/all の2軸）、縮退判定の集約とビルドゲート、APIキー非混入の検証、生成HTMLの検証手順）。
+- standards/accessibility.md — WCAG 2.1 AA準拠ガイドライン（ランドマーク構造とビューのルート要素ルール、Label in Name（可視テキストとアクセシブル名の一致）、focus-visible、reduced-motion、ARIA、キーボード操作）。
+- standards/ssg-guidelines.md — vite-ssg プリレンダの実装ガイドライン（head既定値の上書き、onMounted依存の初期値、SSRガード、動的ルートの列挙とビルド時データ取得、`__INITIAL_STATE__` の受け渡しと完全性フラグ（partial/all の2軸）、縮退判定の集約とビルドゲート、APIキー非混入の検証、`useId()` による一意ID採番、生成HTMLの検証手順）。
 - standards/coding-standards.md — コーディングスタイルとレビュー/コミットの基本。
 
 ### Ops（運用・手順書）
@@ -53,4 +53,4 @@
 
 ---
 
-最終更新日: 2026-09-06（規約類を standards/ へ集約し、索引のリンク切れを解消。frontend-guidelines にルーティング詳細・i18n 初期化設定・新規ページ追加チェックを統合。ssg-guidelines に `__INITIAL_STATE__` の完全性フラグと skeleton 焼き込みのビルドゲートを追記）
+最終更新日: 2026-09-06（規約類を standards/ へ集約し、索引のリンク切れを解消。frontend-guidelines にルーティング詳細・i18n 初期化設定・新規ページ追加チェックを統合。アクセシビリティガイドラインに Label in Name の節を追加。branch.md の CI トリガー記述を実態へ同期。frontend-guidelines にアイコン受け渡しの規約を追加。accessibility に入れ子インタラクティブと outline: none のチェック、ハードコード aria-label の禁止を追加。ssg-guidelines に useId() によるID採番と `__INITIAL_STATE__` の完全性フラグ・skeleton 焼き込みのビルドゲートを追加）

@@ -104,7 +104,7 @@
             role="button"
             :aria-expanded="isMobileMenuOpen"
             aria-controls="mobile-menu-links"
-            :aria-label="isMobileMenuOpen ? 'メニューを閉じる' : 'メニューを開く'"
+            :aria-label="isMobileMenuOpen ? $t('navbar.closeMenu') : $t('navbar.openMenu')"
             tabindex="0"
             @keydown.enter="handleMorphButtonClick"
             @keydown.space.prevent="handleMorphButtonClick"

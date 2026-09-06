@@ -171,7 +171,7 @@ button.secondary:hover {
     :aria-describedby="subText ? tooltipId : undefined"
     :class="[category, variant]"
   >
-    <component v-if="icon" :is="icon" :size="20" class="icon" />
+    <font-awesome-icon v-if="icon" :icon="icon" class="icon" />
     <span class="label">{{ text }}</span>
     <span v-if="subText" class="tooltip" role="tooltip" :id="tooltipId" aria-hidden="true">
       {{ subText }}
@@ -183,8 +183,8 @@ button.secondary:hover {
 <script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { computed } from 'vue';
-import type { Component } from 'vue';
 
 let btnIdCounter = 0;
 
@@ -194,7 +194,7 @@ interface Props {
   link?: string;
   href?: string;
   target?: string;
-  icon?: Component | null;
+  icon?: IconDefinition | null;
   showArrow?: boolean;
   category?: '' | 'animation' | 'programming' | 'graphics' | 'video';
   variant?: '' | 'simple' | 'primary' | 'secondary';

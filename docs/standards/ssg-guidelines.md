@@ -270,6 +270,37 @@ grep -rl "process\.env\." dist/assets/*.js  # 何も出ないこと
 - 逆に言うと、プリレンダHTMLの価値は
   **クローラとJS未実行環境に対してのみ**。この2者を基準に成否を判定する。
 
+## 一意なDOM IDは `useId()` で採る
+
+`aria-controls` / `aria-describedby` / `<label for>` などで一意なIDが必要なとき、
+モジュールレベルのカウンタ（`let n = 0; const id = ++n`）を使わないこと。
+
+vite-ssg は**全ページを1つのNodeプロセスで順に描画する**ため、モジュール変数は
+ページをまたいで生き続ける。24ページ目のコンポーネントには連番の後半が振られ、
+静的HTMLに `menu-47` のような値が焼き込まれる。ページ単位では整合するので
+壊れはしないが、値が不安定で差分レビューもしづらい。
+
+```ts
+import { useId } from 'vue';
+
+const menuId = useId(); // ページごとに振り直される。SSR/クライアント間でも一致
+```
+
+`useId()`（Vue 3.5+）はコンポーネントツリー上の位置から採番するため、
+ページごとに `v-0` から振り直される。現状この構成はハイドレーションしないが、
+将来 `options.hydration` を有効化しても、そのまま安全に使える。
+
+同じコンポーネントが同一ページに複数マウントされる場合（`LanguageDropdown` は
+`App.vue` のホーム用と `Menu.vue` の desktop / mobile で最大3つ）でも、
+ID は各インスタンスで異なる。
+
+```bash
+# 生成HTMLで aria-controls と参照先 id が一致し、ページ内で重複しないことを確認する
+npm run build
+grep -o 'aria-controls="[^"]*"' dist/index.html | sort | uniq -c
+grep -o '<ul id="[^"]*" class="lang-dropdown-menu"' dist/index.html
+```
+
 ## 検証手順
 
 生成HTMLはローカルビルドで確認できます。ブラウザでの目視だけでは

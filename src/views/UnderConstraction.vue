@@ -7,14 +7,12 @@
           <h2>{{ $t('underconstraction.subtitle') }}</h2>
           <p>{{ $t('underconstraction.message') }}</p>
           <br />
-          <button class="goback">
-            <a href="https://note.com/manato_yamashita">
-              <span class="circle" aria-hidden="true">
-                <span class="icon arrow"></span>
-              </span>
-              <span class="button-text">{{ $t('underconstraction.back') }}</span>
-            </a>
-          </button>
+          <a class="goback" href="https://note.com/manato_yamashita">
+            <span class="circle" aria-hidden="true">
+              <span class="icon arrow"></span>
+            </span>
+            <span class="button-text">{{ $t('underconstraction.back') }}</span>
+          </a>
         </div>
       </div>
     </div>
@@ -78,27 +76,28 @@ body {
   color: #000;
 }
 
-button {
+/* 元は <button> をリンク見た目へ寄せる打ち消し群だった。
+   <a> へ変えたため outline: none は削除している。scoped CSS では
+   この規則の詳細度が main.css の :focus-visible を上回り、
+   キーボードフォーカスの輪郭を消してしまうため。 */
+a.goback {
   position: relative;
   display: inline-block;
-  cursor: pointer;
-  outline: none;
-  border: 0;
-  vertical-align: middle;
-  text-decoration: none;
-  background: transparent;
-  padding: 0;
-  margin-top: 2rem;
-  font-size: inherit;
-  font-family: inherit;
-}
-
-button.goback {
   width: 13rem;
   height: auto;
+  margin-top: 2rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  vertical-align: middle;
+  color: inherit;
+  font-size: inherit;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
 }
 
-button.goback .circle {
+a.goback .circle {
   transition: all 0.45s cubic-bezier(0.65, 0, 0.076, 1);
   position: relative;
   display: block;
@@ -109,7 +108,7 @@ button.goback .circle {
   border-radius: 1.625rem;
 }
 
-button.goback .circle .icon {
+a.goback .circle .icon {
   transition: all 0.45s cubic-bezier(0.65, 0, 0.076, 1);
   position: absolute;
   top: 0;
@@ -118,7 +117,7 @@ button.goback .circle .icon {
   background: #fff;
 }
 
-button.goback .circle .icon.arrow {
+a.goback .circle .icon.arrow {
   transition: all 0.45s cubic-bezier(0.65, 0, 0.076, 1);
   left: 0.625rem;
   width: 1.125rem;
@@ -126,7 +125,7 @@ button.goback .circle .icon.arrow {
   background: none;
 }
 
-button.goback .circle .icon.arrow::before {
+a.goback .circle .icon.arrow::before {
   position: absolute;
   content: '';
   top: -0.29rem;
@@ -138,7 +137,7 @@ button.goback .circle .icon.arrow::before {
   transform: rotate(45deg);
 }
 
-button.goback .button-text {
+a.goback .button-text {
   transition: all 0.45s cubic-bezier(0.65, 0, 0.076, 1);
   position: absolute;
   top: 0;
@@ -154,16 +153,16 @@ button.goback .button-text {
   text-transform: uppercase;
 }
 
-button:hover .circle {
+a.goback:hover .circle {
   width: 100%;
 }
 
-button:hover .circle .icon.arrow {
+a.goback:hover .circle .icon.arrow {
   background: #fff;
   transform: translate(1rem, 0);
 }
 
-button:hover .button-text {
+a.goback:hover .button-text {
   color: #fff;
 }
 

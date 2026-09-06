@@ -223,7 +223,7 @@
         </section>
       </div>
 
-      <a href="https://でじこんちゃん.net" aria-label="でじこんちゃんのサイトへ">
+      <a href="https://でじこんちゃん.net" :aria-label="$t('creatives.dcChanLinkLabel')">
         <div id="dc-chan-container">
           <img
             id="dc-chan"

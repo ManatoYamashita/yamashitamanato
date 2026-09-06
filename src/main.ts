@@ -84,10 +84,21 @@ export const createApp = ViteSSG(
       // 「本文 → 空表示 → 本文」のちらつきが出る。
       // `/creatives` に載る作品データは detail/detailEn を落とした投影のため、
       // partial を引き継いで詳細ページが本文を description で代用しないようにする。
-      const prerendered = initialState as { creatives?: CreativeData[]; partial?: boolean };
+      // all は「件数として全件そろっている」印で、一覧側が0件カテゴリの空状態を
+      // skeleton と区別するために使う。
+      const prerendered = initialState as {
+        creatives?: CreativeData[];
+        partial?: boolean;
+        all?: boolean;
+      };
       const embedded = prerendered.creatives;
-      if (embedded && embedded.length > 0) {
-        hydrateCreatives(embedded, { partial: prerendered.partial === true });
+      // all だけが立って作品が0件の状態（microCMS が全件0件）でもフラグは引き継ぐ。
+      // ここで落とすと、SSRが空状態を出したページをクライアントが skeleton へ戻してしまう。
+      if (prerendered.all === true || (embedded && embedded.length > 0)) {
+        hydrateCreatives(embedded ?? [], {
+          partial: prerendered.partial === true,
+          all: prerendered.all === true,
+        });
       } else {
         // プリレンダ対象外のルートは LocalStorage キャッシュで温める（再訪時のみ有効）。
         hydrateCreativesFromCache();

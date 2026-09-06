@@ -20,7 +20,7 @@
         <section v-if="activeFilter === 'all' || activeFilter === 'animation'" id="animation">
           <h2>Animation</h2>
           <p>{{ $t('creatives.animation.paragraph') }}</p>
-          <ul v-if="!hasSettled && !animationCreatives.length">
+          <ul v-if="showSkeleton(animationCreatives)">
             <li v-for="n in 1" :key="`sk-anim-${n}`" class="skeleton-card">
               <SkeletonBase aspect-ratio="16/9" border-radius="0.5rem" />
               <SkeletonBase
@@ -53,7 +53,7 @@
               :youtubeUrl="creative.detail?.youtube?.desktop || null"
             />
           </ul>
-          <p v-else-if="!loadError" class="section-empty">
+          <p v-else-if="showEmpty(animationCreatives)" class="section-empty">
             {{ $t('creatives.common.categoryEmpty') }}
           </p>
         </section>
@@ -62,7 +62,7 @@
         <section v-if="activeFilter === 'all' || activeFilter === 'development'" id="development">
           <h2>Development</h2>
           <p>{{ $t('creatives.dev.paragraph') }}</p>
-          <ul v-if="!hasSettled && !randomizedDevelopment.length">
+          <ul v-if="showSkeleton(randomizedDevelopment)">
             <li v-for="n in 3" :key="`sk-dev-${n}`" class="skeleton-card">
               <SkeletonBase aspect-ratio="16/9" border-radius="0.5rem" />
               <SkeletonBase
@@ -94,7 +94,7 @@
               :tags="creative.tags"
             />
           </ul>
-          <p v-else-if="!loadError" class="section-empty">
+          <p v-else-if="showEmpty(randomizedDevelopment)" class="section-empty">
             {{ $t('creatives.common.categoryEmpty') }}
           </p>
         </section>
@@ -103,7 +103,7 @@
         <section v-if="activeFilter === 'all' || activeFilter === 'illustration'" id="illustration">
           <h2>Illustration</h2>
           <p>{{ $t('creatives.illustration.paragraph') }}</p>
-          <ul v-if="!hasSettled && !illustrationCreatives.length">
+          <ul v-if="showSkeleton(illustrationCreatives)">
             <li v-for="n in 1" :key="`sk-illust-${n}`" class="skeleton-card">
               <SkeletonBase aspect-ratio="16/9" border-radius="0.5rem" />
               <SkeletonBase
@@ -135,7 +135,7 @@
               :tags="creative.tags"
             />
           </ul>
-          <p v-else-if="!loadError" class="section-empty">
+          <p v-else-if="showEmpty(illustrationCreatives)" class="section-empty">
             {{ $t('creatives.common.categoryEmpty') }}
           </p>
         </section>
@@ -144,7 +144,7 @@
         <section v-if="activeFilter === 'all' || activeFilter === 'video'" id="video">
           <h2>Video</h2>
           <p>{{ $t('creatives.video.paragraph') }}</p>
-          <ul v-if="!hasSettled && !videoCreatives.length">
+          <ul v-if="showSkeleton(videoCreatives)">
             <li v-for="n in 3" :key="`sk-video-${n}`" class="skeleton-card">
               <SkeletonBase aspect-ratio="16/9" border-radius="0.5rem" />
               <SkeletonBase
@@ -176,7 +176,7 @@
               :tags="creative.tags"
             />
           </ul>
-          <p v-else-if="!loadError" class="section-empty">
+          <p v-else-if="showEmpty(videoCreatives)" class="section-empty">
             {{ $t('creatives.common.categoryEmpty') }}
           </p>
         </section>
@@ -185,7 +185,7 @@
         <section v-if="activeFilter === 'all' || activeFilter === 'design'" id="design">
           <h2>Design</h2>
           <p>{{ $t('creatives.design.paragraph') }}</p>
-          <ul v-if="!hasSettled && !designCreatives.length">
+          <ul v-if="showSkeleton(designCreatives)">
             <li v-for="n in 3" :key="`sk-design-${n}`" class="skeleton-card">
               <SkeletonBase aspect-ratio="16/9" border-radius="0.5rem" />
               <SkeletonBase
@@ -217,7 +217,7 @@
               :tags="creative.tags"
             />
           </ul>
-          <p v-else-if="!loadError" class="section-empty">
+          <p v-else-if="showEmpty(designCreatives)" class="section-empty">
             {{ $t('creatives.common.categoryEmpty') }}
           </p>
         </section>
@@ -255,14 +255,11 @@ import type { Locale, CreativeCategory, CMSCreative } from '@/types';
 const { locale } = useI18n<{ message: string }, Locale>();
 
 // microCMS API統合
-const { fetchCreatives, getCreativesByCategory } = useCreativesAPI();
+const { fetchCreatives, getCreativesByCategory, hasAllCreatives } = useCreativesAPI();
 
-// 初回取得が決着したかどうか。
-// isLoading は onMounted 内でしか true にならないため、SSGプリレンダ段階では
-// false のまま静的HTMLへ出力され、skeleton 分岐が丸ごと抜け落ちてしまう。
-// 「まだ取得していない」を初期値 false のこのフラグで表すことで、
-// プリレンダHTMLにも skeleton が焼き込まれ、初回ペイントが空リストにならない。
-const hasSettled = ref(false);
+// このビューの load() が決着したかどうか。onMounted 内でしか true にならないため、
+// SSGプリレンダ段階では常に false になる。表示分岐をこれ「だけ」で決めてはいけない。
+const loadSettled = ref(false);
 
 // 各カテゴリの作品を取得
 const animationCreatives = computed(
@@ -287,9 +284,8 @@ const designCreatives = computed(
 const loadError = ref(false);
 
 // データ取得。再読み込みボタンからも同じ関数を呼ぶ。
-// hasSettled を false へ戻すことで、再試行中は skeleton が再表示される。
 const load = async (): Promise<void> => {
-  hasSettled.value = false;
+  loadSettled.value = false;
   loadError.value = false;
   try {
     await fetchCreatives();
@@ -297,11 +293,29 @@ const load = async (): Promise<void> => {
     loadError.value = true;
     console.error('Failed to fetch creatives:', err);
   } finally {
-    hasSettled.value = true;
+    loadSettled.value = true;
   }
 };
 
 onMounted(load);
+
+// 表示の3分岐は5カテゴリで共通なので、条件を1箇所へ集約する。
+//   skeleton … 「0件なのかまだ分からない」。ストアが不完全 かつ このビューも未決着
+//   一覧     … 要素がある（テンプレート側の v-else-if）
+//   空状態   … ストアが全件を保持していると確定していて、そのうえで0件
+//
+// 決着判定を loadSettled だけに寄せると、onMounted が走らないSSR段階で必ず
+// 「未決着」へ倒れ、0件カテゴリが skeleton のまま静的HTMLへ焼き込まれる（Issue #38）。
+// main.ts はプリレンダのレンダリング前に fetchCreatives() を await 済みで、
+// クライアントでもマウント前に __INITIAL_STATE__ でストアを充填するため、
+// hasAllCreatives を併せて見れば SSR 段階でも決着済みだと判定できる。
+//
+// 空状態の条件を loadError の否定にしてはいけない。プリレンダ済みの全件を保持したまま
+// 再取得だけ失敗したとき、0件カテゴリが h2 と説明段落だけの無言セクションになる。
+const showSkeleton = (items: readonly CMSCreative[]): boolean =>
+  items.length === 0 && !hasAllCreatives.value && !loadSettled.value;
+const showEmpty = (items: readonly CMSCreative[]): boolean =>
+  items.length === 0 && hasAllCreatives.value;
 
 // フィルター状態管理
 const activeFilter = ref<'all' | CreativeCategory>('all');

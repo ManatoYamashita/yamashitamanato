@@ -10,7 +10,10 @@ interface UseIntroAnimationOptions {
 }
 
 export function useIntroAnimation(options: UseIntroAnimationOptions) {
-  const showSplash = ref(true);
+  // SSG/SSRプリレンダ段階では onMounted（initAnimation）が走らず、初期値がそのまま
+  // 生成HTMLへ出力される。ホーム以外で true のままだと全画面オーバーレイが焼き込まれ、
+  // JS未実行時に本文が覆い隠されるため、isHomePage から同期初期化する。
+  const showSplash = ref(options.isHomePage.value);
   const introComplete = ref(false);
   const revealComplete = ref(false);
 

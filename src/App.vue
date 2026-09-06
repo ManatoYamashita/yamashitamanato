@@ -83,6 +83,7 @@ import logoSvg from '@/assets/logo.svg';
 import { useLanguageSwitcher } from '@/composables/useLanguageSwitcher';
 import { useIntroAnimation } from '@/composables/useIntroAnimation';
 import { useI18n } from 'vue-i18n';
+import { useHead } from '@unhead/vue';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -148,13 +149,21 @@ const updateHomePageState = (): void => {
   isHomePage.value = route.name === 'home';
 };
 
-// <html lang> を locale と同期（WCAG 3.1.1対応）
-// SSG段階では document 不在のためクライアントのみで実行
-watch(locale, (newLocale) => {
-  if (typeof document !== 'undefined') {
-    document.documentElement.lang = newLocale;
-  }
-}, { immediate: true });
+// <html lang>（WCAG 3.1.1対応）と viewport を head 定義として宣言する。
+// vite-ssg はプリレンダ時に unhead のサーバ既定値（lang="en" / viewport-fit 指定なし）を
+// 注入し index.html のテンプレート値を上書きするため、アプリ側で明示的に上書きし直す。
+// document への直接代入と異なり、SSR/クライアント双方で同じ値が適用される。
+useHead({
+  htmlAttrs: {
+    lang: computed(() => locale.value),
+  },
+  meta: [
+    {
+      name: 'viewport',
+      content: 'width=device-width, initial-scale=1.0, viewport-fit=cover',
+    },
+  ],
+});
 
 watch(route, () => {
   updateHomePageState();

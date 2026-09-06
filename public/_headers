@@ -20,6 +20,18 @@
   Cache-Control: public, max-age=3600
 
 ###############################################
+# Service Worker - 常に再検証
+# /sw.js は Issue #28 で撤去した旧SWを解除するためだけの自己解除スクリプト。
+# ここが長期キャッシュされると解除コードが届かず、cache-first の旧SWが延命する。
+# Netlify の既定値も同じ `public, max-age=0, must-revalidate` だが、
+# 将来 `/*.js` のような広いルールが追加されたときに巻き込まれないよう明示する。
+# Chrome 68+ / updateViaCache: 'imports' は SW スクリプトの HTTP キャッシュを無視するが、
+# それ以前のブラウザは尊重する（max-age は 86400 で頭打ち）。
+###############################################
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+###############################################
 # Static assets with hash - 1 year cache
 ###############################################
 /assets/*
@@ -56,11 +68,8 @@
   Cache-Control: public, max-age=604800
 
 ###############################################
-# Manifest and SEO - 1 day cache
+# SEO - 1 day cache
 ###############################################
-/manifest.json
-  Cache-Control: public, max-age=86400
-
 /sitemap.xml
   Cache-Control: public, max-age=86400
 

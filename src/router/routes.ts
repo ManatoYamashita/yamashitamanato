@@ -34,7 +34,9 @@ export const routes: RouteRecordRaw[] = [
     path: '/creatives/:category/:id',
     name: 'creative-detail',
     component: CreativeDetailComponent,
-    props: true,
+    // props: true は付けない。CreativeDetail.vue は defineProps を持たず
+    // useRoute() でパラメータを読むため、宣言されていない category / id が
+    // フォールスルー属性としてルート要素へ出力されてしまう（#34）。
     beforeEnter: (to: RouteLocationNormalized) => {
       const { category } = to.params;
       if (typeof category === 'string' && isValidCategory(category)) {

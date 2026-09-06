@@ -33,6 +33,10 @@ const DETAIL_ROUTE_PATTERN = /^\/creatives\/[^/]+\/[^/]+$/;
 let enumeratedDetailRoutes = 0;
 const routesMissingData: string[] = [];
 
+// 一覧ページに skeleton が焼き込まれたまま出荷されたかどうか。
+// 作品0件のカテゴリでしか露見しないため、生成HTMLの目視では見落とす（Issue #38）。
+let creativesShippedSkeleton = false;
+
 /** vite-ssg が onPageRendered へ渡すコンテキストのうち、本設定が参照する部分。 */
 interface RenderedPageContext {
   initialState?: { creatives?: unknown };
@@ -73,10 +77,25 @@ const ssgOptions = {
     if (!Array.isArray(embedded) || embedded.length === 0) {
       routesMissingData.push(route);
     }
+
+    // 一覧ページの skeleton は「取得が決着していない」の意味なので、
+    // データ供給が成功しているここに残っていること自体が欠陥。
+    if (route === '/creatives' && html.includes('skeleton-card')) {
+      creativesShippedSkeleton = true;
+    }
     return html;
   },
 
   onFinished(): void {
+    if (creativesShippedSkeleton) {
+      throw new Error(
+        '[ssg] /creatives was prerendered with skeleton placeholders still in the HTML. ' +
+          'A category with zero works fell into the loading branch, so its empty-state message ' +
+          'is missing from the initial HTML (see Issue #38). ' +
+          'Check that the branch conditions derive from the store (hasAllCreatives), not from onMounted.'
+      );
+    }
+
     if (routesMissingData.length === 0) return;
 
     const sample = routesMissingData.slice(0, 5).join(', ');

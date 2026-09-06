@@ -76,6 +76,7 @@ grep -oh '<main[^>]*>' dist/creatives/*/*.html | sort -u
 ```
 
 ブラウザ（`npm run preview`）では、DevTools の Accessibility ツリーに banner / main / contentinfo が1つずつ出ること、CTA・戻るリンクがクリックとフォーカスを受け付けること（`pointer-events` の維持）を確認します。
+
 ## WCAG 2.5.3 Label in Name（可視ラベルとアクセシブル名）
 
 **可視テキストを持つ要素に、それを置き換える `aria-label` を付けてはいけない。**
@@ -108,12 +109,24 @@ grep -oh '<main[^>]*>' dist/creatives/*/*.html | sort -u
 ```
 
 **先頭の `&nbsp;` は必須。** アクセシブル名はインライン要素の子を区切り無しで連結するため、これが無いと
-`AnimeShow animation works` のように単語が繋がって読み上げられる。ASCII空白では代替にならない:
+`AnimeShow animation works` のように単語が繋がって読み上げられる。ASCII空白では代替にならない。
+消える理由は空白を置く位置によって異なる:
 
-- Vue の `whitespace: 'condense'` が改行を含む空白のみのテキストノードを削除する
-- Prettier が `<span>` を別行に整形した時点で、その空白ノードが改行を含むようになる
+- **`<span>` の内側先頭（上の推奨パターンの位置）: 1行で書いても必ず消える。**
+  Vue のテンプレートコンパイラは、要素の最初または最後の子である「空白のみのテキストノード」を
+  改行の有無に関わらず削除する。整形前から機能しない
+- **`<span>` 同士の間: 改行が入った瞬間に消える。**
+  `whitespace: 'condense'` が「要素間にあり改行を含む空白のみのテキストノード」を削除するため、
+  Prettier が `<span>` を別行へ折り返した時点で黙って壊れる
 
-つまり ASCII空白は「書いた直後は動くが、次に整形した誰かが黙って壊す」。実体参照で確定させること。
+どちらの位置でも ASCII空白は当てにならない。実体参照で確定させること。
+
+挙動は次のコマンドで再現できる。`&nbsp;` のときだけ描画関数に `" "`（U+00A0）が残る。
+
+```bash
+node -e 'console.log(require("@vue/compiler-dom").compile(process.argv[1]).code)' \
+  '<button><span>Anime</span><span class="sr-only">&nbsp;{{ l }}</span></button>'
+```
 
 静的HTML（`index.html`）など `.sr-only` が使いにくい箇所では、`aria-label` の値を**可視テキストで始まる**形にする。
 
@@ -193,4 +206,4 @@ navbar.menu.home          — ロゴリンクの.sr-only補足テキスト（メ
 
 ---
 
-最終更新日: 2026-09-06（ランドマーク構造 / Label in Name の節を追加）
+最終更新日: 2026-09-06（ランドマーク構造 / Label in Name の節を追加、`&nbsp;` 必須の理由を実測どおりに訂正）

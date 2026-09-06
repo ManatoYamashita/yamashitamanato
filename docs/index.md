@@ -26,6 +26,7 @@
 - standards/performance-and-build.md — 遅延/分割、アセット方針、Three.js、ビルド設定。
 - standards/security-and-seo.md — セキュリティ、アクセシビリティ、SEO/アナリティクス。
 - standards/accessibility.md — WCAG 2.1 AA準拠ガイドライン（focus-visible、reduced-motion、ARIA、キーボード操作）。
+- standards/ssg-guidelines.md — vite-ssg プリレンダの実装ガイドライン（head既定値の上書き、onMounted依存の初期値、SSRガード、生成HTMLの検証手順）。
 - standards/coding-standards.md — コーディングスタイルとレビュー/コミットの基本。
 
 ### Ops（運用・手順書）
@@ -52,4 +53,4 @@
 
 ---
 
-最終更新日: 2026-03-07
+最終更新日: 2026-09-06

@@ -22,7 +22,7 @@
 | `CreativesHero.vue` | フィルターボタンに `aria-pressed` + `.sr-only` の補足テキスト（可視「Anime」等の略語を補う）。ラッパーの `role="toolbar"` にのみ `aria-label` |
 | `MetaBall.vue` | canvas に `aria-hidden="true"` |
 | `Sns.vue` | 外部リンクに `target="_blank"`, `rel="noopener noreferrer"`。アイコンのみで可視テキストが無いため `aria-label` に「新しいタブで開きます」追記 |
-| `LanguageDropdown.vue` | WAI-ARIA Menu Buttonパターン: `role="menu"`, `role="menuitem"`, ArrowUp/Down/Escape/Home/End キーボード操作。トグルは可視「日本語」+ `.sr-only` の `descriptionLabel` |
+| `LanguageDropdown.vue` | WAI-ARIA Menu Buttonパターン: トグルに `aria-expanded` / `aria-haspopup` / `aria-controls`、メニューに `role="menu"`, `role="menuitem"`, ArrowUp/Down/Escape/Home/End キーボード操作。トグルは可視「日本語」+ `.sr-only` の `descriptionLabel`。ID は `useId()` で採番（最大3インスタンスが同時に存在するため） |
 | `App.vue` | ホームページに `<h1 class="sr-only">` 追加 |
 | `Btn.vue` | ツールチップに `id` + ボタンに `aria-describedby` 接続。ツールチップは `aria-hidden="true"`（`opacity:0` では名前計算から外れないため）。アクセシブル名は可視 `text` のみ |
 | `Menu.vue` | ロゴリンクに `.sr-only` の遷移先ラベル（ロゴ画像の読み込み失敗時も可視テキストと整合） |
@@ -300,4 +300,4 @@ navbar.closeMenu          — ハンバーガーのaria-label（開→閉。ア�
 
 ---
 
-最終更新日: 2026-09-06（ランドマーク構造 / Label in Name / 非同期エラーの伝え方の節を追加、`&nbsp;` 必須の理由を実測どおりに訂正、入れ子インタラクティブと `outline: none` をチェックリストへ追加、ハードコード `aria-label` の禁止を明記）
+最終更新日: 2026-09-06（ランドマーク構造 / Label in Name / 非同期エラーの伝え方の節を追加、`&nbsp;` 必須の理由を実測どおりに訂正、入れ子インタラクティブと `outline: none` をチェックリストへ追加、ハードコード `aria-label` の禁止を明記、LanguageDropdown の Menu Button 対応を更新）

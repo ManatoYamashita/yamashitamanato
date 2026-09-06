@@ -7,12 +7,12 @@
           <h2>{{ $t('404.notfound') }}</h2>
           <p>{{ $t('404.message') }}</p>
           <br />
-          <a class="goback" href="https://www.yamashitamana.to">
+          <RouterLink to="/" class="goback">
             <span class="circle" aria-hidden="true">
               <span class="icon arrow"></span>
             </span>
             <span class="button-text">{{ $t('404.back') }}</span>
-          </a>
+          </RouterLink>
         </div>
       </div>
     </div>
@@ -102,7 +102,9 @@ body {
 /* 元は <button> をリンク見た目へ寄せる打ち消し群だった。
    <a> へ変えたため outline: none は削除している。scoped CSS では
    この規則の詳細度が main.css の :focus-visible を上回り、
-   キーボードフォーカスの輪郭を消してしまうため。 */
+   キーボードフォーカスの輪郭を消してしまうため。
+   セレクタが a.goback なのは、RouterLink のルート要素が <a> であり
+   scoped CSS の data-v 属性もそこへ付くため。 */
 a.goback {
   position: relative;
   display: inline-block;

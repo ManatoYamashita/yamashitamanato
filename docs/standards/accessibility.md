@@ -27,6 +27,55 @@
 | `Btn.vue` | ツールチップに `id` + ボタンに `aria-describedby` 接続 |
 | `Creatives.vue` | DC-chan画像に説明的 `alt` テキスト + `width`/`height`/`aspect-ratio` でCLS対策 |
 
+## ランドマーク構造
+
+WCAG 2.1 の 1.3.1（情報及び関係性）と 2.4.1（ブロックスキップ）に対応するため、全ルートで banner / main / contentinfo がそれぞれ1つずつ公開される構造を維持します。PR #24（#20 / #21 / #22）で確立し、#25 で作品詳細ページの取りこぼしを補修しました。
+
+### 現在の構造
+
+| ランドマーク | 実体 | 備考 |
+|---|---|---|
+| banner | `src/App.vue:15` の `<header id="navbar">` | 中身は `Menu.vue`。内部の `nav` には `aria-label` を必須とする |
+| main | 各ビューのルート要素 | 下表参照 |
+| contentinfo | `index.html:288` の `<footer>` | `#app` の外に静的配置 |
+
+マウント点は **`<div id="app">`**（`index.html:286`）。ここを `<main>` に戻すと各ビューの `<main>` と入れ子になり、`header#navbar` も main の内側に入って banner として公開されなくなります（#22）。戻さないこと。
+
+### ビューごとの main
+
+| ビュー | main の所在 |
+|---|---|
+| `views/About.vue` / `Contact.vue` / `Creatives.vue` / `404.vue` / `UnderConstraction.vue` | 各ファイルのルート要素 |
+| `views/Home.vue` | ルートは `display:none` の空 `div`。main は `src/App.vue:39` の `<main class="home-main">` が担う |
+| `views/CreativeDetail.vue` | `v-if` / `v-else-if` / `v-else` の**3分岐すべて**がルート `<main>`（#25） |
+
+### 新規ビュー追加時のルール
+
+- ビューのルート要素は `<main>` にする（`<div>` で始めない）。
+- ルートが `v-if` / `v-else-if` / `v-else` で分岐する場合、**全分岐のルートを `<main>` にする**。排他的で同時にDOMへ出るのは1つだけなので、main は1つに保たれる。
+- **外側に `<main>` ラッパを足してはいけない。** 理由は2つあり、どちらも実害が出る:
+  - `src/App.vue:76` の `<component :is="Component" id="scrollable-aria" />` は属性フォールスルーでビューのルート要素に `id` を付与している。`src/App.vue:309` の `#scrollable-aria { pointer-events: all }` が `src/assets/main.css:41` の `#app { pointer-events: none }` を打ち消しているため、ラッパを1段挟んで id がラッパへ移ると**ビュー内の全操作がクリック不能になる**。
+  - `min-height: 100%` を使うビュー（`views/CreativeDetail.vue:557`）は、包含ブロックが `.app.glass`（`src/App.vue:280`、`max-height: 82vh` + `overflow-y: auto`）から高さ auto のラッパへ移り、高さが `0` に潰れる。
+- 上記フォールスルーはビュー側が書いた `id` を上書きする。`views/About.vue:139` の `id="about"` は実際のDOMには出力されないため、CSSセレクタやページ内アンカーの参照先にしないこと。
+- `aria-current="page"` を `RouterLink` に明示指定しない。パス一致時に Vue Router が自動付与するため、明示すると全ルートで「現在のページ」を宣言してしまう（#21）。
+
+### 検証
+
+```bash
+npm run build
+
+# 各プリレンダHTMLに main がちょうど1つ（すべて 1 であること）
+grep -c '<main' dist/index.html dist/about.html dist/creatives.html dist/contact.html dist/creatives/*/*.html
+
+# マウント点が div のままであること（0件であること）
+grep -c 'main id="app"' dist/creatives/*/*.html | awk -F: '{s+=$2} END {print s}'
+
+# main に id="scrollable-aria" が乗っていること
+grep -oh '<main[^>]*>' dist/creatives/*/*.html | sort -u
+```
+
+ブラウザ（`npm run preview`）では、DevTools の Accessibility ツリーに banner / main / contentinfo が1つずつ出ること、CTA・戻るリンクがクリックとフォーカスを受け付けること（`pointer-events` の維持）を確認します。
+
 ## 開発時のチェックリスト
 
 ### 新規コンポーネント作成時
@@ -37,6 +86,7 @@
 - [ ] 装飾的な画像には `aria-hidden="true"` または空 `alt=""` を設定
 - [ ] 意味のある画像には説明的な `alt` テキストを設定
 - [ ] 画像に `width`/`height` 属性を設定（CLS防止）
+- [ ] 新規ビューの場合、ルート要素が `<main>` か（分岐する場合は全分岐）
 
 ### アニメーション追加時
 
@@ -82,4 +132,4 @@ navbar.selectLanguage    — 言語切替のaria-label
 
 ---
 
-最終更新日: 2026-03-07
+最終更新日: 2026-09-06（ランドマーク構造の節を追加）

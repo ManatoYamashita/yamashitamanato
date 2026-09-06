@@ -28,13 +28,12 @@ coverage
 ## vue
 dist/
 .vite/
+.vite-ssg-temp/
 
 stats.html
 
 # Netlify
 .netlify/
-functions-build/
-functions-dist/
 
 # Environment variables (protect secrets)
 .env

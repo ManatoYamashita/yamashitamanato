@@ -269,10 +269,6 @@ const styleObject = computed<CSSProperties>(() => {
   filter: blur(2rem);
   transition: all 0.4s ease-in-out;
 }
-.hidden {
-  visibility: hidden;
-  opacity: 0 !important;
-}
 .app {
   min-width: 85vw;
   max-width: 1280px;
@@ -280,15 +276,35 @@ const styleObject = computed<CSSProperties>(() => {
   margin: 0 auto;
   padding: 0.5rem;
   border-radius: 10px;
+  /* visibility は含めない。非表示化の遅延は .app.hidden 側で指定する。 */
   transition:
     opacity 0.5s ease-in-out,
-    visibility 0.5s ease-in-out,
     transform 0.5s ease-in-out;
   will-change: opacity, transform;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: transparent;
   z-index: 10;
+}
+
+/* ホーム表示中にルータービューを隠す状態。`.app` と同順・同詳細度だと
+   transition が上書きできないため、`.app.hidden` で明示的に勝たせる。
+
+   visibility はトランジションの対象にしない。対象にすると、変更直後の
+   計算値は progress 0 の「変更前の値」= hidden のまま次のフレームまで残る。
+   Vue の nextTick はマイクロタスクでフレームより前に走るため、ホーム起点の
+   クライアント遷移で子孫へ programmatic focus を当てる実装が
+   「visibility: hidden の子孫はフォーカス不可」で no-op になる（#56）。
+
+   非表示化の方向だけは opacity のフェード（0.5s）と同じだけ遅らせ、
+   フェードアウトの見た目を維持する。表示化の方向は遅延ゼロ。 */
+.app.hidden {
+  visibility: hidden;
+  opacity: 0 !important;
+  transition:
+    opacity 0.5s ease-in-out,
+    transform 0.5s ease-in-out,
+    visibility 0s linear 0.5s;
 }
 .glass {
   /* 背景を少し強めてコントラストを確保 */

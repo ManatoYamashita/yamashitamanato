@@ -21,7 +21,7 @@
     "analyze": "vite build --mode=analyze",
     "typecheck": "vue-tsc --noEmit",
     "lint": "eslint . --fix",
-    "lint:check": "eslint .",
+    "lint:check": "eslint . --max-warnings=0",
     "format": "prettier --write \"src/**/*.{js,ts,vue,css}\"",
     "format:check": "prettier --check \"src/**/*.{js,ts,vue,css}\"",
     "generate-csv": "tsx scripts/generate-microcms-csv.ts",

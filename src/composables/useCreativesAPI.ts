@@ -33,10 +33,19 @@ const categories = ref<CategoryData[]>([]);
 const isLoading = ref(false);
 const error = ref<Error | null>(null);
 
-// ストアの中身が一覧向けの軽量投影（detail/detailEn を落としたもの）かどうか。
+// ストアの状態は「フィールド」と「件数」という独立した2軸で表す。
+// プリレンダされた `/creatives` は軽量投影かつ全件なので、両方が真になる。
+
+// フィールド軸。ストアの中身が一覧向けの軽量投影（detail/detailEn を落としたもの）かどうか。
 // プリレンダされた `/creatives` から詳細ページへ遷移した直後だけ真になり、
 // `fetchCreatives()` が全フィールドで置き換えた時点で偽へ戻る。
 const creativesArePartial = ref(false);
+
+// 件数軸。ストアが一覧の全件を保持しているか。詳細ページのプリレンダ状態は
+// 該当1件しか持たないため偽のまま。ビューが「まだ取得していない」と
+// 「取得した結果0件」を区別するための唯一の同期的シグナルであり、これが無いと
+// 作品0件のカテゴリが skeleton のまま静的HTMLへ焼き込まれる（Issue #38）。
+const hasAllCreatives = ref(false);
 
 /**
  * microCMS API共通クライアント（Netlify Functions プロキシ経由）
@@ -208,6 +217,7 @@ async function fetchCreatives(categoryFilter?: string): Promise<void> {
     if (cached) {
       creatives.value = cached;
       creativesArePartial.value = false;
+      hasAllCreatives.value = !categoryFilter;
       return;
     }
 
@@ -240,6 +250,7 @@ async function fetchCreatives(categoryFilter?: string): Promise<void> {
 
     creatives.value = collected;
     creativesArePartial.value = false;
+    hasAllCreatives.value = !categoryFilter;
     setCachedData(cacheKey, collected);
   } catch (err) {
     error.value = err instanceof Error ? err : new Error('Failed to fetch creatives');
@@ -288,6 +299,7 @@ function slimForList(creative: CreativeData): CreativeData {
 export function getPrerenderState(routePath: string): {
   creatives: CreativeData[];
   partial?: boolean;
+  all?: boolean;
 } {
   const detailMatch = /^\/creatives\/[^/]+\/([^/?#]+)/.exec(routePath);
   if (detailMatch) {
@@ -296,8 +308,19 @@ export function getPrerenderState(routePath: string): {
   }
 
   if (routePath === '/creatives') {
-    // 投影であることを明示する。受け取った側が詳細ページで本文を代用しないための印。
-    return { creatives: creatives.value.map(slimForList), partial: true };
+    // partial: 投影であることを明示する。受け取った側が詳細ページで本文を代用しないための印。
+    // all: 件数としては全件そろっている印。0件カテゴリの空状態を skeleton と区別するために使う。
+    //
+    // all を定数 true にしてはならない。認証情報が無い縮退ビルド（vite.config.ts の
+    // includedRoutes 参照）では取得が失敗して creatives が空のまま partial だけが付くため、
+    // 定数だと「取得できなかった」を「0件だった」としてクライアントへ誤って伝え、
+    // 全カテゴリに虚偽の空状態文言が出る。実値を載せることで
+    // 「このHTMLに空状態文言を焼き込んだか」と1対1に対応させる。
+    return {
+      creatives: creatives.value.map(slimForList),
+      partial: true,
+      all: hasAllCreatives.value,
+    };
   }
 
   return { creatives: [] };
@@ -307,7 +330,13 @@ export function getPrerenderState(routePath: string): {
  * プリレンダHTMLに埋め込まれた状態、または LocalStorage キャッシュでストアを初期化する。
  * マウント前に呼ぶことで、初回描画が空リストになるのを防ぐ。
  */
-export function hydrateCreatives(data: CreativeData[], options: { partial?: boolean } = {}): void {
+export function hydrateCreatives(
+  data: CreativeData[],
+  options: { partial?: boolean; all?: boolean } = {}
+): void {
+  // 全件が0件でも「一覧として全件そろっている」は成立するため、
+  // ストアを空で潰さないための data.length ガードより前に反映する。
+  hasAllCreatives.value = options.all === true;
   if (data.length > 0) {
     creatives.value = data;
     creativesArePartial.value = options.partial === true;
@@ -320,6 +349,7 @@ export function hydrateCreativesFromCache(): void {
   if (cached && cached.length > 0) {
     creatives.value = cached;
     creativesArePartial.value = false;
+    hasAllCreatives.value = true;
   }
 }
 
@@ -379,6 +409,7 @@ export function useCreativesAPI() {
     categories: categories as Ref<CategoryData[]>,
     isLoading: isLoading as Ref<boolean>,
     creativesArePartial: creativesArePartial as Ref<boolean>,
+    hasAllCreatives: hasAllCreatives as Ref<boolean>,
     error: error as Ref<Error | null>,
 
     // Actions

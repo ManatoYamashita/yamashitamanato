@@ -4,7 +4,11 @@
 - `docs/` は知見とルールの唯一のソース・オブ・トゥルースです。
 - 直下に置けるファイルは本索引 `docs/index.md` のみ。他のドキュメントは必ずサブディレクトリに配置します。
 - サブディレクトリは必要最小限に留め、命名は `kebab-case` に統一します。
-- 追加・更新時は本索引を必ず更新し、重複やリンク切れをチェックします。
+- 本索引の改訂が必要なのは、ファイルを追加・削除・移動したときと、守備範囲が変わって説明文が実態と合わなくなったときです。既存ファイルの中身を直しただけなら不要です。
+- 各ドキュメント末尾の `最終更新日:` は **`YYYY-MM-DD` の日付のみ**を記録します。変更内容を追記すると行が
+  際限なく伸び、並行して走る PR がすべて同じ 1 行で競合するためです。何を変えたかは各ドキュメント本文・
+  PR 本文・git 履歴（`git log --oneline -- docs/`）に残ります。
+- 追加・移動の際は重複やリンク切れをチェックします。
 - 機密情報（PII 等）は保存禁止。コミット時は `DOC:` プレフィックスを推奨します。
 
 ## ディレクトリ構成（最小セット）
@@ -26,7 +30,7 @@
 - standards/performance-and-build.md — 遅延/分割、アセット方針、Three.js、ビルド設定。
 - standards/security-and-seo.md — セキュリティ、アクセシビリティ、SEO/アナリティクス。
 - standards/accessibility.md — WCAG 2.1 AA準拠ガイドライン（ランドマーク構造とビューのルート要素ルール、Label in Name（可視テキストとアクセシブル名の一致）、focus-visible、祖先の visibility に潰されるフォーカス移動、reduced-motion、ARIA、キーボード操作）。
-- standards/ssg-guidelines.md — vite-ssg プリレンダの実装ガイドライン（head既定値の上書き、onMounted依存の初期値、SSRガード、動的ルートの列挙とビルド時データ取得、`__INITIAL_STATE__` の受け渡し、縮退判定の集約とビルドゲート、APIキー非混入の検証、`useId()` による一意ID採番、生成HTMLの検証手順）。
+- standards/ssg-guidelines.md — vite-ssg プリレンダの実装ガイドライン（head既定値の上書き、onMounted依存の初期値、SSRガード、動的ルートの列挙とビルド時データ取得、`__INITIAL_STATE__` の受け渡しと完全性フラグ（partial/all の2軸）、縮退判定の集約とビルドゲート（skeleton 焼き込みの検出を含む）、3分岐ルールと詳細ページの例外、APIキー非混入の検証、`useId()` による一意ID採番、生成HTMLの検証手順）。
 - standards/coding-standards.md — コーディングスタイルとレビュー/コミットの基本。
 
 ### Ops（運用・手順書）
@@ -47,10 +51,10 @@
 
 ## 更新手順（PDCA）
 1. PLAN: 既存の配置と命名を本索引で確認し、追加箇所を決める。
-2. DO: 対応するサブディレクトリに Markdown を作成・更新し、本索引へ追記。
+2. DO: 対応するサブディレクトリに Markdown を作成・更新する。ファイルを増減・移動したとき、または守備範囲が変わったときだけ本索引を改訂する。
 3. CHECK: リンク・命名・重複・文責の整合を確認。
 4. ACTION: 改善点を洗い出し、必要ならルールやテンプレートを強化する。
 
 ---
 
-最終更新日: 2026-09-06（規約類を standards/ へ集約し、索引のリンク切れを解消。frontend-guidelines にルーティング詳細・i18n 初期化設定・新規ページ追加チェックを統合。アクセシビリティガイドラインに Label in Name の節を追加。branch.md の CI トリガー記述を実態へ同期。frontend-guidelines にアイコン受け渡しの規約を追加。accessibility に入れ子インタラクティブと outline: none のチェック、ハードコード aria-label の禁止を追加。ssg-guidelines に useId() によるID採番を追加。frontend-guidelines に未使用i18nキー削除時の注意を追加。frontend-guidelines に内部遷移の RouterLink 必須を追加。accessibility に祖先の visibility がプログラム的フォーカスを潰す節を追加）
+最終更新日: 2026-09-06

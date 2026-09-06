@@ -355,4 +355,4 @@ navbar.closeMenu          — ハンバーガーのaria-label（開→閉。ア�
 
 ---
 
-最終更新日: 2026-09-06（ランドマーク構造 / Label in Name / 非同期エラーの伝え方の節を追加、`&nbsp;` 必須の理由を実測どおりに訂正、入れ子インタラクティブと `outline: none` をチェックリストへ追加、ハードコード `aria-label` の禁止を明記、LanguageDropdown の Menu Button 対応を更新、祖先の `visibility` がフォーカス移動を潰す件を追加）
+最終更新日: 2026-09-06

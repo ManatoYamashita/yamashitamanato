@@ -131,6 +131,16 @@ export default [
     },
   },
 
+  // Node 側のビルド/CLI スクリプト。
+  // 標準出力が本来の出力チャネルであり、console.log はデバッグの残置ではなく仕様。
+  // ブラウザへ配信されるコードではないため no-console の対象から外す。
+  {
+    files: ['scripts/**/*.ts', 'vite.config.ts'],
+    rules: {
+      'no-console': 'off',
+    },
+  },
+
   // Ignore patterns
   {
     ignores: [

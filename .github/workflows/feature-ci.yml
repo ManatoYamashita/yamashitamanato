@@ -1,9 +1,16 @@
-name: Feature Branch CI/CD
+name: Branch CI/CD
 
+# docs/ops/branch.md が許可するブランチプレフィックスと一致させる。
+# プレフィックスを追加・変更したら、branch.md の一覧と本トリガーの両方を更新すること。
 on:
   push:
     branches:
       - 'feature/**'
+      - 'bugfix/**'
+      - 'hotfix/**'
+      - 'docs/**'
+      - 'refactor/**'
+      - 'chore/**'
 
 permissions:
   contents: write
@@ -73,10 +80,13 @@ jobs:
           echo "📦 Build size:" >> $GITHUB_STEP_SUMMARY
           du -sh dist >> $GITHUB_STEP_SUMMARY
 
+  # PR の自動作成は feature/ ブランチ専用。他のプレフィックスでは
+  # `BRANCH_NAME#feature/` によるプレフィックス除去が効かず、
+  # タイトルにブランチ名がそのまま残るため対象外にする。
   create-pull-request:
     needs: quality-check
     runs-on: ubuntu-latest
-    if: success()
+    if: success() && startsWith(github.ref, 'refs/heads/feature/')
 
     steps:
       - name: Checkout code

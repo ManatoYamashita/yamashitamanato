@@ -33,7 +33,7 @@
 - ops/microcms-setup.md — microCMS初期セットアップガイド（アカウント作成、API設定、環境変数の命名規約と`VITE_`禁止理由、初期データ登録）。
 - ops/creatives-guide.md — microCMSでのポートフォリオ作品管理手順（categories/creatives API、データフロー、詳細ページルーティング `/creatives/:category/:id`）。
 - ops/deployment-checklist.md — デプロイ前後の確認項目とトラブルシュート。Netlify CLIローカルデプロイ手順を含む。
-- ops/branch.md — ブランチ戦略、GitHub Actions CI/CD、コミットメッセージ規約。
+- ops/branch.md — ブランチ戦略、全作業ブランチ対象のGitHub Actions CI/CD、コミットメッセージ規約。
 - ops/nodejs-version-management.md — Node.js バージョン管理ガイド（アップデート手順、セキュリティパッチ適用、トラブルシューティング）。
 - ops/package-manager-policy.md — パッケージマネージャ運用ポリシー（npm統一、ロックファイル混在によるNetlify install失敗の原因と切り分け手順）。
 
@@ -53,4 +53,4 @@
 
 ---
 
-最終更新日: 2026-09-06（規約類を standards/ へ集約し、索引のリンク切れを解消。frontend-guidelines にルーティング詳細・i18n 初期化設定・新規ページ追加チェックを統合。アクセシビリティガイドラインに Label in Name の節を追加。branch.md の CI トリガー記述を実態へ同期。frontend-guidelines にアイコン受け渡しの規約を追加。accessibility に入れ子インタラクティブと outline: none のチェック、ハードコード aria-label の禁止を追加。ssg-guidelines に useId() によるID採番と `__INITIAL_STATE__` の完全性フラグ・skeleton 焼き込みのビルドゲートを追加）
+最終更新日: 2026-09-06（規約類を standards/ へ集約し、索引のリンク切れを解消。frontend-guidelines にルーティング詳細・i18n 初期化設定・新規ページ追加チェックを統合。アクセシビリティガイドラインに Label in Name の節を追加。branch.md の CI トリガー記述を実態へ同期。frontend-guidelines にアイコン受け渡しの規約を追加。accessibility に入れ子インタラクティブと outline: none のチェック、ハードコード aria-label の禁止を追加。ssg-guidelines に useId() によるID採番と `__INITIAL_STATE__` の完全性フラグ・skeleton 焼き込みのビルドゲートを追加。frontend-guidelines に未使用i18nキー削除時の注意を追加）

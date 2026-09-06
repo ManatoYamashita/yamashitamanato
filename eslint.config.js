@@ -155,6 +155,9 @@ export default [
       // `netlify dev` を一度でも起動した開発者のローカルで 690 errors により必ず落ちる。
       // CI はクリーンチェックアウトで `.netlify/` が存在しないため再現しない。
       '.netlify/**',
+      // vite-ssg がプリレンダ中に作る一時ビルド出力（`.vite-ssg-temp/<random>/`）。
+      // ビルドが中断すると残り、ビルド済みJSとsourcemapを含むため lint を壊す。
+      '.vite-ssg-temp/**',
     ],
   },
 ];

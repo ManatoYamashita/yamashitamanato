@@ -14,7 +14,7 @@ on:
       - 'chore/**'
 
 permissions:
-  contents: write
+  contents: read
   pull-requests: write
 
 jobs:
@@ -23,14 +23,15 @@ jobs:
 
     outputs:
       lint-result: ${{ steps.lint.outcome }}
+      format-result: ${{ steps.format.outcome }}
       build-result: ${{ steps.build.outcome }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '22.22.0'
           cache: 'npm'
@@ -45,17 +46,19 @@ jobs:
           # 終了コードを引き継ぐため、失敗時も出力が残る。
           set +e
           npm run lint:check > lint-output.txt 2>&1
-          status=$?
+          rc=$?
           set -e
-          echo "### Lint Results" >> $GITHUB_STEP_SUMMARY
-          if [ -s lint-output.txt ]; then
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            cat lint-output.txt >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-          else
-            echo "✅ No linting issues found" >> $GITHUB_STEP_SUMMARY
-          fi
-          exit $status
+          {
+            echo "### Lint Results"
+            if [ -s lint-output.txt ]; then
+              echo '```'
+              cat lint-output.txt
+              echo '```'
+            else
+              echo "✅ No linting issues found"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "$rc"
 
       - name: Run Prettier Check
         id: format
@@ -64,24 +67,28 @@ jobs:
           # 終了コードを引き継ぐため、失敗時も出力が残る。
           set +e
           npm run format:check > format-output.txt 2>&1
-          status=$?
+          rc=$?
           set -e
-          echo "### Format Check Results" >> $GITHUB_STEP_SUMMARY
-          if [ -s format-output.txt ]; then
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            cat format-output.txt >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-          else
-            echo "✅ Code formatting is correct" >> $GITHUB_STEP_SUMMARY
-          fi
-          exit $status
+          {
+            echo "### Format Check Results"
+            if [ -s format-output.txt ]; then
+              echo '```'
+              cat format-output.txt
+              echo '```'
+            else
+              echo "✅ Code formatting is correct"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "$rc"
 
       - name: Build project
         id: build
         run: |
           npm run build
-          echo "### Build Results" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Build completed successfully" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "### Build Results"
+            echo "✅ Build completed successfully"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Check build artifacts
         run: |
@@ -89,9 +96,11 @@ jobs:
             echo "❌ Build failed: dist directory not found"
             exit 1
           fi
-          echo "### Build Artifacts" >> $GITHUB_STEP_SUMMARY
-          echo "📦 Build size:" >> $GITHUB_STEP_SUMMARY
-          du -sh dist >> $GITHUB_STEP_SUMMARY
+          {
+            echo "### Build Artifacts"
+            echo "📦 Build size:"
+            du -sh dist
+          } >> "$GITHUB_STEP_SUMMARY"
 
   # PR の自動作成は feature/ ブランチ専用。他のプレフィックスでは
   # `BRANCH_NAME#feature/` によるプレフィックス除去が効かず、
@@ -103,24 +112,28 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Extract branch name
         id: extract_branch
         run: |
-          BRANCH_NAME=${GITHUB_REF#refs/heads/}
-          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
-          echo "feature_name=${BRANCH_NAME#feature/}" >> $GITHUB_OUTPUT
+          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+          {
+            echo "branch_name=$BRANCH_NAME"
+            echo "feature_name=${BRANCH_NAME#feature/}"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Get commit messages
         id: commits
         run: |
-          COMMITS=$(git log origin/main..HEAD --pretty=format:"- %s" | head -10)
-          echo "commits<<EOF" >> $GITHUB_OUTPUT
-          echo "$COMMITS" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          COMMITS="$(git log origin/main..HEAD --pretty=format:"- %s" | head -10)"
+          {
+            echo "commits<<EOF"
+            echo "$COMMITS"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Check if PR exists
         id: check_pr
@@ -128,13 +141,15 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           BRANCH_NAME="${{ steps.extract_branch.outputs.branch_name }}"
-          PR_EXISTS=$(gh pr list --head "$BRANCH_NAME" --json number --jq '.[0].number' || echo "")
+          PR_EXISTS="$(gh pr list --head "$BRANCH_NAME" --json number --jq '.[0].number' || echo "")"
           if [ -n "$PR_EXISTS" ]; then
-            echo "pr_exists=true" >> $GITHUB_OUTPUT
-            echo "pr_number=$PR_EXISTS" >> $GITHUB_OUTPUT
+            {
+              echo "pr_exists=true"
+              echo "pr_number=$PR_EXISTS"
+            } >> "$GITHUB_OUTPUT"
             echo "✅ PR already exists: #$PR_EXISTS"
           else
-            echo "pr_exists=false" >> $GITHUB_OUTPUT
+            echo "pr_exists=false" >> "$GITHUB_OUTPUT"
             echo "📝 No existing PR found"
           fi
 
@@ -142,10 +157,17 @@ jobs:
         if: steps.check_pr.outputs.pr_exists == 'false'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LINT_RESULT: ${{ needs.quality-check.outputs.lint-result }}
+          FORMAT_RESULT: ${{ needs.quality-check.outputs.format-result }}
+          BUILD_RESULT: ${{ needs.quality-check.outputs.build-result }}
         run: |
           BRANCH_NAME="${{ steps.extract_branch.outputs.branch_name }}"
           FEATURE_NAME="${{ steps.extract_branch.outputs.feature_name }}"
           COMMITS="${{ steps.commits.outputs.commits }}"
+
+          if [ "$LINT_RESULT" = "success" ]; then LINT_STATUS="✅ Passed"; else LINT_STATUS="❌ Failed"; fi
+          if [ "$FORMAT_RESULT" = "success" ]; then FORMAT_STATUS="✅ Passed"; else FORMAT_STATUS="❌ Failed"; fi
+          if [ "$BUILD_RESULT" = "success" ]; then BUILD_STATUS="✅ Passed"; else BUILD_STATUS="❌ Failed"; fi
 
           gh pr create \
             --title "🚀 [$FEATURE_NAME] Auto-generated PR" \
@@ -153,10 +175,10 @@ jobs:
           ## 📋 Summary
           This PR was automatically created from branch \`$BRANCH_NAME\`.
 
-          ## ✅ Quality Check Results
-          - **Lint**: ✅ Passed
-          - **Format Check**: ✅ Passed
-          - **Build**: ✅ Passed
+          ## Quality Check Results
+          - **Lint**: $LINT_STATUS
+          - **Format Check**: $FORMAT_STATUS
+          - **Build**: $BUILD_STATUS
 
           ## 📝 Recent Commits
           $COMMITS

@@ -362,7 +362,7 @@ This codebase follows comprehensive development rules defined in `.cursor/rules/
 - **microCMS Integration**: Portfolio data managed via microCMS API, not static files
 - **Image optimization**: All portfolio images hosted on microCMS, must be WebP format
 - **LocalStorage caching**: 30-minute TTL for microCMS API responses
-- **i18n requirements**: AnimationSection.vue uses static i18n keys, other content from microCMS
+- **i18n requirements**: UI chrome (navigation, filters, labels) uses static i18n keys; creative content comes from microCMS
 - **Three.js sphere deformation**: Use inverse coordinate correction method only (see above)
 - **Console logging**: Partial console removal in production (see Console Management Policy)
 

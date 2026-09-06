@@ -1,6 +1,12 @@
 <template>
   <div ref="rootRef" :class="['lang-dropdown', variantClass]">
-    <button class="lang-dropdown-toggle" @click="$emit('toggle')" :aria-expanded="isOpen">
+    <button
+      class="lang-dropdown-toggle"
+      @click="$emit('toggle')"
+      :aria-expanded="isOpen"
+      aria-haspopup="true"
+      :aria-controls="menuId"
+    >
       <font-awesome-icon :icon="faGlobe" class="globe-icon" />
       <span class="current-lang-label">{{ currentLabel }}</span>
       <span class="sr-only">&nbsp;{{ descriptionLabel }}</span>
@@ -8,7 +14,13 @@
     </button>
 
     <transition name="dropdown-slide">
-      <ul class="lang-dropdown-menu" v-show="isOpen" role="menu" @keydown="handleMenuKeydown">
+      <ul
+        :id="menuId"
+        class="lang-dropdown-menu"
+        v-show="isOpen"
+        role="menu"
+        @keydown="handleMenuKeydown"
+      >
         <li v-for="(lang, index) in languages" :key="lang.code" role="none">
           <button
             ref="menuItemRefs"
@@ -32,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue';
+import { ref, computed, watch, nextTick, useId } from 'vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faGlobe, faChevronDown, faCheck } from '@fortawesome/free-solid-svg-icons';
 import type { Locale } from '@/types';
@@ -58,6 +70,15 @@ const emit = defineEmits<{
 }>();
 
 const variantClass = computed(() => `lang-dropdown--${props.variant ?? 'desktop'}`);
+
+// トグルとメニューを aria-controls で結ぶための ID。
+// このコンポーネントは App.vue（home）と Menu.vue（desktop / mobile）で
+// 最大3インスタンスが同時にDOMへ存在するため、固定文字列は使えない。
+// モジュールレベルのカウンタも避ける。vite-ssg は24ページを同一プロセスで
+// 描画するためサーバ側のカウンタだけが進み続け、静的HTMLに連番の後半が
+// 焼き込まれる。useId() はページ単位で振り直され、将来 ViteSSG の
+// options.hydration を有効化した場合もそのまま安全（Vue 3.5+）。
+const menuId = useId();
 
 const rootRef = ref<HTMLElement | null>(null);
 const menuItemRefs = ref<HTMLButtonElement[]>([]);

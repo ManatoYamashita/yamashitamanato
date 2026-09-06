@@ -260,6 +260,35 @@ grep -oh '<button class="primary"[^>]*><[a-z!/-]*' dist/creatives/*/*.html | sed
 }
 ```
 
+### 未使用キーを消すときの注意
+
+**`t('...')` の grep だけで「参照なし」と判断してはいけない。** キーは素の文字列として
+データに埋め込まれていることがある。実例として `scripts/generate-microcms-csv.ts` は
+`title: 'creatives.animation.tcuAnimation.title'` のように i18n キーを**値として**持ち、
+microCMS へ初期投入する CSV を組み立てている。`t(` を検索しても引っかからないため、
+これを消すと `npm run generate-csv` が壊れる。
+
+手順は2段階にする。
+
+```bash
+# 1) t('...') で静的に参照されているキーを列挙する（候補の絞り込み用）
+grep -rhoE "t\(['\`\"][a-zA-Z0-9_.]+" src/ scripts/ netlify/ \
+  | sed -E "s/^.*t\(['\`\"]//" | sort -u
+
+# 2) 削除候補ごとに「キー文字列そのもの」を全体検索する（これが本番の確認）
+grep -rn "about.ctaLabel\|'ctaLabel'" src/ scripts/ netlify/ index.html
+```
+
+1 の一覧は `.` のようなノイズを含むうえ、上記のとおり取りこぼす。**必ず 2 を通すこと。**
+
+キーを動的に組み立てている箇所も静的検索では追えない。現状は1箇所だけなので、
+削除対象がその接頭辞に該当しないかを目視で確認する。
+
+```bash
+grep -rnE '(^|[^a-zA-Z0-9_.])\$?t\(`' src/ scripts/
+# => src/components/Menu.vue:232:  return t(`navbar.menu.${key}`);
+```
+
 ### 使用方法
 
 ```vue

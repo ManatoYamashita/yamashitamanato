@@ -53,11 +53,50 @@ npm run preview
 - [ ] GitHub Actions のビルドが成功
 - [ ] FTPデプロイが正常完了
 
+#### 本番反映の確認（必須）
+
+**マージ成功・CI緑・本番反映は、三つとも独立した事象である。**
+GitHub 側の情報だけで本番反映を判断してはならない。
+
+- [ ] Netlify ダッシュボードの **Published SHA** が、マージしたコミットに追いついている
+      （<https://app.netlify.com/projects/yamashitamanato/deploys> の「Published main@xxxxxxx」）
+- [ ] 本番HTMLに今回の変更のマーカーが現れている
+
+```bash
+# 例: Issue #38 の修正（0件カテゴリの空状態）が本番へ出たかの確認
+curl -sSL https://www.yamashitamana.to/creatives -o /tmp/prod.html
+grep -o 'section-empty' /tmp/prod.html | wc -l   # 1 なら反映済み
+grep -o 'skeleton-card' /tmp/prod.html | wc -l   # 0 なら反映済み
+```
+
+**`gh api repos/.../commits/<sha>/status` では本番を追えない。**
+Netlify の Deploy notifications は GitHub commit status を出せるが、
+イベントの選択肢が Deploy Preview 系（`deploy_building` / `deploy_created` /
+`deploy_failed`）と Deploy request 系しかなく、**本番デプロイのイベントが存在しない**。
+実際、本番へ公開成功したコミットでも `statuses` は 0 件だった（2026-09-06 実測）。
+
 #### 本番環境での最終確認
 - [ ] デプロイされたサイトでMetaBallが正常動作
 - [ ] 全ページでレイアウトが正しく表示される
 - [ ] 両言語（日本語・英語）での動作確認
 - [ ] レスポンシブデザインの動作確認
+
+#### Netlify のプラン上限による本番デプロイ停止
+
+Free プランは **月 300 クレジット**。使い切ると Netlify は
+**公開中のサイトを生かしたまま、本番デプロイだけを停止**する。
+このとき本番デプロイは `Skipped` になり、ビルド失敗とは区別される。
+
+**Deploy Preview は Free プランでも無制限**のため、
+**PR のチェックは全部緑のまま本番だけが止まる**。この非対称性が原因で、
+2026-09-06 には本番が **7マージ分**遅れていることに長時間気づけなかった。
+
+- 兆候: チーム画面の赤帯「running on operational credits」、
+  デプロイ一覧の `Production: main@xxxxxxx` `Skipped`
+- 確認先: <https://app.netlify.com/teams/yamashitamanato/billing/general>
+  （Credits available と請求期間）
+- 復旧: 次の請求サイクルまで待つ、またはプランのアップグレード
+- 回避: マージが集中する時期は事前に残クレジットを確認する
 
 ### 🔧 トラブルシューティング
 

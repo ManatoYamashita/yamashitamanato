@@ -25,7 +25,7 @@
 - standards/design-system.md — カラー/フォント/背景/モーション/コンポーネントなどのデザインシステム全体。
 - standards/performance-and-build.md — 遅延/分割、アセット方針、Three.js、ビルド設定。
 - standards/security-and-seo.md — セキュリティ、アクセシビリティ、SEO/アナリティクス。
-- standards/accessibility.md — WCAG 2.1 AA準拠ガイドライン（focus-visible、reduced-motion、ARIA、キーボード操作）。
+- standards/accessibility.md — WCAG 2.1 AA準拠ガイドライン（ランドマーク構造とビューのルート要素ルール、focus-visible、reduced-motion、ARIA、キーボード操作）。
 - standards/ssg-guidelines.md — vite-ssg プリレンダの実装ガイドライン（head既定値の上書き、onMounted依存の初期値、SSRガード、動的ルートの列挙とビルド時データ取得、`__INITIAL_STATE__` の受け渡し、縮退判定の集約とビルドゲート、APIキー非混入の検証、生成HTMLの検証手順）。
 - standards/coding-standards.md — コーディングスタイルとレビュー/コミットの基本。
 
@@ -53,4 +53,4 @@
 
 ---
 
-最終更新日: 2026-09-06（SSGガイドライン更新）
+最終更新日: 2026-09-06（アクセシビリティガイドラインにランドマーク構造を追加）

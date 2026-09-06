@@ -1,6 +1,6 @@
 <template>
   <!-- スケルトン表示 -->
-  <div
+  <main
     v-if="!hasSettled && (!creative || creativesArePartial)"
     class="creative-detail creative-detail--skeleton"
   >
@@ -32,9 +32,9 @@
     <div class="cta-section">
       <SkeletonBase width="200px" height="3rem" border-radius="2rem" />
     </div>
-  </div>
+  </main>
 
-  <div v-else-if="creative" class="creative-detail">
+  <main v-else-if="creative" class="creative-detail">
     <!-- 戻るボタン -->
     <router-link to="/creatives" class="back-link">
       <font-awesome-icon :icon="faArrowLeft" />
@@ -149,16 +149,16 @@
         :variant="button.variant"
       />
     </div>
-  </div>
+  </main>
 
   <!-- 作品が見つからない場合 -->
-  <div v-else class="not-found">
+  <main v-else class="not-found">
     <h1>{{ $t('creatives.common.notFound') }}</h1>
     <router-link to="/creatives" class="back-link">
       <font-awesome-icon :icon="faArrowLeft" />
       {{ $t('creatives.common.backToList') }}
     </router-link>
-  </div>
+  </main>
 </template>
 
 <script setup lang="ts">

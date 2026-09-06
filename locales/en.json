@@ -7,6 +7,8 @@
     },
     "navbar": {
       "selectLanguage": "Select Language",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu",
       "primaryLabel": "Main navigation",
       "homeLabel": "Home navigation",
       "menu": {
@@ -92,6 +94,7 @@
             "design": "Show design works"
         },
         "dcChanAlt": "Digicon-chan - Tokyo City University Digital Contents Club mascot character",
+        "dcChanLinkLabel": "Visit the Dejikon-chan website",
         "paragraph": "I have experience in commissioned work and paid requests, as well as hobbies in creating digital content (illustrations, animations, websites, etc.). I use my design skills as a foundation for my sense of creativity in web production, video editing, and illustration.",
         "animation": {
             "paragraph": "As a director, I created an original animation in collaboration with Setagaya Ward. I gathered 35 members, formed a volunteer group, and spent a year creating the setting, script, video, and music. With the cooperation of 81 Produce, we cast voice actors Kent Itou and Reina Ueda.",
@@ -150,7 +153,8 @@
     "404": {
       "title": "404",
       "notfound": "Not Found",
-      "message": "The page you are looking for does not exist."
+      "message": "The page you are looking for does not exist.",
+      "back": "Back to Home"
     },
 
     "underconstraction": {

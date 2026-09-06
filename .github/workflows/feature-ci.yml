@@ -1,10 +1,13 @@
 name: Branch CI/CD
 
+# docs/ops/branch.md が許可するブランチプレフィックスと一致させる。
+# プレフィックスを追加・変更したら、branch.md の一覧と本トリガーの両方を更新すること。
 on:
   push:
     branches:
       - 'feature/**'
-      - 'bugfix/**'
+      - 'fix/**'
+      - 'bugfix/**' # 旧称。新規ブランチでは fix/ を使う
       - 'hotfix/**'
       - 'docs/**'
       - 'refactor/**'
@@ -38,51 +41,45 @@ jobs:
 
       - name: Run ESLint
         id: lint
-        continue-on-error: true
-        run: npm run lint:check > lint-output.txt 2>&1
-
-      - name: Report ESLint result
-        if: always()
-        env:
-          LINT_RESULT: ${{ steps.lint.outcome }}
         run: |
+          # `|| true` を外して実ゲート化した。サマリーを書き切ってから
+          # 終了コードを引き継ぐため、失敗時も出力が残る。
+          set +e
+          npm run lint:check > lint-output.txt 2>&1
+          rc=$?
+          set -e
           {
             echo "### Lint Results"
-            if [ "$LINT_RESULT" = "success" ]; then
-              echo "✅ ESLint passed"
-            else
-              echo "❌ ESLint failed (existing baseline; not a blocking gate yet)"
-            fi
             if [ -s lint-output.txt ]; then
               echo '```'
               cat lint-output.txt
               echo '```'
+            else
+              echo "✅ No linting issues found"
             fi
           } >> "$GITHUB_STEP_SUMMARY"
+          exit "$rc"
 
       - name: Run Prettier Check
         id: format
-        continue-on-error: true
-        run: npm run format:check > format-output.txt 2>&1
-
-      - name: Report Prettier result
-        if: always()
-        env:
-          FORMAT_RESULT: ${{ steps.format.outcome }}
         run: |
+          # `|| true` を外して実ゲート化した。サマリーを書き切ってから
+          # 終了コードを引き継ぐため、失敗時も出力が残る。
+          set +e
+          npm run format:check > format-output.txt 2>&1
+          rc=$?
+          set -e
           {
             echo "### Format Check Results"
-            if [ "$FORMAT_RESULT" = "success" ]; then
-              echo "✅ Prettier check passed"
-            else
-              echo "❌ Prettier check failed (existing baseline; not a blocking gate yet)"
-            fi
             if [ -s format-output.txt ]; then
               echo '```'
               cat format-output.txt
               echo '```'
+            else
+              echo "✅ Code formatting is correct"
             fi
           } >> "$GITHUB_STEP_SUMMARY"
+          exit "$rc"
 
       - name: Build project
         id: build
@@ -105,6 +102,9 @@ jobs:
             du -sh dist
           } >> "$GITHUB_STEP_SUMMARY"
 
+  # PR の自動作成は feature/ ブランチ専用。他のプレフィックスでは
+  # `BRANCH_NAME#feature/` によるプレフィックス除去が効かず、
+  # タイトルにブランチ名がそのまま残るため対象外にする。
   create-pull-request:
     needs: quality-check
     runs-on: ubuntu-latest

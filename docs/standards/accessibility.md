@@ -22,11 +22,12 @@
 | `CreativesHero.vue` | フィルターボタンに `aria-pressed` + `.sr-only` の補足テキスト（可視「Anime」等の略語を補う）。ラッパーの `role="toolbar"` にのみ `aria-label` |
 | `MetaBall.vue` | canvas に `aria-hidden="true"` |
 | `Sns.vue` | 外部リンクに `target="_blank"`, `rel="noopener noreferrer"`。アイコンのみで可視テキストが無いため `aria-label` に「新しいタブで開きます」追記 |
-| `LanguageDropdown.vue` | WAI-ARIA Menu Buttonパターン: `role="menu"`, `role="menuitem"`, ArrowUp/Down/Escape/Home/End キーボード操作。トグルは可視「日本語」+ `.sr-only` の `descriptionLabel` |
+| `LanguageDropdown.vue` | WAI-ARIA Menu Buttonパターン: トグルに `aria-expanded` / `aria-haspopup` / `aria-controls`、メニューに `role="menu"`, `role="menuitem"`, ArrowUp/Down/Escape/Home/End キーボード操作。トグルは可視「日本語」+ `.sr-only` の `descriptionLabel`。ID は `useId()` で採番（最大3インスタンスが同時に存在するため） |
 | `App.vue` | ホームページに `<h1 class="sr-only">` 追加 |
 | `Btn.vue` | ツールチップに `id` + ボタンに `aria-describedby` 接続。ツールチップは `aria-hidden="true"`（`opacity:0` では名前計算から外れないため）。アクセシブル名は可視 `text` のみ |
 | `Menu.vue` | ロゴリンクに `.sr-only` の遷移先ラベル（ロゴ画像の読み込み失敗時も可視テキストと整合） |
 | `Creatives.vue` | DC-chan画像に説明的 `alt` テキスト + `width`/`height`/`aspect-ratio` でCLS対策 |
+| `CreativeDetail.vue` | 取得失敗を「作品が見つかりません」と分離し、再読み込みボタンと一覧への復帰導線を提示（#26）。下記「非同期エラーの伝え方」を参照 |
 
 ## ランドマーク構造
 
@@ -48,7 +49,7 @@ WCAG 2.1 の 1.3.1（情報及び関係性）と 2.4.1（ブロックスキッ�
 |---|---|
 | `views/About.vue` / `Contact.vue` / `Creatives.vue` / `404.vue` / `UnderConstraction.vue` | 各ファイルのルート要素 |
 | `views/Home.vue` | ルートは `display:none` の空 `div`。main は `src/App.vue:39` の `<main class="home-main">` が担う |
-| `views/CreativeDetail.vue` | `v-if` / `v-else-if` / `v-else` の**3分岐すべて**がルート `<main>`（#25） |
+| `views/CreativeDetail.vue` | skeleton / 本文 / 取得失敗 / 見つからない の**4分岐すべて**がルート `<main>`（#25 / #26） |
 
 ### 新規ビュー追加時のルール
 
@@ -146,6 +147,88 @@ node -e 'console.log(require("@vue/compiler-dom").compile(process.argv[1]).code)
 - **条件付きで現れる可視テキスト**: 画像のフォールバック表示など、通常は画像だけの要素が条件次第でテキストを出す場合、そのときだけ違反になる
 - **監査範囲の穴**: Lighthouse は指定URLしか見ない。動的ルート（`/creatives/:category/:id`）は個別に監査する
 
+## 非同期エラーの伝え方
+
+取得失敗の表示は、多くの場合 skeleton と**差し替わる形で DOM に挿入される**。
+挿入と同時にテキストが入るライブリージョンは読み上げが実装依存になるため、
+`role="alert"` を貼るだけでは伝わったことにならない。`CreativeDetail.vue` の
+取得失敗表示（#26）で確立した構成を標準とする。
+
+### 1. 初回の失敗は見出しへフォーカスを移す
+
+```ts
+watch(loadError, async (failed) => {
+  if (!failed || creative.value) return;
+  await nextTick();
+  errorHeading.value?.focus();   // <h1 tabindex="-1">
+});
+```
+
+遷移直後のフォーカスは body にあり、奪う対象が無い。見出しが読み上げられ、
+同時に再読み込みボタンの直前へフォーカスが着く。
+
+### 2. ライブリージョンは「挿入してから」更新する
+
+同じ文言で再び失敗してもテキストが変わらないため、`role="alert"` では**無音になる**。
+`.sr-only` の `role="status"` を置き、空 → 本文 と更新して差分を作る。
+
+ただし領域そのものが分岐と同時に挿入される場合、**挿入と同じ tick でテキストを入れると
+差分にならない**。`Creatives.vue` のように領域を分岐の外へ常設できるならそれが最善で、
+`CreativeDetail.vue` のように `id="scrollable-aria"` のフォールスルーが単一ルートを
+要求して常設できない場合は、分岐が確定した後（`await nextTick()` の後）に本文を入れる。
+
+```ts
+} finally {
+  hasSettled.value = true;      // ここで分岐が確定する
+  isReloading.value = false;
+}
+
+await nextTick();               // 領域が DOM に入るのを待つ
+
+if (failed && (recovering || creative.value)) {
+  retryStatus.value = t('creatives.common.loadError');
+}
+```
+
+条件が `recovering || creative.value` なのは、`1.` の見出しフォーカスが働く経路
+（本文が無く、初回に失敗した場合）だけは見出し自身が同じ文言を読み上げるため、
+二重に伝えないという意味である。
+
+### 3. 再試行が成功したときもフォーカスと結果を引き継ぐ
+
+成功すると押されたボタンは DOM から消える。放置するとブラウザがフォーカスを body へ
+落とし、**位置と「成功した」という結果の両方が失われる**。失敗側だけ手当てして
+成功側を忘れやすい。本文の見出し（`tabindex="-1"`）へ移し、見出しの読み上げで
+結果を伝える。
+
+```ts
+if (recovering) {
+  contentHeading.value?.focus();
+}
+```
+
+`recovering` は `load()` 冒頭で退避した `loadError.value`。初回の読み込み成功では
+偽なので、フォーカスを奪わない。
+
+### 4. 実行中のボタンを `disabled` にしない
+
+フォーカス中の要素を `disabled` にすると、ブラウザはフォーカスを body へ落とす。
+`aria-disabled="true"` と、ハンドラ冒頭の早期 return で多重実行を防ぐ。
+
+```ts
+const load = async (): Promise<void> => {
+  if (isReloading.value) return;
+  // ...
+};
+```
+
+### 5. 「見つからない」と「読み込めなかった」を混ぜない
+
+`v-else` ひとつで両方を受けると、通信エラーでも「見つかりません」と表示され、
+ユーザは誤った原因を伝えられる。分岐・文言・`useHead` のメタ（title / description /
+OGP）すべてで区別する。エラー状態のフラグは**成功時にだけ**倒す。冒頭でクリアすると
+再取得の往復の間だけ「見つかりません」へ落ちる。
+
 ## 開発時のチェックリスト
 
 ### 新規コンポーネント作成時
@@ -153,6 +236,8 @@ node -e 'console.log(require("@vue/compiler-dom").compile(process.argv[1]).code)
 - [ ] インタラクティブ要素に可視テキストがあるか（無い場合に限り `aria-label`）
 - [ ] 可視テキストを `aria-label` で上書きしていないか（WCAG 2.5.3。補足は `.sr-only` で後置）
 - [ ] キーボードのみで操作可能か（Tab, Enter, Space, Escape, Arrow keys）
+- [ ] インタラクティブ要素を入れ子にしていないか（`<button>` の中の `<a>` など。Tabが2回止まり、ロールも不正になる。ボタン見た目のリンクは `<a>` に class を当てる）
+- [ ] `outline: none` を書いていないか。**scoped CSS では詳細度がグローバルの `:focus-visible` を上回り、フォーカスの輪郭が消える**（`a.goback[data-v-x]` = 0,2,1 > `:focus-visible` = 0,1,0）
 - [ ] `:focus-visible` スタイルが適用されるか（グローバルスタイルでカバー）
 - [ ] 装飾的な画像には `aria-hidden="true"` または空 `alt=""` を設定
 - [ ] 意味のある画像には説明的な `alt` テキストを設定
@@ -175,6 +260,8 @@ node -e 'console.log(require("@vue/compiler-dom").compile(process.argv[1]).code)
 - [ ] ボタンに可視テキスト（アイコンのみの場合に限り `aria-label`）
 - [ ] トグルボタンに `aria-pressed` または `aria-expanded`
 - [ ] ドロップダウン/メニューに `role="menu"` + `role="menuitem"`
+- [ ] 処理中のボタンは `disabled` ではなく `aria-disabled` + ハンドラのガード
+- [ ] 消えるボタンを押した結果は、フォーカスの引き継ぎ先を決めてから実装する
 
 ### 見出し階層
 
@@ -189,9 +276,16 @@ home.title               — ホームページのh1テキスト
 creatives.filters.toolbar — カテゴリフィルターtoolbarのaria-label（コンテナのため可）
 creatives.filters.*       — カテゴリフィルターの.sr-only補足テキスト
 creatives.dcChanAlt       — DC-chan画像のaltテキスト
+creatives.dcChanLinkLabel — DC-chanリンクのaria-label（画像のみで可視テキストが無いため可）
 navbar.selectLanguage     — 言語切替トグルの.sr-only補足テキスト
 navbar.menu.home          — ロゴリンクの.sr-only補足テキスト（メニュー項目と共用）
+navbar.openMenu           — ハンバーガーのaria-label（閉→開。アイコンのみのため可）
+navbar.closeMenu          — ハンバーガーのaria-label（開→閉。アイコンのみのため可）
 ```
+
+**`aria-label` の値をテンプレートへ直書きしない。** アイコンのみの要素で `aria-label` を使うのは
+正しいが、値をハードコードすると `<html lang>` が英語へ切り替わっても日本語のまま読み上げられる。
+可視テキストと違って画面上で気づけないため、レビューでも見落とされやすい。必ず `$t()` を経由させること。
 
 ## reduced-motion対応コンポーネント一覧
 
@@ -206,4 +300,4 @@ navbar.menu.home          — ロゴリンクの.sr-only補足テキスト（メ
 
 ---
 
-最終更新日: 2026-09-06（ランドマーク構造 / Label in Name の節を追加、`&nbsp;` 必須の理由を実測どおりに訂正）
+最終更新日: 2026-09-06（ランドマーク構造 / Label in Name / 非同期エラーの伝え方の節を追加、`&nbsp;` 必須の理由を実測どおりに訂正、入れ子インタラクティブと `outline: none` をチェックリストへ追加、ハードコード `aria-label` の禁止を明記、LanguageDropdown の Menu Button 対応を更新）

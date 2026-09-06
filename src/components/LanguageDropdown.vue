@@ -1,13 +1,9 @@
 <template>
   <div ref="rootRef" :class="['lang-dropdown', variantClass]">
-    <button
-      class="lang-dropdown-toggle"
-      @click="$emit('toggle')"
-      :aria-expanded="isOpen"
-      :aria-label="ariaLabel"
-    >
+    <button class="lang-dropdown-toggle" @click="$emit('toggle')" :aria-expanded="isOpen">
       <font-awesome-icon :icon="faGlobe" class="globe-icon" />
       <span class="current-lang-label">{{ currentLabel }}</span>
+      <span class="sr-only">&nbsp;{{ descriptionLabel }}</span>
       <font-awesome-icon :icon="faChevronDown" class="chevron-icon" :class="{ rotated: isOpen }" />
     </button>
 
@@ -51,7 +47,7 @@ const props = defineProps<{
   currentLabel: string;
   languages: Language[];
   currentLocale: Locale;
-  ariaLabel: string;
+  descriptionLabel: string;
   variant?: 'desktop' | 'mobile' | 'home';
 }>();
 

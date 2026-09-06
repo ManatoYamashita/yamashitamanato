@@ -31,11 +31,22 @@
   status = 301
   force = true
 
-# SPA フォールバック（最後に配置）
+# 作品詳細のみSPAフォールバックを残す（最後から2番目に配置）。
+# ビルド後に microCMS へ追加された作品はまだ静的HTMLが無いため、ここで index.html を
+# 200 で返してクライアント取得に委ねる。プリレンダ済みの作品は静的ファイルが優先される。
+# この穴は Issue #29（Webhook による自動再ビルド）で塞ぐ。
 [[redirects]]
-  from = "/*"
+  from = "/creatives/*"
   to = "/index.html"
   status = 200
+
+# それ以外の未定義パスは 404 を返す（最後に配置）。
+# 以前は全パスが index.html を 200 で返しており、任意のURLでホームページの複製が
+# `robots: index, follow` 付きで配信されていた（Issue #8）。
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404
 
 [build.environment]
   NODE_VERSION = "22.22.0"

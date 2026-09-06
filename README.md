@@ -42,7 +42,7 @@
   - Terser 最適化（`drop_debugger`, 選択的console削除）
   - Source Map 出力
 - デプロイ
-  - 本番: 静的ホスティング（FTP配信、GitHub Actions）
+  - 本番: Netlify（Git連携ビルド。`netlify.toml` の `npm run build` → `dist` を配信）
   - デモ: Vercel
 
 Node.js 要件（Vite準拠）: Node 20.19+ または 22.12+。参考: [Vite Getting Started](https://vitejs.dev/guide/)
@@ -122,7 +122,7 @@ npm run update-csv-from-urls   # URL一覧からCSV更新
 ## プロジェクト構成
 
 ```
-manapuraza/
+yamashitamanato/
 ├── public/                     # 静的ファイル
 │   ├── ogp.webp                # OGPイメージ
 │   ├── robots.txt              # SEO設定
@@ -174,7 +174,7 @@ manapuraza/
 │   └── update-csv-from-urls.ts        # URL一覧からCSV更新
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml          # GitHub Actions デプロイ設定
+│       └── feature-ci.yml      # GitHub Actions 品質チェック（lint/format/build）
 ├── index.html                  # HTMLエントリ（クリティカルCSS含む）
 ├── vite.config.ts              # Vite設定（TypeScript、コード分割・最適化）
 ├── tsconfig.json               # TypeScript設定（Strictモード）

@@ -164,9 +164,10 @@ See `docs/ops/creatives-guide.md` for operational procedures:
 - **Assets**: Supports robots.txt as included asset
 
 ### Deployment
-- **CI/CD**: GitHub Actions workflow (`.github/workflows/deploy.yml`)
-- **Target**: FTP server deployment to `/manapuraza/` directory
-- **Node version**: 22.13.1 in CI environment
+- **Production**: Netlify Git integration. A push to `main` triggers the build and publish. All deploy settings live in `netlify.toml` (`publish = "dist"`, `command = "npm run build"`) — there is no deployment workflow in GitHub Actions
+- **GitHub Actions**: `.github/workflows/feature-ci.yml` (`Branch CI/CD`) only. It runs lint / format / build checks and opens PRs on pushes to branch prefixes (`feature/**`, `fix/**`, `docs/**`, etc.). **It does not run on `main` and never deploys.** The FTP workflow (`.github/workflows/deploy.yml`, target `/manapuraza/`) was removed in `895f3d0` when the site moved to Netlify
+- **Node version**: single source of truth is `.nvmrc`, mirrored in `netlify.toml` (`NODE_VERSION`) and `feature-ci.yml`. Do not restate the number here — see the consistency check in `docs/ops/deployment-checklist.md`
+- **Verifying a release**: merged PR, green CI, and updated production are three independent facts. GitHub commit status cannot track production (Netlify emits no commit status for production deploys). Check the Netlify **Published SHA** and grep the production HTML for a marker of the change — see `docs/ops/deployment-checklist.md`
 
 ## Development Guidelines
 
@@ -357,7 +358,7 @@ This codebase follows comprehensive development rules defined in `.cursor/rules/
 ## Important Notes
 
 - **No testing framework**: Manual testing only via dev server and DevTools
-- **FTP deployment**: GitHub Actions with FTP-Deploy-Action to `/manapuraza/` directory
+- **Deployment**: Netlify Git integration on push to `main` (config in `netlify.toml`). GitHub Actions runs quality checks only. Green CI does not mean production updated — verify with the Netlify Published SHA (see `docs/ops/deployment-checklist.md`)
 - **Single Vue instance with MetaBall**: Main app + MetaBall (sharing router/i18n/head)
 - **microCMS Integration**: Portfolio data managed via microCMS API, not static files
 - **Image optimization**: All portfolio images hosted on microCMS, must be WebP format

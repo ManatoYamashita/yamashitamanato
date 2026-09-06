@@ -33,12 +33,17 @@ feature/<feature-name>
 #### その他のブランチ（必要に応じて）
 
 ```
-bugfix/<bug-description>     # バグ修正
+fix/<bug-description>        # バグ修正
 hotfix/<urgent-fix>          # 緊急修正
 docs/<doc-update>            # ドキュメント更新のみ
 refactor/<refactor-target>   # リファクタリング
 chore/<chore-target>         # 依存・設定・ツール類の整備
 ```
+
+バグ修正は `fix/` を使う。`fix/` と `bugfix/` が両方とも実運用で使われており
+（`fix/ssg-empty-category-skeleton`、`bugfix/nested-interactive-goback`）、
+同じ用途に名前が2つある状態だったため、コミットの PREFIX 一覧に合わせて `FIX` 側へ寄せた。
+既存ブランチを取りこぼさないよう `bugfix/**` もトリガーには残すが、新規作成では使わない。
 
 上記はすべて `Branch CI/CD` の quality-check 対象。プレフィックスを追加・変更するときは
 `.github/workflows/feature-ci.yml` の `on.push.branches` も同時に更新する（Issue #48）。
@@ -81,7 +86,8 @@ on:
   push:
     branches:
       - 'feature/**'
-      - 'bugfix/**'
+      - 'fix/**'
+      - 'bugfix/**' # 旧称
       - 'hotfix/**'
       - 'docs/**'
       - 'refactor/**'
@@ -94,9 +100,12 @@ on:
 
 上記いずれかのプレフィックスを持つブランチへの push 時に自動実行される品質チェック：
 
-> **ジョブを失敗させるのはビルド関連ステップのみ。** ESLint と Prettier は `|| true` を付けて
-> 実行し、結果を `$GITHUB_STEP_SUMMARY` へ出力するだけで成否には影響しない。
-> quality-check が緑でも lint が通っているとは限らないため、サマリー本文を確認すること。
+> **ESLint / Prettier / ビルドのいずれかが失敗すると quality-check も失敗する。**
+> 各ステップは結果を `$GITHUB_STEP_SUMMARY` へ書き切ってから終了コードを引き継ぐため、
+> 失敗時もサマリーに原因が残る。
+> ESLint はルール重大度が `error` のもの（`no-debugger`、`no-undef`、`no-var`、
+> `vue/require-v-for-key` など）だけがジョブを落とす。`warning` はサマリーへ出力されるが
+> 失敗させないため、警告の削減は別途進める。
 
 - **ESLint チェック**
   ```bash

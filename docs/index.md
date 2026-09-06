@@ -6,6 +6,9 @@
 - サブディレクトリは必要最小限に留め、命名は `kebab-case` に統一します。
 - 追加・更新時は本索引を必ず更新し、重複やリンク切れをチェックします。
 - 機密情報（PII 等）は保存禁止。コミット時は `DOC:` プレフィックスを推奨します。
+- 各ドキュメント末尾の `最終更新日:` は**日付のみ**を記録します。変更内容を追記すると行が
+  際限なく伸び、並行して走る PR がすべて同じ 1 行で競合するためです。何を変えたかは
+  各ドキュメント本文・PR 本文・git 履歴に残ります。
 
 ## ディレクトリ構成（最小セット）
 - `standards/`: コーディング規約・設計/実装ガイドラインなど共通ルール。
@@ -26,7 +29,7 @@
 - standards/performance-and-build.md — 遅延/分割、アセット方針、Three.js、ビルド設定。
 - standards/security-and-seo.md — セキュリティ、アクセシビリティ、SEO/アナリティクス。
 - standards/accessibility.md — WCAG 2.1 AA準拠ガイドライン（ランドマーク構造とビューのルート要素ルール、Label in Name（可視テキストとアクセシブル名の一致）、focus-visible、reduced-motion、ARIA、キーボード操作）。
-- standards/ssg-guidelines.md — vite-ssg プリレンダの実装ガイドライン（head既定値の上書き、onMounted依存の初期値、SSRガード、動的ルートの列挙とビルド時データ取得、`__INITIAL_STATE__` の受け渡しと完全性フラグ（partial/all の2軸）、縮退判定の集約とビルドゲート、APIキー非混入の検証、`useId()` による一意ID採番、生成HTMLの検証手順）。
+- standards/ssg-guidelines.md — vite-ssg プリレンダの実装ガイドライン（head既定値の上書き、onMounted依存の初期値、SSRガード、動的ルートの列挙とビルド時データ取得、`__INITIAL_STATE__` の受け渡しと完全性フラグ（partial/all の2軸）、縮退判定の集約とビルドゲート（skeleton 焼き込みの検出を含む）、3分岐ルールと詳細ページの例外、APIキー非混入の検証、`useId()` による一意ID採番、生成HTMLの検証手順）。
 - standards/coding-standards.md — コーディングスタイルとレビュー/コミットの基本。
 
 ### Ops（運用・手順書）
@@ -53,4 +56,4 @@
 
 ---
 
-最終更新日: 2026-09-06（規約類を standards/ へ集約し、索引のリンク切れを解消。frontend-guidelines にルーティング詳細・i18n 初期化設定・新規ページ追加チェックを統合。アクセシビリティガイドラインに Label in Name の節を追加。branch.md の CI トリガー記述を実態へ同期。frontend-guidelines にアイコン受け渡しの規約を追加。accessibility に入れ子インタラクティブと outline: none のチェック、ハードコード aria-label の禁止を追加。ssg-guidelines に useId() によるID採番と `__INITIAL_STATE__` の完全性フラグ・skeleton 焼き込みのビルドゲート、3分岐ルールの詳細ページ例外と0件カテゴリ追加時のトレードオフを追加。frontend-guidelines に未使用i18nキー削除時の注意を追加。frontend-guidelines に内部遷移の RouterLink 必須を追加。frontend-guidelines に props: true の注意を追加）
+最終更新日: 2026-09-06

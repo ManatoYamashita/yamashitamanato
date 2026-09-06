@@ -134,7 +134,6 @@ manapuraza/
 │   │   ├── Menu.vue            # 統合ナビゲーション（デスクトップ/モバイル）
 │   │   ├── CreativeItem.vue    # ポートフォリオカード表示
 │   │   ├── AboutHero.vue       # プロフィールヒーローセクション
-│   │   ├── AnimationSection.vue # アニメーションセクション
 │   │   ├── Btn.vue             # 再利用可能ボタン
 │   │   └── Sns.vue             # SNSリンク
 │   ├── views/                  # ページレベルコンポーネント（TypeScript）

@@ -181,6 +181,50 @@ const handleClick = (data) => {
 };
 ```
 
+### アイコンの受け渡し
+
+**FontAwesome の `IconDefinition` を `<component :is>` へ渡してはいけない。**
+
+`faArrowUpRightFromSquare` などの実体は `{ prefix, iconName, icon: [...] }` という素のオブジェクトで、
+Vue コンポーネントではない。`<component :is>` に渡すと Vue は Options API のコンポーネント定義として
+解釈するが、`render` も `template` も `setup` も持たないため**何も描画されない**。
+
+```vue
+<!-- NG: 何も出ない。vue-tsc も通ってしまう（Component 型がゆるいため） -->
+<component v-if="icon" :is="icon" class="icon" />
+
+<!-- OK -->
+<font-awesome-icon v-if="icon" :icon="icon" class="icon" />
+```
+
+prop の型も実体に合わせる。`Component`（vue）ではなく `IconDefinition` を使うこと。
+
+```ts
+import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+
+interface Props {
+  icon?: IconDefinition | null;
+}
+```
+
+サイズは CSS の `font-size` で制御する。`font-awesome-icon` の `size` prop は `'lg'` / `'2x'` 等の
+**文字列のみ**を受け付けるため、`:size="20"` のような数値は prop バリデーションに落ちる
+（開発ビルドでは警告、本番ビルドでは無言で無視される）。
+
+**検証方法**: プリレンダ済みHTMLにアイコンの `<svg>` が実際に出ているかを確認する。
+描画されていなくても型検査もビルドも通るため、目視かこの種の grep でしか気づけない。
+
+```bash
+npm run build
+
+# 各CTAボタンの最初の子ノードを列挙する。
+# `<svg` ならアイコンが出ており、`<!--` なら v-if が偽か描画に失敗している。
+grep -oh '<button class="primary"[^>]*><[a-z!/-]*' dist/creatives/*/*.html | sed 's/.*>//' | sort | uniq -c
+```
+
+なお FontAwesome の `<svg>` は既定で `aria-hidden="true"` を持つため、アイコンを足しても
+ボタンのアクセシブル名は変わらない（`docs/standards/accessibility.md` の Label in Name を参照）。
+
 ## ルーティング
 
 ### Vue Router の基本

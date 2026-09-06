@@ -33,11 +33,15 @@ feature/<feature-name>
 #### その他のブランチ（必要に応じて）
 
 ```
-bugfix/<bug-description>    # バグ修正
+bugfix/<bug-description>     # バグ修正
 hotfix/<urgent-fix>          # 緊急修正
 docs/<doc-update>            # ドキュメント更新のみ
 refactor/<refactor-target>   # リファクタリング
+chore/<chore-target>         # 依存・設定・ツール類の整備
 ```
+
+上記はすべて `Branch CI/CD` の quality-check 対象です。プレフィックスを追加・変更するときは
+`.github/workflows/feature-ci.yml` の `on.push.branches` も同時に更新します（Issue #48）。
 
 ### ブランチのライフサイクル
 
@@ -67,7 +71,7 @@ refactor/<refactor-target>   # リファクタリング
 
 ## GitHub Actions ワークフロー
 
-### Feature Branch CI/CD
+### Branch CI/CD
 
 **ファイル:** `.github/workflows/feature-ci.yml`
 
@@ -83,7 +87,15 @@ on:
 
 #### 1. Quality Check Job
 
-feature ブランチへの push 時に自動実行される品質チェック：
+上記いずれかのブランチへの push 時に自動実行される品質チェック：
+
+> **ジョブを失敗させるのはビルド関連ステップのみです。** ESLint と Prettier は
+> `continue-on-error: true` で実行し、実際の `outcome` とログをサマリーへ出力します。
+> quality-check が緑でも lint / format が通っているとは限らないため、サマリーを確認してください。
+
+Issue #47本文には **690 errors / 879 warnings** のベースラインが記録されています。一方、
+2026-09-06 に現行 `main` を再計測した結果は **0 errors / 101 warnings** でした。既存の違反を
+直ちに全 feature ブランチのブロッカーにはせず、まず実結果を可視化し、段階的なゲート化へ移行します。
 
 - **ESLint チェック**
   ```bash
@@ -115,13 +127,17 @@ feature ブランチへの push 時に自動実行される品質チェック：
 **実行条件:**
 ```yaml
 needs: quality-check
-if: success()
+if: success() && startsWith(github.ref, 'refs/heads/feature/')
 ```
+
+PR の自動作成は `feature/` ブランチ専用です。他のプレフィックスでは quality-check のみを実行し、
+PR は手動で作成します。
 
 **PR 作成内容:**
 - **タイトル:** `🚀 [<feature-name>] Auto-generated PR`
 - **本文:**
   - 品質チェック結果サマリー
+  - ESLint / Prettier は実際の `outcome` を反映（既存ベースラインのため現時点では非ブロッキング）
   - 最近のコミットリスト（最大10件）
   - CI/CD 実行情報
 - **ベースブランチ:** main
@@ -146,14 +162,14 @@ GitHub Actions が PR を作成するには、以下の設定が必要：
 3. Permissions 設定（既に設定済み）:
    ```yaml
    permissions:
-     contents: write
+     contents: read
      pull-requests: write
    ```
 
 ### ワークフロー実行環境
 
 - **OS:** ubuntu-latest
-- **Node.js:** 22.13.1
+- **Node.js:** 22.22.0
 - **パッケージマネージャー:** npm
 - **キャッシュ戦略:** npm キャッシュ利用
 

@@ -26,6 +26,7 @@
 | `App.vue` | ホームページに `<h1 class="sr-only">` 追加 |
 | `Btn.vue` | ツールチップに `id` + ボタンに `aria-describedby` 接続 |
 | `Creatives.vue` | DC-chan画像に説明的 `alt` テキスト + `width`/`height`/`aspect-ratio` でCLS対策 |
+| `CreativeDetail.vue` | 取得失敗を「作品が見つかりません」と分離し、再読み込みボタンと一覧への復帰導線を提示（#26）。下記「非同期エラーの伝え方」を参照 |
 
 ## ランドマーク構造
 
@@ -47,7 +48,7 @@ WCAG 2.1 の 1.3.1（情報及び関係性）と 2.4.1（ブロックスキッ�
 |---|---|
 | `views/About.vue` / `Contact.vue` / `Creatives.vue` / `404.vue` / `UnderConstraction.vue` | 各ファイルのルート要素 |
 | `views/Home.vue` | ルートは `display:none` の空 `div`。main は `src/App.vue:39` の `<main class="home-main">` が担う |
-| `views/CreativeDetail.vue` | `v-if` / `v-else-if` / `v-else` の**3分岐すべて**がルート `<main>`（#25） |
+| `views/CreativeDetail.vue` | skeleton / 本文 / 取得失敗 / 見つからない の**4分岐すべて**がルート `<main>`（#25 / #26） |
 
 ### 新規ビュー追加時のルール
 
@@ -76,6 +77,51 @@ grep -oh '<main[^>]*>' dist/creatives/*/*.html | sort -u
 
 ブラウザ（`npm run preview`）では、DevTools の Accessibility ツリーに banner / main / contentinfo が1つずつ出ること、CTA・戻るリンクがクリックとフォーカスを受け付けること（`pointer-events` の維持）を確認します。
 
+## 非同期エラーの伝え方
+
+取得失敗の表示は、多くの場合 skeleton と**差し替わる形で DOM に挿入される**。
+挿入と同時にテキストが入るライブリージョンは読み上げが実装依存になるため、
+`role="alert"` を貼るだけでは伝わったことにならない。`CreativeDetail.vue` の
+取得失敗表示（#26）で確立した構成を標準とする。
+
+### 1. 初回の失敗は見出しへフォーカスを移す
+
+```ts
+watch(loadError, async (failed) => {
+  if (!failed || creative.value) return;
+  await nextTick();
+  errorHeading.value?.focus();   // <h1 tabindex="-1">
+});
+```
+
+遷移直後のフォーカスは body にあり、奪う対象が無い。見出しが読み上げられ、
+同時に再読み込みボタンの直前へフォーカスが着く。
+
+### 2. 再試行の結果は常設のライブリージョンで伝える
+
+同じ文言で再び失敗してもテキストが変わらないため、`role="alert"` では**無音になる**。
+エラー表示の内側に `.sr-only` の `role="status"` を常設し、再試行のたびに
+空 → 本文 と更新して差分を作る。
+
+### 3. 実行中のボタンを `disabled` にしない
+
+フォーカス中の要素を `disabled` にすると、ブラウザはフォーカスを body へ落とす。
+`aria-disabled="true"` と、ハンドラ冒頭の早期 return で多重実行を防ぐ。
+
+```ts
+const load = async (): Promise<void> => {
+  if (isReloading.value) return;
+  // ...
+};
+```
+
+### 4. 「見つからない」と「読み込めなかった」を混ぜない
+
+`v-else` ひとつで両方を受けると、通信エラーでも「見つかりません」と表示され、
+ユーザは誤った原因を伝えられる。分岐・文言・`useHead` のメタ（title / description /
+OGP）すべてで区別する。エラー状態のフラグは**成功時にだけ**倒す。冒頭でクリアすると
+再取得の往復の間だけ「見つかりません」へ落ちる。
+
 ## 開発時のチェックリスト
 
 ### 新規コンポーネント作成時
@@ -103,6 +149,7 @@ grep -oh '<main[^>]*>' dist/creatives/*/*.html | sort -u
 - [ ] ボタンに `aria-label` または可視テキスト
 - [ ] トグルボタンに `aria-pressed` または `aria-expanded`
 - [ ] ドロップダウン/メニューに `role="menu"` + `role="menuitem"`
+- [ ] 処理中のボタンは `disabled` ではなく `aria-disabled` + ハンドラのガード
 
 ### 見出し階層
 
@@ -132,4 +179,4 @@ navbar.selectLanguage    — 言語切替のaria-label
 
 ---
 
-最終更新日: 2026-09-06（ランドマーク構造の節を追加）
+最終更新日: 2026-09-06（非同期エラーの伝え方の節を追加）

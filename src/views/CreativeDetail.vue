@@ -41,6 +41,22 @@
       {{ $t('creatives.common.backToList') }}
     </router-link>
 
+    <!-- 一覧の軽量投影のまま取得に失敗した状態。本文・画像・クレジットが代用値へ落ちており
+         実際の内容と食い違うため、黙って見せずに再取得の導線を出す。 -->
+    <div
+      v-if="loadError && creativesArePartial"
+      class="detail-notice"
+      role="status"
+      aria-live="polite"
+    >
+      <p class="detail-notice__message">{{ $t('creatives.common.loadError') }}</p>
+      <p class="sr-only">{{ retryStatus }}</p>
+      <button type="button" class="retry-button" :aria-disabled="isReloading" @click="load">
+        <font-awesome-icon :icon="faRotateRight" />
+        <span>{{ $t('creatives.common.retry') }}</span>
+      </button>
+    </div>
+
     <!-- メインコンテンツ -->
     <div id="main-contents">
       <!-- 作品タイトル -->
@@ -151,6 +167,20 @@
     </div>
   </main>
 
+  <!-- 取得に失敗した場合。「見つからない」（次の分岐）と区別し、再試行と復帰導線を出す -->
+  <main v-else-if="loadError" class="load-error">
+    <h1 ref="errorHeading" tabindex="-1">{{ $t('creatives.common.loadError') }}</h1>
+    <p class="sr-only" role="status" aria-live="polite">{{ retryStatus }}</p>
+    <button type="button" class="retry-button" :aria-disabled="isReloading" @click="load">
+      <font-awesome-icon :icon="faRotateRight" />
+      <span>{{ $t('creatives.common.retry') }}</span>
+    </button>
+    <router-link to="/creatives" class="back-link">
+      <font-awesome-icon :icon="faArrowLeft" />
+      {{ $t('creatives.common.backToList') }}
+    </router-link>
+  </main>
+
   <!-- 作品が見つからない場合 -->
   <main v-else class="not-found">
     <h1>{{ $t('creatives.common.notFound') }}</h1>
@@ -168,7 +198,11 @@ import { useI18n } from 'vue-i18n';
 import { useHead } from '@unhead/vue';
 import { marked } from 'marked';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faArrowLeft, faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
+import {
+  faArrowLeft,
+  faArrowUpRightFromSquare,
+  faRotateRight,
+} from '@fortawesome/free-solid-svg-icons';
 import { useCreativesAPI, getOptimizedImageUrl } from '@/composables/useCreativesAPI';
 import Btn from '@/components/Btn.vue';
 import SkeletonBase from '@/components/SkeletonBase.vue';
@@ -196,15 +230,62 @@ const creative = computed(() => getCreativeById(id.value, locale.value as 'ja' |
 // 従来どおり description を代用した表示へ落ちる。
 const hasSettled = ref(false);
 
-// データ取得
-onMounted(async () => {
+// 取得に失敗したかどうか。useCreativesAPI が export する error ref は
+// モジュールスコープのシングルトンで Creatives と共有され、アンマウント時にも
+// クリアされないため、このビュー専用のローカルな状態として持つ。
+const loadError = ref(false);
+
+// 再取得の実行中かどうか。フォーカス中のボタンを disabled にするとブラウザが
+// フォーカスを body へ落とすため、aria-disabled と load() 冒頭のガードで多重実行を防ぐ。
+const isReloading = ref(false);
+
+// 再試行の結果を伝えるライブリージョンのテキスト。エラー表示が挿入される初回は空にし
+// （初回は見出しへのフォーカス移動で伝える）、再試行のたびに 空 → 本文 と更新することで
+// 2回目以降の失敗も確実に読み上げられるようにする。
+const retryStatus = ref('');
+
+// 取得失敗の見出しへフォーカスを移すための参照。
+const errorHeading = ref<HTMLHeadingElement | null>(null);
+
+// データ取得。再読み込みボタンからも同じ関数を呼ぶ。
+// Creatives.vue と違い hasSettled は false へ戻さない。戻すと skeleton 分岐へ切り替わって
+// 再読み込みボタンが DOM から消え、フォーカスが失われるため。
+const load = async (): Promise<void> => {
+  // fetchCreatives は in-flight の重複排除を持たず、共有シングルトンの isLoading を
+  // 並行して踏むため、連打をここで止める。
+  if (isReloading.value) return;
+
+  isReloading.value = true;
+  retryStatus.value = '';
+
   try {
     await fetchCreatives();
+    // 冒頭ではなく成功時にだけ倒す。冒頭でクリアすると再取得の往復の間だけ
+    // 分岐が「作品が見つかりません」へ落ちてしまう。
+    loadError.value = false;
   } catch (err) {
+    loadError.value = true;
+    // hasSettled が既に真 = 再試行。初回の失敗はフォーカス移動で伝わるため空のまま。
+    if (hasSettled.value) {
+      retryStatus.value = t('creatives.common.loadError');
+    }
     console.error('Failed to fetch creative:', err);
   } finally {
     hasSettled.value = true;
+    isReloading.value = false;
   }
+};
+
+onMounted(load);
+
+// 取得失敗の表示は skeleton と差し替わる形で挿入される。挿入と同時にテキストが入る
+// ライブリージョン（role="alert"）は読み上げが実装依存になるうえ、同じ文言で再び
+// 失敗すると無音になるため、見出しへフォーカスを移して確実に伝える。
+// 遷移直後のフォーカスは body にあり、奪う対象は無い。
+watch(loadError, async (failed) => {
+  if (!failed || creative.value) return;
+  await nextTick();
+  errorHeading.value?.focus();
 });
 
 // Detail データの構造型定義
@@ -403,33 +484,38 @@ const parsedCredits = computed<ParsedCredit[]>(() => {
     .filter((credit): credit is ParsedCredit => credit !== null);
 });
 
+// creative が無いときのメタ。状態を区別せず notFound を出すと、取得に失敗しただけでも
+// title と OGP が「作品が見つかりません」と断定してしまう。
+// 読み込み中（!hasSettled）を Not Found 側へ倒すのは意図的。プリレンダでデータが欠落した
+// ページは .not-found を含まず `<title>Not Found` だけが可視シグナルになるため
+// （docs/standards/ssg-guidelines.md の検証チェックリストがこれに依存している）。
+const pageTitle = computed<string>(() => {
+  if (creative.value) return `${t(creative.value.title)} | yamashitamana.to`;
+  if (loadError.value) return 'Creatives | yamashitamana.to';
+  return 'Not Found | yamashitamana.to';
+});
+
+const pageDescription = computed<string>(() => {
+  if (creative.value) return t(creative.value.description);
+  if (loadError.value) return t('creatives.common.loadError');
+  return t('creatives.common.notFound');
+});
+
 // SEO メタタグ設定
 useHead({
-  title: computed(() =>
-    creative.value
-      ? `${t(creative.value.title)} | yamashitamana.to`
-      : 'Not Found | yamashitamana.to'
-  ),
+  title: pageTitle,
   meta: [
     {
       name: 'description',
-      content: computed(() =>
-        creative.value ? t(creative.value.description) : t('creatives.common.notFound')
-      ),
+      content: pageDescription,
     },
     {
       property: 'og:title',
-      content: computed(() =>
-        creative.value
-          ? `${t(creative.value.title)} | yamashitamana.to`
-          : 'Not Found | yamashitamana.to'
-      ),
+      content: pageTitle,
     },
     {
       property: 'og:description',
-      content: computed(() =>
-        creative.value ? t(creative.value.description) : t('creatives.common.notFound')
-      ),
+      content: pageDescription,
     },
     {
       property: 'og:url',
@@ -459,17 +545,11 @@ useHead({
     },
     {
       name: 'twitter:title',
-      content: computed(() =>
-        creative.value
-          ? `${t(creative.value.title)} | yamashitamana.to`
-          : 'Not Found | yamashitamana.to'
-      ),
+      content: pageTitle,
     },
     {
       name: 'twitter:description',
-      content: computed(() =>
-        creative.value ? t(creative.value.description) : ''
-      ),
+      content: pageDescription,
     },
     {
       name: 'twitter:image',
@@ -790,7 +870,8 @@ useHead({
   min-width: 200px;
 }
 
-.not-found {
+.not-found,
+.load-error {
   max-width: 900px;
   margin: 0 auto;
   padding: 4rem 1rem;
@@ -802,6 +883,71 @@ useHead({
   font-weight: 700;
   margin-bottom: 2rem;
   color: #333;
+}
+
+/* エラー文は一文が長いため、.not-found h1 の 2rem ではなく可読性を優先したサイズにする */
+.load-error h1 {
+  max-width: 34rem;
+  margin: 0 auto 2rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1.9;
+  color: #333;
+}
+
+/* プログラム的なフォーカス移動で枠を出さない
+   （グローバルの指定は :focus-visible なので通常は出ないが、実装差の保険） */
+.load-error h1:focus {
+  outline: none;
+}
+
+.load-error .retry-button {
+  margin-bottom: 2rem;
+}
+
+.load-error .back-link {
+  display: block;
+}
+
+/* 本文が代用値へ落ちたまま取得に失敗した状態の告知 */
+.detail-notice {
+  margin: 0 0 2rem;
+  padding: 1.25rem;
+  border: 2px solid #000;
+  border-radius: 0.75rem;
+  text-align: center;
+}
+
+.detail-notice__message {
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+/* 意匠は同系ページの Creatives.vue .creatives-status__retry に合わせる */
+.retry-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.2rem;
+  background: transparent;
+  border: 2px solid #000;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #000;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.retry-button:hover {
+  background: #000;
+  color: #fff;
+}
+
+.retry-button[aria-disabled='true'] {
+  opacity: 0.6;
+  cursor: progress;
 }
 
 @media screen and (max-width: 768px) {

@@ -18,10 +18,11 @@
 ## 命名・配置ガイド
 - ファイル名は `kebab-case.md`、目的が明確な名前。
 - 1ファイルが 300 行超 or 技術領域が分岐 → 分割/ディレクトリ化。
-- 代表例：
-  - `docs/coding-standards.md`（規約）
-  - `docs/import-path-migration.md`（移行ガイド）
-  - `docs/branch-strategy.md`（ブランチ/CI）
+- 用途とサブディレクトリの対応（代表例）：
+  - 規約・ガイドライン → `docs/standards/coding-standards.md`
+  - 運用・手順書・CI → `docs/ops/branch.md`
+  - 開発環境・移行記録 → `docs/dev/typescript-migration.md`
+  - アクセス解析 → `docs/analytics/ga4-setup.md`
 
 ## 索引（参照）
 - ドキュメントのエンドポイント: `docs/index.md`
@@ -34,4 +35,4 @@
 - デプロイ手順: `docs/ops/deployment-checklist.md`
 - Creatives データ管理: `docs/ops/creatives-guide.md`
 
-最終更新日: 2026/11/24
+最終更新日: 2026/09/06

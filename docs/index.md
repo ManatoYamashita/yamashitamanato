@@ -27,7 +27,7 @@
 - standards/architecture.md — エントリ/初期化/責務分離とフォールバック方針。
 - standards/frontend-guidelines.md — Vue SFC規約、コンポーネント設計（Props/Emit、アイコンの受け渡し）、ルーティング、i18n、新規ページ追加の手順。
 - standards/design-system.md — カラー/フォント/背景/モーション/コンポーネントなどのデザインシステム全体。
-- standards/performance-and-build.md — 遅延/分割、アセット方針、Three.js、ビルド設定。
+- standards/performance-and-build.md — 遅延/分割、アセット方針、Three.js、ビルド設定、Service Worker 撤去の記録（トゥームストーンの不変条件、既知の縮退、削除の可否）。
 - standards/security-and-seo.md — セキュリティ、アクセシビリティ、SEO/アナリティクス。
 - standards/accessibility.md — WCAG 2.1 AA準拠ガイドライン（ランドマーク構造とビューのルート要素ルール、Label in Name（可視テキストとアクセシブル名の一致）、focus-visible、祖先の visibility に潰されるフォーカス移動、reduced-motion、ARIA、キーボード操作）。
 - standards/ssg-guidelines.md — vite-ssg プリレンダの実装ガイドライン（head既定値の上書き、onMounted依存の初期値、SSRガード、動的ルートの列挙とビルド時データ取得、`__INITIAL_STATE__` の受け渡しと完全性フラグ（partial/all の2軸）、縮退判定の集約とビルドゲート（skeleton 焼き込みの検出を含む）、3分岐ルールと詳細ページの例外、APIキー非混入の検証、`useId()` による一意ID採番、生成HTMLの検証手順）。
@@ -57,4 +57,4 @@
 
 ---
 
-最終更新日: 2026-09-06
+最終更新日: 2026-09-07

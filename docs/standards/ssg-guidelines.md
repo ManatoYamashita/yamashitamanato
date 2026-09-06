@@ -262,7 +262,7 @@ grep -rl "process\.env\." dist/assets/*.js  # 何も出ないこと
 `document` / `window` / `localStorage` / `navigator` は SSR 段階に存在しません。
 
 - クライアント専用の副作用は `ViteSSG` 第3引数の `isClient` ガード内に置く
-  （プログレスバー、コンポーネントプリロード、Service Worker、MetaBall、英語辞書の遅延ロード）。
+  （プログレスバー、コンポーネントプリロード、MetaBall、英語辞書の遅延ロード）。
 - 共通ロジック内で参照する場合は `typeof window === 'undefined'` で早期 return する
   （`src/composables/useCreativesAPI.ts` のキャッシュ関数が該当）。
 - データ取得は各ビューの `onMounted` からのみ発火させる。setup で `await` すると

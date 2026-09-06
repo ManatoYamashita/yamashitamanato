@@ -132,15 +132,6 @@ export const createApp = ViteSSG(
         metaball.use(i18n);
         metaball.mount('#back');
       });
-
-      // Service Worker登録（本番のみ）
-      if ('serviceWorker' in navigator && import.meta.env.PROD) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch((error: Error) => {
-            console.error('SW registration failed:', error);
-          });
-        });
-      }
     }
   }
 );

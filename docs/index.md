@@ -36,7 +36,7 @@
 ### Ops（運用・手順書）
 - ops/microcms-setup.md — microCMS初期セットアップガイド（アカウント作成、API設定、環境変数の命名規約と`VITE_`禁止理由、初期データ登録）。
 - ops/creatives-guide.md — microCMSでのポートフォリオ作品管理手順（categories/creatives API、データフロー、詳細ページルーティング `/creatives/:category/:id`）。
-- ops/deployment-checklist.md — デプロイ前後の確認項目とトラブルシュート。Netlify CLIローカルデプロイ手順を含む。
+- ops/deployment-checklist.md — デプロイ前後の確認項目とトラブルシュート。本番反映の確認（Published SHA 照合、commit status で追えない理由）、Netlify のプラン上限による本番デプロイ停止、Netlify CLIローカルデプロイ手順を含む。
 - ops/branch.md — ブランチ戦略、全作業ブランチ対象のGitHub Actions CI/CD、コミットメッセージ規約。
 - ops/nodejs-version-management.md — Node.js バージョン管理ガイド（アップデート手順、セキュリティパッチ適用、トラブルシューティング）。
 - ops/package-manager-policy.md — パッケージマネージャ運用ポリシー（npm統一、ロックファイル混在によるNetlify install失敗の原因と切り分け手順）。

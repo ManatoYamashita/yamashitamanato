@@ -389,4 +389,4 @@ VITE_MICROCMS_API_KEY=your-read-only-api-key
 © 2023– Manato Yamashita. All Rights Reserved.
 
 ---
-最終更新: 2026-01-12
+最終更新日: 2026-01-12

@@ -19,12 +19,13 @@
 
 | コンポーネント | 対応内容 |
 |---|---|
-| `CreativesHero.vue` | フィルターボタンに `role="toolbar"`, `aria-label`, `aria-pressed` |
+| `CreativesHero.vue` | フィルターボタンに `aria-pressed` + `.sr-only` の補足テキスト（可視「Anime」等の略語を補う）。ラッパーの `role="toolbar"` にのみ `aria-label` |
 | `MetaBall.vue` | canvas に `aria-hidden="true"` |
-| `Sns.vue` | 外部リンクに `target="_blank"`, `rel="noopener noreferrer"`, aria-labelに「新しいタブで開きます」追記 |
-| `LanguageDropdown.vue` | WAI-ARIA Menu Buttonパターン: `role="menu"`, `role="menuitem"`, ArrowUp/Down/Escape/Home/End キーボード操作 |
+| `Sns.vue` | 外部リンクに `target="_blank"`, `rel="noopener noreferrer"`。アイコンのみで可視テキストが無いため `aria-label` に「新しいタブで開きます」追記 |
+| `LanguageDropdown.vue` | WAI-ARIA Menu Buttonパターン: `role="menu"`, `role="menuitem"`, ArrowUp/Down/Escape/Home/End キーボード操作。トグルは可視「日本語」+ `.sr-only` の `descriptionLabel` |
 | `App.vue` | ホームページに `<h1 class="sr-only">` 追加 |
-| `Btn.vue` | ツールチップに `id` + ボタンに `aria-describedby` 接続 |
+| `Btn.vue` | ツールチップに `id` + ボタンに `aria-describedby` 接続。ツールチップは `aria-hidden="true"`（`opacity:0` では名前計算から外れないため）。アクセシブル名は可視 `text` のみ |
+| `Menu.vue` | ロゴリンクに `.sr-only` の遷移先ラベル（ロゴ画像の読み込み失敗時も可視テキストと整合） |
 | `Creatives.vue` | DC-chan画像に説明的 `alt` テキスト + `width`/`height`/`aspect-ratio` でCLS対策 |
 
 ## ランドマーク構造
@@ -75,12 +76,69 @@ grep -oh '<main[^>]*>' dist/creatives/*/*.html | sort -u
 ```
 
 ブラウザ（`npm run preview`）では、DevTools の Accessibility ツリーに banner / main / contentinfo が1つずつ出ること、CTA・戻るリンクがクリックとフォーカスを受け付けること（`pointer-events` の維持）を確認します。
+## WCAG 2.5.3 Label in Name（可視ラベルとアクセシブル名）
+
+**可視テキストを持つ要素に、それを置き換える `aria-label` を付けてはいけない。**
+
+`aria-label` は要素のアクセシブル名を*上書き*する。可視テキストが名前に含まれなくなると、音声コントロール利用者が画面に見えている語を発話しても操作できない（WCAG 2.5.3 レベルA 違反 / Lighthouse `label-content-name-mismatch`）。
+
+### アンチパターン
+
+```vue
+<!-- NG: 可視「Anime」がアクセシブル名から消える -->
+<button :aria-label="$t('creatives.filters.animation')">
+  <span>Anime</span>
+</button>
+<!-- 可視テキスト   : Anime -->
+<!-- アクセシブル名 : アニメーション作品を表示  ← 一致しない -->
+```
+
+### 推奨パターン
+
+説明を補いたい場合は `.sr-only` を可視テキストの**後ろ**に置き、アクセシブル名を「可視テキスト + 説明」にする。
+
+```vue
+<!-- OK: 可視テキストが名前の先頭に来る -->
+<button>
+  <span>Anime</span>
+  <span class="sr-only">&nbsp;{{ $t('creatives.filters.animation') }}</span>
+</button>
+<!-- 可視テキスト   : Anime -->
+<!-- アクセシブル名 : Anime アニメーション作品を表示 -->
+```
+
+**先頭の `&nbsp;` は必須。** アクセシブル名はインライン要素の子を区切り無しで連結するため、これが無いと
+`AnimeShow animation works` のように単語が繋がって読み上げられる。ASCII空白では代替にならない:
+
+- Vue の `whitespace: 'condense'` が改行を含む空白のみのテキストノードを削除する
+- Prettier が `<span>` を別行に整形した時点で、その空白ノードが改行を含むようになる
+
+つまり ASCII空白は「書いた直後は動くが、次に整形した誰かが黙って壊す」。実体参照で確定させること。
+
+静的HTML（`index.html`）など `.sr-only` が使いにくい箇所では、`aria-label` の値を**可視テキストで始まる**形にする。
+
+```html
+<a href="https://bento.me/ym" aria-label="山下マナト（山下真和都）の各種SNSへ">山下マナト</a>
+```
+
+### `aria-label` を使ってよいケース
+
+- アイコンのみ / 画像のみで**可視テキストが無い**要素（`Sns.vue` のSNSアイコン、`Menu.vue` のハンバーガー、`AboutHero.vue` の外部リンクアイコン）
+- `<nav>`, `role="toolbar"` など **name from content 非対応**のコンテナ（`CreativesHero.vue` のフィルターラッパー、`Menu.vue` の各 `<nav>`）
+
+### 見落としやすい落とし穴
+
+- **prop 経由の間接的な `aria-label`**: `Btn.vue` はかつて `alt` prop を無条件に `aria-label` へ流しており、可視テキスト（`text` prop）と乖離していた。ラベル文字列を2箇所で持つ設計にしない
+- **`opacity: 0` は隠しきれない**: `opacity` で隠した要素はアクセシビリティツリーに残り、name from content に混入する。名前から外すには `aria-hidden="true"` / `display:none` / `visibility:hidden` が必要（`aria-describedby` で直接参照された要素は `aria-hidden` でも説明として読まれる）
+- **条件付きで現れる可視テキスト**: 画像のフォールバック表示など、通常は画像だけの要素が条件次第でテキストを出す場合、そのときだけ違反になる
+- **監査範囲の穴**: Lighthouse は指定URLしか見ない。動的ルート（`/creatives/:category/:id`）は個別に監査する
 
 ## 開発時のチェックリスト
 
 ### 新規コンポーネント作成時
 
-- [ ] インタラクティブ要素に適切な `aria-label` または可視テキストがあるか
+- [ ] インタラクティブ要素に可視テキストがあるか（無い場合に限り `aria-label`）
+- [ ] 可視テキストを `aria-label` で上書きしていないか（WCAG 2.5.3。補足は `.sr-only` で後置）
 - [ ] キーボードのみで操作可能か（Tab, Enter, Space, Escape, Arrow keys）
 - [ ] `:focus-visible` スタイルが適用されるか（グローバルスタイルでカバー）
 - [ ] 装飾的な画像には `aria-hidden="true"` または空 `alt=""` を設定
@@ -96,11 +154,12 @@ grep -oh '<main[^>]*>' dist/creatives/*/*.html | sort -u
 ### 外部リンク
 
 - [ ] `target="_blank"` + `rel="noopener noreferrer"` を追加
-- [ ] `aria-label` に「新しいタブで開きます」を追記
+- [ ] 可視テキストが無い（アイコンのみ）リンク: `aria-label` に「新しいタブで開きます」を追記
+- [ ] 可視テキストがあるリンク: `aria-label` を使わず `<span class="sr-only">` で追記
 
 ### フォーム・ボタン
 
-- [ ] ボタンに `aria-label` または可視テキスト
+- [ ] ボタンに可視テキスト（アイコンのみの場合に限り `aria-label`）
 - [ ] トグルボタンに `aria-pressed` または `aria-expanded`
 - [ ] ドロップダウン/メニューに `role="menu"` + `role="menuitem"`
 
@@ -114,9 +173,11 @@ grep -oh '<main[^>]*>' dist/creatives/*/*.html | sort -u
 ```
 common.opensInNewTab     — 外部リンクの補足テキスト
 home.title               — ホームページのh1テキスト
-creatives.filters.*      — カテゴリフィルターのaria-label
-creatives.dcChanAlt      — DC-chan画像のaltテキスト
-navbar.selectLanguage    — 言語切替のaria-label
+creatives.filters.toolbar — カテゴリフィルターtoolbarのaria-label（コンテナのため可）
+creatives.filters.*       — カテゴリフィルターの.sr-only補足テキスト
+creatives.dcChanAlt       — DC-chan画像のaltテキスト
+navbar.selectLanguage     — 言語切替トグルの.sr-only補足テキスト
+navbar.menu.home          — ロゴリンクの.sr-only補足テキスト（メニュー項目と共用）
 ```
 
 ## reduced-motion対応コンポーネント一覧
@@ -132,4 +193,4 @@ navbar.selectLanguage    — 言語切替のaria-label
 
 ---
 
-最終更新日: 2026-09-06（ランドマーク構造の節を追加）
+最終更新日: 2026-09-06（ランドマーク構造 / Label in Name の節を追加）

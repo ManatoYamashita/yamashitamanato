@@ -67,7 +67,7 @@
           :current-label="currentLanguageLabel"
           :languages="languages"
           :current-locale="locale"
-          :ariaLabel="$t('navbar.selectLanguage')"
+          :description-label="$t('navbar.selectLanguage')"
           @toggle="toggleDropdown"
           @select="selectLanguage"
           @close="isDropdownOpen = false"

@@ -3,7 +3,7 @@
     <!-- デスクトップナビゲーション -->
     <nav class="desktop-nav" :aria-label="$t('navbar.primaryLabel')">
       <div class="logo">
-        <RouterLink to="/" aria-label="ホームページに戻る">
+        <RouterLink to="/">
           <transition name="slide" mode="out-in">
             <img
               v-if="!logoError"
@@ -18,6 +18,7 @@
             />
             <span v-else class="logo-fallback">yamashitamana.to</span>
           </transition>
+          <span class="sr-only">&nbsp;{{ $t('navbar.menu.home') }}</span>
         </RouterLink>
       </div>
 
@@ -45,7 +46,7 @@
         :current-label="currentLanguageLabel"
         :languages="languages"
         :current-locale="locale"
-        :ariaLabel="$t('navbar.selectLanguage')"
+        :description-label="$t('navbar.selectLanguage')"
         @toggle="toggleDropdown"
         @select="selectLanguage"
         @close="isDropdownOpen = false"
@@ -56,7 +57,7 @@
     <nav class="mobile-nav" v-show="shouldShowMobileNav" :aria-label="$t('navbar.primaryLabel')">
       <div class="mobile-header">
         <div class="logo">
-          <RouterLink to="/" aria-label="ホームページに戻る">
+          <RouterLink to="/">
             <img
               v-if="!logoError"
               :src="logoSvg"
@@ -69,6 +70,7 @@
               @error="handleLogoError"
             />
             <span v-else class="logo-fallback">yamashitamana.to</span>
+            <span class="sr-only">&nbsp;{{ $t('navbar.menu.home') }}</span>
           </RouterLink>
         </div>
 
@@ -81,7 +83,7 @@
           :current-label="currentLanguageLabel"
           :languages="languages"
           :current-locale="locale"
-          :ariaLabel="$t('navbar.selectLanguage')"
+          :description-label="$t('navbar.selectLanguage')"
           @toggle="toggleDropdown"
           @select="selectLanguage"
           @close="isDropdownOpen = false"

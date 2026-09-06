@@ -168,13 +168,14 @@ button.secondary:hover {
 <template>
   <button
     @click="handleClick"
-    :aria-label="alt"
     :aria-describedby="subText ? tooltipId : undefined"
     :class="[category, variant]"
   >
     <component v-if="icon" :is="icon" :size="20" class="icon" />
     <span class="label">{{ text }}</span>
-    <span v-if="subText" class="tooltip" role="tooltip" :id="tooltipId">{{ subText }}</span>
+    <span v-if="subText" class="tooltip" role="tooltip" :id="tooltipId" aria-hidden="true">
+      {{ subText }}
+    </span>
     <font-awesome-icon v-if="showArrow" :icon="faArrowRight" class="icon" />
   </button>
 </template>
@@ -194,7 +195,6 @@ interface Props {
   href?: string;
   target?: string;
   icon?: Component | null;
-  alt?: string;
   showArrow?: boolean;
   category?: '' | 'animation' | 'programming' | 'graphics' | 'video';
   variant?: '' | 'simple' | 'primary' | 'secondary';
@@ -210,7 +210,6 @@ const props = withDefaults(defineProps<Props>(), {
   href: '',
   target: '',
   icon: null,
-  alt: 'button link(view more)',
   showArrow: false,
   category: '',
   variant: '',

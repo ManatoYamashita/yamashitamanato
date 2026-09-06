@@ -47,10 +47,10 @@ function escapeCSV(value: string | undefined | null): string {
 function getTranslation(key: string, locale: 'ja' | 'en'): string {
   const json = locale === 'ja' ? jaJson : enJson;
   const keys = key.split('.');
-  let value: any = json;
+  let value: unknown = json;
 
   for (const k of keys) {
-    value = value?.[k];
+    value = (value as Record<string, unknown> | undefined)?.[k];
     if (value === undefined) return '';
   }
 

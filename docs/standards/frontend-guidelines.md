@@ -237,6 +237,8 @@ grep -oh '<button class="primary"[^>]*><[a-z!/-]*' dist/creatives/*/*.html | sed
 - 画面遷移は `App.vue` の `<transition name="slide" mode="out-in">`。`:key="$route.fullPath"` で再マウントを保証する。
 - ナビゲーション進行バーとコンポーネントのプリロードは `setupClientRouterEffects()` に集約する。SSR 段階では `document`/`window` が存在しないため呼ばれない。
 - 未定義パスは `netlify.toml` が `dist/404.html` を HTTP 404 で返す。SPA フォールバック（`index.html` を 200 で返す経路）は `/creatives/*` に限定されている。
+- **内部遷移は必ず `<RouterLink to="/...">`。`<a href="https://www.yamashitamana.to">` のような絶対URLを書かない。** ドメインが固定されるため localhost と Netlify Deploy Preview から本番サイトへ離脱してしまい、プレビューでの検証が続けられなくなる。SPA遷移も失われフルリロードが走る（#21, #54）。
+- `RouterLink` のルート要素は `<a>`。scoped CSS の `data-v` 属性もそこへ付くため、`a.foo` のような要素セレクタで問題なくスタイルが当たる。
 
 ## 国際化 (i18n)
 

@@ -136,10 +136,19 @@ MICROCMS_API_KEY=your-read-only-api-key-here
 > | `src/composables/microcmsServer.ts` | SSGプリレンダ時（`import.meta.env.SSR` 分岐からのみ） |
 >
 > クライアントバンドルへ混入していないことは、ビルド後に次で検証できます。
+> 空文字を `grep` へ渡すと全ファイルに一致するため、値の存在を先に確かめます。
 >
 > ```bash
 > npm run build
-> grep -rl -- "$(sed -n 's/^MICROCMS_API_KEY=//p' .env)" dist/ | wc -l   # 0 であること
+> value=$(sed -n 's/^MICROCMS_API_KEY=//p' .env)
+> [ -n "$value" ] && grep -rl -F -- "$value" dist/ | wc -l   # 0 であること
+> ```
+>
+> 認証情報を持たない環境では、構造だけで同じことを確認できます。
+>
+> ```bash
+> ls dist/assets/ | grep -i microcms          # 何も出ないこと
+> grep -rl "process\.env\." dist/assets/*.js  # 何も出ないこと
 > ```
 
 > **既知の例外**: `scripts/migrate-to-microcms.ts` と `scripts/update-csv-image-urls.ts` は

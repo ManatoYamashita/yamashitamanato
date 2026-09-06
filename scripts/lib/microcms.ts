@@ -9,6 +9,14 @@
  * APIキーの受け渡しには使用しない（`docs/ops/microcms-setup.md` 参照）。
  */
 
+import { isValidCategory } from '../../src/types/creatives';
+
+/** microCMS list API の1リクエストあたり上限。 */
+const PAGE_SIZE = 100;
+
+/** ページングの安全弁。1万件を超える運用は想定していない。 */
+const MAX_PAGES = 100;
+
 export interface MicroCMSMeta {
   id: string;
   createdAt: string;
@@ -57,8 +65,30 @@ export function normalizeEndpoint(endpoint: string): string {
 }
 
 /**
+ * ルーターが受理できる作品だけを残す。
+ *
+ * `src/router/routes.ts` の `beforeEnter` は `isValidCategory` を通らないカテゴリを
+ * `/404` へ流す。列挙してしまうと vite-ssg がその遷移結果をレンダリングし、
+ * 404 の本文を持つHTMLが実URLに 200 で配信される。sitemap も同じ理由で除外する。
+ */
+function filterRoutable(creatives: BuildCreativeData[]): BuildCreativeData[] {
+  return creatives.filter((creative) => {
+    const categoryId = creative.majorCategory?.id;
+    if (categoryId && isValidCategory(categoryId)) return true;
+    console.warn(
+      `[microcms] Skipped "${creative.id}": majorCategory "${categoryId}" is not routable. ` +
+        'Add it to CreativeCategory in src/types/creatives.ts to prerender this work.'
+    );
+    return false;
+  });
+}
+
+/**
  * 全作品を取得する。`depth=1` で majorCategory の参照のみ展開する
  * （ルート列挙とsitemapに必要なのはカテゴリIDと作品IDのみ）。
+ *
+ * `totalCount` に達するまでページングするため、作品数が `PAGE_SIZE` を超えても
+ * 詳細ルートとsitemapのエントリが欠落しない。戻り値はルーティング可能なものだけ。
  */
 export async function fetchAllCreatives(): Promise<BuildCreativeData[]> {
   const config = readConfig();
@@ -67,16 +97,35 @@ export async function fetchAllCreatives(): Promise<BuildCreativeData[]> {
   }
 
   const baseUrl = normalizeEndpoint(config.endpoint);
-  const response = await fetch(`${baseUrl}/creatives?limit=100&depth=1`, {
-    headers: { 'X-MICROCMS-API-KEY': config.key },
-  });
+  const collected: BuildCreativeData[] = [];
+  let totalCount = Number.POSITIVE_INFINITY;
 
-  if (!response.ok) {
-    throw new Error(`microCMS API error: ${response.status} ${response.statusText}`);
+  for (let page = 0; page < MAX_PAGES && collected.length < totalCount; page += 1) {
+    const url = `${baseUrl}/creatives?limit=${PAGE_SIZE}&offset=${collected.length}&depth=1`;
+    const response = await fetch(url, {
+      headers: { 'X-MICROCMS-API-KEY': config.key },
+    });
+
+    if (!response.ok) {
+      throw new Error(`microCMS API error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = (await response.json()) as MicroCMSListResponse<BuildCreativeData>;
+    totalCount = data.totalCount;
+
+    // offset が totalCount を超えるなど、進捗しない応答での無限ループを防ぐ。
+    if (data.contents.length === 0) break;
+
+    collected.push(...data.contents);
   }
 
-  const data = (await response.json()) as MicroCMSListResponse<BuildCreativeData>;
-  return data.contents;
+  if (collected.length < totalCount) {
+    throw new Error(
+      `microCMS returned ${collected.length} of ${totalCount} creatives after ${MAX_PAGES} pages`
+    );
+  }
+
+  return filterRoutable(collected);
 }
 
 /**

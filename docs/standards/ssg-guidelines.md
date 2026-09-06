@@ -90,9 +90,16 @@ HTMLへ出力され、**JS未実行のクライアントではその状態が固
 `ssgOptions.includedRoutes` は async にできる。ビルド開始時に microCMS から全作品を取得し、
 `/creatives/{majorCategory.id}/{id}` を静的4ルートへ足す。
 
-認証情報が無い環境（フォーク、シークレット未設定のCI）では**静的4ページのみへ縮退し、
-ビルドは継続する**。詳細ページはSPAフォールバックで従来どおり描画されるため、
-プリレンダの失敗をビルド失敗に昇格させない。
+取得は `scripts/lib/microcms.ts` が `totalCount` に達するまでページングする。
+1リクエスト上限は100件なので、作品が100件を超えたときに列挙とsitemapが黙って
+欠けないようにするため。クライアント側 `fetchCreatives()` も同じくページングする
+（片方だけ打ち切ると、プリレンダ済みの詳細ページがクライアント再描画で消える）。
+
+`isValidCategory` を通らない `majorCategory.id` は列挙から除外する。
+`src/router/routes.ts` の `beforeEnter` が未知カテゴリを `/404` へ流すため、
+列挙すると vite-ssg がその遷移結果をレンダリングし、**404 の本文を持つHTMLが
+実URLに 200 で配信される**。除外時は警告を出すので、CMSに大カテゴリを追加したら
+`src/types/creatives.ts` の `CreativeCategory` も更新する。
 
 ### プリレンダ段階のデータ供給
 
@@ -125,6 +132,40 @@ onSSRAppRendered(() => {
 | `/creatives` | 全件から `detail`/`detailEn` と参照展開されたメタを落とした軽量投影 | 約35KB（gzip 約8KB） |
 | その他 | 空 | 18B |
 
+### 縮退の判定点は1か所に集約する
+
+プリレンダの成否は**ルート列挙**（`vite.config.ts`）と**データ供給**（`src/main.ts`）という
+独立した2経路に分かれる。両方が個別に fail-soft すると「片方だけ成功」という中間状態が生まれ、
+ビルドは成功のまま壊れた成果物が配信される。
+
+実際に片方だけ失敗させたときの出力:
+
+| 項目 | 結果 |
+| --- | --- |
+| ビルド | `Build finished.` exit 0 |
+| `<title>` / `og:title` | `Not Found \| yamashitamana.to` |
+| `description` | `作品が見つかりません` |
+| `canonical` | 本番URLのまま |
+| `<h1>` | 無し（skeleton のみ） |
+| `.not-found` を含むページ | **0件** |
+
+最後の行が重要で、`hasSettled` は `.not-found` ブロックの描画を抑えるが `useHead` は素通しになる。
+つまり**クラス名の検索では検出できない**。
+
+そこで判定を次の1か所へ集約する。
+
+- 認証情報が**無い** → 静的4ページへ縮退（フォーク、シークレット未設定のCI）。正常な経路。
+- 認証情報が**ある** → `includedRoutes` の取得失敗はそのまま throw してビルドを落とす。
+- 詳細ルートを1件でも列挙した場合 → `onPageRendered` で各ページの `initialState.creatives` を
+  検査し、`/creatives` と詳細ページが空なら記録。`onFinished` でまとめて throw する。
+
+`onPageRendered` は `triggerOnSSRAppRendered` の**後**に呼ばれるため、
+`appCtx.initialState` は `onSSRAppRendered` で載せた後の値になっている。
+`onFinished` は `build()` から `await` されるので、ここで throw すればプロセスが非0で終わる。
+
+新しく fail-soft な `catch` を足すときは、**その失敗が下流のどのゲートで検出されるか**を
+必ずコメントに書く。書けないなら、その `catch` は握り潰しである。
+
 ### APIキーをクライアントバンドルへ混入させない
 
 環境変数は `MICROCMS_API_ENDPOINT` / `MICROCMS_API_KEY` のみを使う。
@@ -134,11 +175,22 @@ onSSRAppRendered(() => {
 `import.meta.env.SSR` が真の分岐からのみ動的 import する。Vite はクライアントビルドで
 この定数を `false` へ静的置換するため、分岐ごと除去されチャンクも生成されない。
 
+空文字を `grep` へ渡すと全ファイルに一致してしまうため、値の存在を先に確かめる。
+
 ```bash
 npm run build
-# いずれも 0 であること
-grep -rl -- "$(sed -n 's/^MICROCMS_API_KEY=//p' .env)" dist/ | wc -l
-grep -rl -- "$(sed -n 's/^MICROCMS_API_ENDPOINT=//p' .env)" dist/ | wc -l
+for name in MICROCMS_API_KEY MICROCMS_API_ENDPOINT; do
+  value=$(sed -n "s/^${name}=//p" .env)
+  if [ -z "$value" ]; then echo "SKIP $name (not set in .env)"; continue; fi
+  echo "$name: $(grep -rl -F -- "$value" dist/ | wc -l)"   # 0 であること
+done
+```
+
+値を持たない環境でも構造だけは検査できる。こちらは認証情報が不要で、かつより強い。
+
+```bash
+ls dist/assets/ | grep -i microcms          # 何も出ないこと
+grep -rl "process\.env\." dist/assets/*.js  # 何も出ないこと
 ```
 
 ## 落とし穴 3: SSR段階のブラウザAPI参照
@@ -198,7 +250,9 @@ curl -sSL https://deploy-preview-<PR>--yamashitamanato.netlify.app/about -o /tmp
 - [ ] 全画面オーバーレイ（`.splash-overlay`）はホームのみ
 - [ ] `.app.glass` が非ホームで `opacity:1` / `visibility:visible`
 - [ ] 本文テキスト（H1/H2/段落）がHTMLに含まれる
-- [ ] 詳細ページ数がmicroCMSの作品数と一致し、`.not-found` を含むページがゼロ
+- [ ] 詳細ページ数がmicroCMSの作品数と一致する
+- [ ] 詳細ページの `<title>` と `<h1>` が作品固有値になっている
+      （`.not-found` の有無では検出できない。`grep -rl "<title>Not Found" dist/` が空であること）
 - [ ] APIキー・エンドポイントの実値が `dist/` に出現しない
 - [ ] `vue-tsc --noEmit` と `eslint` が exit 0
 
@@ -214,6 +268,9 @@ curl -sSL https://deploy-preview-<PR>--yamashitamanato.netlify.app/about -o /tmp
   公開後は Netlify の再デプロイが必要（将来は microCMS Webhook での自動再ビルドを検討）。
 - 作品が0件のカテゴリ（現在は design）は、プリレンダHTMLに skeleton が残る。
   クライアント側では取得完了後に消える。
+- プリレンダされた `/creatives` の状態は `detail`/`detailEn` を落とした投影のため、
+  そこから詳細ページへ遷移した直後は本文を持たない。`partial` フラグで区別し、
+  `fetchCreatives()` が決着するまで詳細ページは skeleton を出す。
 - hreflang は ja/en/x-default がすべて `/` を指したまま（Issue #7）。
 - 存在しないパスが 200 を返す（Issue #8）。
 

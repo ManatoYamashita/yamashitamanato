@@ -23,8 +23,10 @@ function loadCreativesForPrerender(): Promise<void> {
     prerenderCreativesPromise = useCreativesAPI()
       .fetchCreatives()
       .catch((err: unknown) => {
-        // 認証情報が無い環境や一時的な取得失敗でビルドを落とさない。
-        // 作品データを含まない静的HTMLが出力され、クライアントで従来どおり取得される。
+        // ここでは落とさない。認証情報が無い環境では取得失敗が正常な縮退経路であり、
+        // 「詳細ルートを列挙したのにデータが無い」という異常だけを切り分ける必要がある。
+        // その判定は vite.config.ts の onPageRendered / onFinished が一括で行い、
+        // 該当ページがあればビルドを失敗させる。
         console.warn(
           `[ssg] Failed to load creatives for prerendering: ${err instanceof Error ? err.message : String(err)}`
         );
@@ -80,9 +82,12 @@ export const createApp = ViteSSG(
       // プリレンダHTMLに埋め込まれた作品データでストアを初期化する。
       // クライアントは createApp で全再描画するため、これが無いと
       // 「本文 → 空表示 → 本文」のちらつきが出る。
-      const embedded = (initialState as { creatives?: CreativeData[] }).creatives;
+      // `/creatives` に載る作品データは detail/detailEn を落とした投影のため、
+      // partial を引き継いで詳細ページが本文を description で代用しないようにする。
+      const prerendered = initialState as { creatives?: CreativeData[]; partial?: boolean };
+      const embedded = prerendered.creatives;
       if (embedded && embedded.length > 0) {
-        hydrateCreatives(embedded);
+        hydrateCreatives(embedded, { partial: prerendered.partial === true });
       } else {
         // プリレンダ対象外のルートは LocalStorage キャッシュで温める（再訪時のみ有効）。
         hydrateCreativesFromCache();

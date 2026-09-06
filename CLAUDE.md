@@ -6,10 +6,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Build & Development
 - `npm run dev` - Start development server with Vite
-- `npm run build` - Build production bundle with Vite
+- `npm run dev:netlify` - Start Netlify Dev (Vite + Functions, http://localhost:8888). microCMS取得にはこちらを使用
+- `npm run build` - Production build。`vite-ssg build`で静的ルート（/, /about, /creatives, /contact）をプリレンダリング、その後sitemap生成
 - `npm run preview` - Preview production build locally
+- `npm run preview:netlify` - Netlify build + serve（Functions込み本番同等確認）
 - `npm run analyze` - Build with bundle analyzer (generates stats.html)
 - `npm run typecheck` - Run TypeScript type checking (vue-tsc)
+
+### SSG (静的サイト生成)
+本プロジェクトは `vite-ssg` を使用して静的4ページをビルド時にプリレンダリング。
+- **対象ルート**: `/`, `/about`, `/creatives`, `/contact`（`vite.config.ts` の `ssgOptions.includedRoutes` で制御）
+- **対象外**: `/creatives/:category/:id`（動的ルート、クライアントサイドレンダリング継続）、`/404`、`/underconstraction`
+- **エントリ**: `src/main.ts` の `ViteSSG` ファクトリ形式。SSR段階で `document`/`window` を参照しないよう `isClient` ガードを使用
+- **i18n**: SSG段階は日本語のみ同期ロード、英語はクライアントで遅延ロード
+- **MetaBall (Three.js)**: `isClient` ガード内で `requestIdleCallback` により遅延マウント、SSR段階では実行されない
+- **生成物**: `dist/index.html`, `dist/about.html`, `dist/creatives.html`, `dist/contact.html`
 
 ### Testing & Quality
 - **Type Checking**: `npm run typecheck` - TypeScript compilation check (zero errors required)

@@ -60,7 +60,7 @@ npm install
 # 開発サーバー起動
 npm run dev      # http://localhost:5173
 
-# プロダクションビルド
+# プロダクションビルド（vite-ssg により静的4ページをプリレンダリング）
 npm run build    # プロダクションビルド（/dist）
 npm run preview  # ローカルで/distを確認
 

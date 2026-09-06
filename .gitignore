@@ -38,3 +38,9 @@ functions-dist/
 
 # Environment variables (protect secrets)
 .env
+# パッケージマネージャは npm に統一（package-lock.json のみをコミットする）
+# 他のロックファイルが混在すると Netlify が誤ったパッケージマネージャを選択し
+# Install dependencies ステージで失敗するため、意図的に無視する
+pnpm-lock.yaml
+yarn.lock
+bun.lockb

@@ -83,11 +83,15 @@ import logoSvg from '@/assets/logo.svg';
 import { useLanguageSwitcher } from '@/composables/useLanguageSwitcher';
 import { useIntroAnimation } from '@/composables/useIntroAnimation';
 import { useI18n } from 'vue-i18n';
+import { useHead } from '@unhead/vue';
 
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
-const isHomePage = ref<boolean>(true);
+// SSG/SSRプリレンダ段階では onMounted が走らないため、route から同期初期化する。
+// これを怠ると非ホームの静的ページが「ホーム扱い」でプリレンダされ、本文が
+// 不可視コンテナ（appStyles）に包まれ、ホームのsr-only H1が混入する。
+const isHomePage = ref<boolean>(route.name === 'home');
 
 // テンプレート ref（vue-tsc がテンプレート参照を追跡するためコンポーネント側で宣言）
 const splashOverlayRef = ref<HTMLDivElement | null>(null);
@@ -145,10 +149,21 @@ const updateHomePageState = (): void => {
   isHomePage.value = route.name === 'home';
 };
 
-// <html lang> を locale と同期（WCAG 3.1.1対応）
-watch(locale, (newLocale) => {
-  document.documentElement.lang = newLocale;
-}, { immediate: true });
+// <html lang>（WCAG 3.1.1対応）と viewport を head 定義として宣言する。
+// vite-ssg はプリレンダ時に unhead のサーバ既定値（lang="en" / viewport-fit 指定なし）を
+// 注入し index.html のテンプレート値を上書きするため、アプリ側で明示的に上書きし直す。
+// document への直接代入と異なり、SSR/クライアント双方で同じ値が適用される。
+useHead({
+  htmlAttrs: {
+    lang: computed(() => locale.value),
+  },
+  meta: [
+    {
+      name: 'viewport',
+      content: 'width=device-width, initial-scale=1.0, viewport-fit=cover',
+    },
+  ],
+});
 
 watch(route, () => {
   updateHomePageState();
@@ -211,8 +226,24 @@ const styleObject = computed<CSSProperties>(() => {
 .splash-logo {
   width: min(75vw, 700px);
   height: auto;
-  opacity: 0;
+  /* 導入フェードは CSS で行う。プリレンダされた / は JS 到達前に描画されるため、
+     ここを opacity: 0 で固定すると静的HTMLが無地の黄色一枚になってしまう。
+     CSS アニメーションは初回ペイント時点から走り、完了後に GSAP が Phase 2
+     （フェードアウト → レイヤースライドアウト）を引き継ぐ。
+     動作軽減環境では main.css のグローバル指定が duration を潰すため、
+     ここでの個別指定は不要（both により最終状態 opacity: 1 で停止する）。 */
+  animation: splash-logo-in 0.5s cubic-bezier(0.2, 0, 0, 1) both;
   will-change: opacity, transform;
+}
+@keyframes splash-logo-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 #center-logo {
   position: absolute;

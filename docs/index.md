@@ -42,7 +42,7 @@
 - ops/package-manager-policy.md — パッケージマネージャ運用ポリシー（npm統一、ロックファイル混在によるNetlify install失敗の原因と切り分け手順）。
 
 ### Dev（開発環境）
-- dev/devcontainer-setup.md — Devcontainer 環境構築ガイド（VS Code + Docker、Node.js 22.13.1、Vue 3 + Vite 対応）。
+- dev/devcontainer-setup.md — Devcontainer 環境構築ガイド（VS Code + Docker、Node.js 24.0.0、Vue 3 + Vite 対応）。
 - dev/docker-performance.md — Docker パフォーマンス最適化（Named Volume による高速化、CHOKIDAR_USEPOLLING 設定）。
 
 ### Analytics（アクセス解析）

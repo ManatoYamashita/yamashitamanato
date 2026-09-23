@@ -45,7 +45,7 @@
   - 本番: Netlify（Git連携ビルド。`netlify.toml` の `npm run build` → `dist` を配信）
   - デモ: Vercel
 
-Node.js 要件（Vite準拠）: Node 20.19+ または 22.12+。参考: [Vite Getting Started](https://vitejs.dev/guide/)
+Node.js 要件: Node.js 24.0.0以上。参考: [Vite Getting Started](https://vitejs.dev/guide/)
 
 ## Quick Start
 

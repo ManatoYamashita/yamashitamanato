@@ -1,9 +1,9 @@
 # ========================================
 # Vue.js 3 + Vite Devcontainer
-# Node.js 22.13.1 Official Image
+# Node.js 24.0.0 Official Image
 # ========================================
 
-FROM node:22.13.1-bookworm-slim
+FROM node:24.0.0-bookworm-slim
 
 # ========================================
 # 環境変数設定

@@ -429,7 +429,7 @@ cat > benchmark.txt <<EOF
 ## 環境
 - OS: $(uname -s) $(uname -m)
 - Docker Desktop: $(docker --version)
-- Node.js: $(docker run --rm node:22.13.1-bookworm-slim node --version)
+- Node.js: $(docker run --rm node:24.0.0-bookworm-slim node --version)
 
 ## npm install
 - bind mount: XXX 秒

@@ -239,7 +239,7 @@ npx netlify deploy --prod
 ### netlify.toml 設定概要
 - ビルドコマンド: `npm run build`
 - 公開ディレクトリ: `dist`
-- Node.js: `22.22.0`
+- Node.js: `24.0.0`
 - SPAフォールバック: `/creatives/* → /index.html (200)`（ビルド後に microCMS へ追加された作品向け。プリレンダ済みの作品は静的ファイルが優先される）
 - 未定義パス: `/* → /404.html (404)`（以前は全パスが index.html を 200 で返し、任意のURLでホームの複製が配信されていた。Issue #8）
 - リダイレクト: `manapuraza.com` → `www.yamashitamana.to` (301)

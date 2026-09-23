@@ -2,19 +2,19 @@
 
 ## 現在のNode.jsバージョン
 
-- **バージョン**: 22.22.0
-- **更新日**: 2026-01-19
-- **更新理由**: セキュリティ脆弱性8件の修正
+- **バージョン**: 24.0.0
+- **更新日**: 2026-09-23
+- **更新理由**: プロジェクト全体のNode.js実行環境を24系へ統一
 
 ## バージョン管理ファイル
 
-本プロジェクトでは、以下の4つのファイルでNode.jsバージョンを統一管理しています：
+本プロジェクトでは、以下の5つの設定箇所でNode.jsバージョンを統一管理しています：
 
 ### 1. `.nvmrc`
 **用途**: ローカル開発環境のNode.jsバージョン指定
 
 ```
-22.22.0
+24.0.0
 ```
 
 **使用方法**:
@@ -27,7 +27,7 @@ nvm use  # .nvmrcファイルから自動的にバージョンを読み込む
 
 ```json
 "engines": {
-  "node": ">=22.22.0",
+  "node": ">=24.0.0",
   "npm": ">=10.0.0"
 }
 ```
@@ -41,7 +41,7 @@ nvm use  # .nvmrcファイルから自動的にバージョンを読み込む
 - name: Set up Node.js
   uses: actions/setup-node@v3
   with:
-    node-version: '22.22.0'
+    node-version: '24.0.0'
     cache: 'npm'
 ```
 
@@ -50,7 +50,14 @@ nvm use  # .nvmrcファイルから自動的にバージョンを読み込む
 
 ```toml
 [build.environment]
-  NODE_VERSION = "22.22.0"
+  NODE_VERSION = "24.0.0"
+```
+
+### 5. `.devcontainer/Dockerfile`
+**用途**: Devcontainer開発環境のNode.jsバージョン指定
+
+```dockerfile
+FROM node:24.0.0-bookworm-slim
 ```
 
 ## Node.jsアップデート手順
@@ -70,11 +77,12 @@ git pull origin main
 # 2. featureブランチを作成
 git checkout -b feature/update-nodejs-X-X-X
 
-# 3. 4つのファイルを同時に更新
+# 3. 5つの設定箇所を同時に更新
 # - .github/workflows/feature-ci.yml (node-version: 'X.X.X')
 # - netlify.toml (NODE_VERSION = "X.X.X")
 # - .nvmrc (X.X.X)
 # - package.json (engines.node: ">=X.X.X")
+# - .devcontainer/Dockerfile (FROM node:X.X.X-bookworm-slim)
 ```
 
 ### Phase 2: ローカル検証（8ステップ）
@@ -223,7 +231,7 @@ GitHub UIでPRを確認し、"Merge pull request"をクリック
 
 #### ロールバック手順（ローカル環境）
 ```bash
-nvm use 22.13.1  # 前のバージョンに戻す
+nvm use 24.0.0  # 24系の標準バージョンに戻す
 rm -rf node_modules package-lock.json
 npm install
 ```
@@ -231,14 +239,14 @@ npm install
 #### ロールバック手順（GitHub Actions）
 ```bash
 git checkout main -- .github/workflows/feature-ci.yml
-git commit -m "REVERT: Node.js 22.13.1に戻す（緊急ロールバック）"
+git commit -m "REVERT: Node.js 24.0.0に戻す（緊急ロールバック）"
 git push origin feature/update-nodejs-X-X-X
 ```
 
 #### ロールバック手順（Netlify）
 ```bash
 git checkout main -- netlify.toml
-git commit -m "REVERT: Netlify Node.js 22.13.1に戻す（緊急ロールバック）"
+git commit -m "REVERT: Netlify Node.js 24.0.0に戻す（緊急ロールバック）"
 git push origin feature/update-nodejs-X-X-X
 ```
 
@@ -315,4 +323,5 @@ GitHub → Settings → Actions → Caches
 
 ## 更新履歴
 
-- 2026-01-19: 初版作成（Node.js 22.22.0アップデート時に作成）
+- 2026-01-19: 初版作成
+- 2026-09-23: Node.js 24.0.0へ統一

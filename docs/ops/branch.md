@@ -180,7 +180,7 @@ GitHub Actions が PR を作成するには、以下の設定が必要：
 ### ワークフロー実行環境
 
 - **OS:** ubuntu-latest
-- **Node.js:** 22.22.0
+- **Node.js:** 24.0.0
 - **パッケージマネージャー:** npm
 - **キャッシュ戦略:** npm キャッシュ利用
 
@@ -386,23 +386,23 @@ git push origin feature-add-gtm
 Node.jsや依存関係のセキュリティアップデートには `FIX` プレフィックスを使用します：
 
 ```
-FIX: Node.js 22.22.0にアップデートしてセキュリティ脆弱性8件を修正
+FIX: Node.js 24.0.0にアップデートして実行環境を統一
 ```
 
 ### コミットメッセージの詳細例
 
 ```bash
-git commit -m "FIX: Node.js 22.22.0にアップデートしてセキュリティ脆弱性8件を修正" -m "
+git commit -m "FIX: Node.js 24.0.0にアップデートして実行環境を統一" -m "
 - CVE-2025-55131: Buffer/Uint8Array 非ゼロクリア（高）
 - CVE-2025-55130: ファイルシステム権限回避（高）
 - CVE-2025-59465: HTTP/2 マルフォームドヘッダー（高）
 - その他5件の中度・低度の脆弱性を修正
 
 更新ファイル:
-- .github/workflows/feature-ci.yml (node-version: 22.22.0)
-- netlify.toml (NODE_VERSION = 22.22.0)
-- .nvmrc (新規作成: 22.22.0)
-- package.json (enginesフィールド追加: node >=22.22.0)
+- .github/workflows/feature-ci.yml (node-version: 24.0.0)
+- netlify.toml (NODE_VERSION = 24.0.0)
+- .nvmrc (新規作成: 24.0.0)
+- package.json (enginesフィールド追加: node >=24.0.0)
 
 検証済み:
 - TypeScript型チェック（ゼロエラー）

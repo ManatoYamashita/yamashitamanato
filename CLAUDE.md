@@ -166,7 +166,7 @@ See `docs/ops/creatives-guide.md` for operational procedures:
 ### Deployment
 - **Hosting**: Netlify. Production deploys run through Netlify's Git integration using `netlify.toml` (`npm run build` → publish `dist`)
 - **CI/CD**: `.github/workflows/feature-ci.yml` runs lint / format / build quality checks on branch pushes and opens PRs. **It does not deploy.**
-- **Node version**: 22.22.0, consistent across `.nvmrc`, `netlify.toml` (`NODE_VERSION`), `package.json` `engines`, and the CI workflow
+- **Node version**: 24.0.0, consistent across `.nvmrc`, `.devcontainer/Dockerfile`, `netlify.toml` (`NODE_VERSION`), `package.json` `engines`, and the CI workflow
 - **Removed**: FTP deployment (`.github/workflows/deploy.yml`, FTP-Deploy-Action to `/manapuraza/`) was deleted in `895f3d0` (2026-01-14). No FTP path exists.
 
 ## Development Guidelines
@@ -271,7 +271,7 @@ const animationCreatives = computed(() =>
 - **@vitejs/plugin-vue**: 5.2.3 - Vue 3 support for Vite
 - **typescript**: 5.3.3 - TypeScript compiler
 - **vue-tsc**: 2.0.6 - Vue TypeScript type checker
-- **@types/node**: 20.11.0 - Node.js type definitions
+- **@types/node**: 24.0.0 - Node.js type definitions
 - **@types/three**: 0.169.0 - Three.js type definitions
 - **@typescript-eslint/eslint-plugin**: 7.0.0 - TypeScript ESLint rules
 - **@typescript-eslint/parser**: 7.0.0 - TypeScript ESLint parser

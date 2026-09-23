@@ -93,7 +93,7 @@ creation URL で Match Service Worker Registration を引き、消えた登録�
 - `minify: 'terser'`, `sourcemap: true`。
 - 手動チャンク例: `vendor`（vue系）, `vendor_three`, `vendor_fontawesome`, `vendor_gsap`。
 - `define` で i18n フラグを最小化。`server.historyApiFallback: true`。
-- 解析: `npm run analyze` で可視化。Node 20.19+ / 22.12+ を推奨。
+- 解析: `npm run analyze` で可視化。Node.js 24.0.0以上を使用する。
 
 ## 計測目標（参考）
 - JS 合計 < 800KB (gzip)、初期描画 < 2s。

@@ -18,7 +18,7 @@ Devcontainer（Development Container）は、VS Code の拡張機能で、Docker
 
 ### 技術スタック
 
-- **Node.js:** 22.13.1（GitHub Actions と完全一致）
+- **Node.js:** 24.0.0（GitHub Actions と完全一致）
 - **フレームワーク:** Vue.js 3.3.2 + Vite 6.2.3
 - **パッケージマネージャー:** npm
 - **開発サーバー:** Vite（ポート 5173）
@@ -100,7 +100,7 @@ VS Code 内で以下のいずれかの方法で Devcontainer を起動：
 [+] Building 180.0s (12/12) FINISHED
  => [internal] load build definition from Dockerfile
  => [internal] load .dockerignore
- => [1/7] FROM docker.io/library/node:22.13.1-bookworm-slim
+ => [1/7] FROM docker.io/library/node:24.0.0-bookworm-slim
  => [2/7] RUN apt-get update && apt-get install -y ...
  => [3/7] RUN sed -i -E 's/# (ja_JP.UTF-8)/\1/' /etc/locale.gen
  => ...
@@ -128,7 +128,7 @@ Installing extensions:
 ```bash
 # Node.js バージョン確認
 node --version
-# 期待される出力: v22.13.1
+# 期待される出力: v24.0.0
 
 # npm バージョン確認
 npm --version
@@ -190,7 +190,7 @@ vite v6.2.3 building for production...
 ### Dockerfile の主要設定
 
 ```dockerfile
-FROM node:22.13.1-bookworm-slim
+FROM node:24.0.0-bookworm-slim
 
 ENV DEBIAN_FRONTEND=noninteractive \
     NODE_ENV=development \
@@ -206,7 +206,7 @@ WORKDIR /workspace
 ```
 
 **ポイント:**
-- **Node.js 22.13.1:** GitHub Actions と完全一致
+- **Node.js 24.0.0:** GitHub Actions と完全一致
 - **日本語ロケール:** コンソール出力の文字化け防止
 - **ビルドツール:** Three.js のネイティブ依存関係に対応
 - **node ユーザー:** セキュリティ向上（非特権ユーザー）
@@ -559,7 +559,7 @@ Docker Desktop に割り当てられているリソースが不足。
 ### Q4: Devcontainer を使わずに開発できる？
 
 **A:** はい、通常のローカル開発も可能です。ただし、以下の点に注意：
-- Node.js 22.13.1 をインストールする必要がある
+- Node.js 24.0.0 をインストールする必要がある
 - VS Code 拡張機能を手動でインストールする必要がある
 - CI/CD 環境との一貫性が保証されない
 
@@ -576,4 +576,4 @@ Docker Desktop に割り当てられているリソースが不足。
 
 ## 更新履歴
 
-- 2026/12/10: 初版作成（Node.js 22.13.1、Vue 3 + Vite 対応）
+- 2026/09/23: Node.js 24.0.0、Vue 3 + Vite 対応へ更新

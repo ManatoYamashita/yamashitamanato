@@ -68,5 +68,13 @@
     "vite-ssg": "^28.3.0",
     "vue-template-compiler": "^0.1.0",
     "vue-tsc": "^3.2.2"
+  },
+  "allowScripts": {
+    "esbuild": false,
+    "fsevents": false,
+    "netlify-cli": false,
+    "@parcel/watcher": false,
+    "sharp": false,
+    "unix-dgram": false
   }
 }

@@ -1,7 +1,7 @@
 [build]
   publish = "dist"
   # 検証用（Issue #84）: npm 12 で動いていることと、未審査の install スクリプトが無いことを確かめてからビルドする
-  command = 'npm -v && test "$(npm -v | cut -d. -f1)" = 12 && npm install-scripts ls && npm install-scripts ls | grep -q "No packages with unreviewed install scripts" && npm run build'
+  command = 'echo "npm=$(npm -v)"; npm install-scripts ls; echo "install-scripts-ls-exit=$?"; npm run build; rc=$?; echo "build-exit=$rc"; test "$(npm -v | cut -d. -f1)" = 12 && npm install-scripts ls | grep -q "No packages with unreviewed install scripts" && exit $rc; exit 1'
 
 [functions]
   directory = "netlify/functions"

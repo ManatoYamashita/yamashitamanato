@@ -67,7 +67,8 @@ npm 12 は、依存パッケージの install スクリプト（preinstall・ins
 - 現在は、スクリプトを持つ 6 パッケージ（esbuild・fsevents・netlify-cli・@parcel/watcher・sharp・unix-dgram）をすべて `false`（拒否）にしています（Issue #82）
 - スクリプトを実行しなくても、ビルド・開発サーバー・Netlify CLI は動きます。読み込めなくなるのは unix-dgram だけで、これは hot-shots が統計を UDS で送るときにしか使いません
 - 依存を足して `npm install` が「install scripts blocked」と警告したら、そのスクリプトが要るかを確かめてから `npm install-scripts approve <pkg>` か `npm install-scripts deny <pkg>` で記録します。まとめて `approve --all` しません
-- GitHub Actions と Netlify は Node.js に同梱の npm（26.13.1 では npm 11）で動きます。npm 11 は `allowScripts` を読まず、すべてのスクリプトを実行します
+- GitHub Actions と Netlify は Node.js に同梱の npm（26.13.1 では npm 11.20.0）で動きます。npm 11.20.0 も `allowScripts` を読み、`false` のパッケージのスクリプトは実行しません。違うのは `allowScripts` に無いパッケージの扱いで、npm 11 は実行し、npm 12 は止めて警告します
+  - 2026-11-21 に esbuild（postinstall が `bin/esbuild` をネイティブのバイナリに差し替える）で確かめました。`false` にすると、npm 11.20.0 でも npm 12.2.3 でも差し替わりませんでした
 
 ## Node.jsアップデート手順
 

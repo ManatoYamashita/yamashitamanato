@@ -1,6 +1,7 @@
 [build]
   publish = "dist"
-  command = "npm run build"
+  # 検証用（Issue #84）: npm 12 で動いていることと、未審査の install スクリプトが無いことを確かめてからビルドする
+  command = 'npm -v && test "$(npm -v | cut -d. -f1)" = 12 && npm install-scripts ls && npm install-scripts ls | grep -q "No packages with unreviewed install scripts" && npm run build'
 
 [functions]
   directory = "netlify/functions"
@@ -50,3 +51,4 @@
 
 [build.environment]
   NODE_VERSION = "26.13.1"
+  NPM_VERSION = "12.2.3" # 検証用（Issue #84）

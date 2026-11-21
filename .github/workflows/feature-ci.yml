@@ -36,8 +36,20 @@ jobs:
           node-version: '26.13.1'
           cache: 'npm'
 
+      # 検証用（Issue #84）: Node.js に同梱の npm の代わりに npm 12 を使う
+      - name: Use npm 12 (verification for #84)
+        run: |
+          npm install -g npm@12.2.3
+          npm -v
+
       - name: Install dependencies
         run: npm ci
+
+      # 検証用（Issue #84）: 未審査の install スクリプトが残っていないことを確かめる
+      - name: Check install-script approvals (verification for #84)
+        run: |
+          npm install-scripts ls | tee /tmp/install-scripts.txt
+          grep -q 'No packages with unreviewed install scripts' /tmp/install-scripts.txt
 
       - name: Run ESLint
         id: lint

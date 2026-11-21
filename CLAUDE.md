@@ -166,7 +166,7 @@ See `docs/ops/creatives-guide.md` for operational procedures:
 ### Deployment
 - **Hosting**: Netlify. Production deploys run through Netlify's Git integration using `netlify.toml` (`npm run build` → publish `dist`)
 - **CI/CD**: `.github/workflows/feature-ci.yml` runs lint / format / build quality checks on branch pushes and opens PRs. **It does not deploy.**
-- **Node version**: 24.0.0, consistent across `.nvmrc`, `.devcontainer/Dockerfile`, `netlify.toml` (`NODE_VERSION`), `package.json` `engines`, and the CI workflow
+- **Node version**: 26.13.1, consistent across `.nvmrc`, `.devcontainer/Dockerfile`, `netlify.toml` (`NODE_VERSION`), `package.json` `engines`, and the CI workflow
 - **Removed**: FTP deployment (`.github/workflows/deploy.yml`, FTP-Deploy-Action to `/manapuraza/`) was deleted in `895f3d0` (2026-01-14). No FTP path exists.
 
 ## Development Guidelines

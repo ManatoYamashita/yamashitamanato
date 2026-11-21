@@ -49,4 +49,4 @@
   status = 404
 
 [build.environment]
-  NODE_VERSION = "24.0.0"
+  NODE_VERSION = "26.13.1"

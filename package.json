@@ -64,7 +64,7 @@
     "terser": "^5.39.0",
     "tsx": "^4.21.0",
     "typescript": "^5.3.3",
-    "vite": "^6.2.3",
+    "vite": "^6.4.6",
     "vite-ssg": "^28.3.0",
     "vue-template-compiler": "^0.1.0",
     "vue-tsc": "^3.2.2"

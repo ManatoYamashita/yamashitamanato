@@ -60,6 +60,15 @@ nvm use  # .nvmrcファイルから自動的にバージョンを読み込む
 FROM node:26.13.1-bookworm-slim
 ```
 
+## 依存パッケージの install スクリプト（npm 12）
+
+npm 12 は、依存パッケージの install スクリプト（preinstall・install・postinstall）を既定で実行しません。実行してよいかどうかは `package.json` の `allowScripts` に記録します。
+
+- 現在は、スクリプトを持つ 6 パッケージ（esbuild・fsevents・netlify-cli・@parcel/watcher・sharp・unix-dgram）をすべて `false`（拒否）にしています（Issue #82）
+- スクリプトを実行しなくても、ビルド・開発サーバー・Netlify CLI は動きます。読み込めなくなるのは unix-dgram だけで、これは hot-shots が統計を UDS で送るときにしか使いません
+- 依存を足して `npm install` が「install scripts blocked」と警告したら、そのスクリプトが要るかを確かめてから `npm install-scripts approve <pkg>` か `npm install-scripts deny <pkg>` で記録します。まとめて `approve --all` しません
+- GitHub Actions と Netlify は Node.js に同梱の npm（26.13.1 では npm 11）で動きます。npm 11 は `allowScripts` を読まず、すべてのスクリプトを実行します
+
 ## Node.jsアップデート手順
 
 ### 前提条件
@@ -326,3 +335,4 @@ GitHub → Settings → Actions → Caches
 - 2026-01-19: 初版作成
 - 2026-09-23: Node.js 24.0.0へ統一
 - 2026-11-21: Node.js 26.13.1へ更新
+- 2026-11-21: npm 12 の install スクリプトの拒否を `allowScripts` に記録

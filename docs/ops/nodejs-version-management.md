@@ -2,9 +2,9 @@
 
 ## 現在のNode.jsバージョン
 
-- **バージョン**: 24.0.0
-- **更新日**: 2026-09-23
-- **更新理由**: プロジェクト全体のNode.js実行環境を24系へ統一
+- **バージョン**: 26.13.1
+- **更新日**: 2026-11-21
+- **更新理由**: Node.js の LTS が 26 系（Lithium）になったため（Issue #80）
 
 ## バージョン管理ファイル
 
@@ -14,7 +14,7 @@
 **用途**: ローカル開発環境のNode.jsバージョン指定
 
 ```
-24.0.0
+26.13.1
 ```
 
 **使用方法**:
@@ -27,7 +27,7 @@ nvm use  # .nvmrcファイルから自動的にバージョンを読み込む
 
 ```json
 "engines": {
-  "node": ">=24.0.0",
+  "node": ">=26.13.1",
   "npm": ">=10.0.0"
 }
 ```
@@ -41,7 +41,7 @@ nvm use  # .nvmrcファイルから自動的にバージョンを読み込む
 - name: Set up Node.js
   uses: actions/setup-node@v3
   with:
-    node-version: '24.0.0'
+    node-version: '26.13.1'
     cache: 'npm'
 ```
 
@@ -50,14 +50,14 @@ nvm use  # .nvmrcファイルから自動的にバージョンを読み込む
 
 ```toml
 [build.environment]
-  NODE_VERSION = "24.0.0"
+  NODE_VERSION = "26.13.1"
 ```
 
 ### 5. `.devcontainer/Dockerfile`
 **用途**: Devcontainer開発環境のNode.jsバージョン指定
 
 ```dockerfile
-FROM node:24.0.0-bookworm-slim
+FROM node:26.13.1-bookworm-slim
 ```
 
 ## Node.jsアップデート手順
@@ -231,7 +231,7 @@ GitHub UIでPRを確認し、"Merge pull request"をクリック
 
 #### ロールバック手順（ローカル環境）
 ```bash
-nvm use 24.0.0  # 24系の標準バージョンに戻す
+nvm use 24.0.0  # 一つ前の版（24系）に戻す
 rm -rf node_modules package-lock.json
 npm install
 ```
@@ -325,3 +325,4 @@ GitHub → Settings → Actions → Caches
 
 - 2026-01-19: 初版作成
 - 2026-09-23: Node.js 24.0.0へ統一
+- 2026-11-21: Node.js 26.13.1へ更新

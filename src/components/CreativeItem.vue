@@ -53,7 +53,7 @@
 import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
-import { getOptimizedImageUrl } from '@/composables/useCreativesAPI';
+import { getMicroCMSSrcset } from '@/composables/useCreativesAPI';
 import type { CreativeCategory } from '@/types';
 
 interface Props {
@@ -85,18 +85,37 @@ const resolvedThumbnail = computed<string>(() => {
   }
 });
 
-// レスポンシブ画像用の srcset 生成
-const thumbnailSrcset = computed<string>(() => {
-  const baseUrl = resolvedThumbnail.value;
-  // microCMS画像でない場合はsrcsetを生成しない
-  if (!baseUrl.includes('images.microcms-assets.io')) {
-    return '';
-  }
-  return `${getOptimizedImageUrl(baseUrl, 400)} 400w, ${getOptimizedImageUrl(baseUrl, 800)} 800w, ${getOptimizedImageUrl(baseUrl, 1200)} 1200w`;
-});
+// Illustration 以外のカードは .img-cover（aspect-ratio: 16/9）に object-fit: cover で
+// 切り抜いて表示する。16:9 より縦長な原画は上下が見えないため、配信段階で同じ中央位置を
+// 切り落としておく（cropAspect、詳細は getOptimizedImageUrl）。Illustration は高さが
+// 原画の縦横比に依存する（height: auto + max-height）ため、トリミングせず縦横比を保つ。
+const isIllustration = computed<boolean>(() => props.mode === 'Illustration');
 
-// レスポンシブ画像用の sizes 属性
-const thumbnailSizes = '(max-width: 640px) 400px, (max-width: 1024px) 800px, 1200px';
+// Illustration 枠は PC で幅 988px あり、DPR 2 では 2000px の候補が選ばれる。
+// 掲載中のイラストはアニメーション WebP（84 フレーム）で、2000px 指定だと約 2.2MB になる。
+// 枠は高さ 250px で上下が切り抜かれるため、変更前の上限（1200px・約 1.5MB）と
+// 同程度の 1280px（約 1.6MB）で止める。
+const ILLUSTRATION_MAX_WIDTH = 1280;
+
+// レスポンシブ画像用の srcset 生成（microCMS画像でない場合は空文字）
+const thumbnailSrcset = computed<string>(() =>
+  getMicroCMSSrcset(
+    resolvedThumbnail.value,
+    isIllustration.value ? { maxWidth: ILLUSTRATION_MAX_WIDTH } : { cropAspect: 16 / 9 }
+  )
+);
+
+// レスポンシブ画像用の sizes 属性。Creatives.vue のグリッドで実測した <img> の表示幅に合わせる。
+//   86px = body 左右 16px + .app 左右 8px と枠線 1px + .creatives 左右 16px + .img-cover 枠線 2px（各×2）
+//   〜480px: 1列 / 481〜768px: 2列（gap 1rem）/ 769px〜: 3列（gap 1rem）
+//   1074px 以上は .creatives の max-width: 1024px で頭打ち（カード 316px、1列枠 988px）
+// レイアウト側の余白や列数を変えたら、この値も実測し直すこと。
+const CARD_SIZES =
+  '(max-width: 480px) calc(100vw - 86px), (max-width: 768px) calc(50vw - 53px), (max-width: 1074px) calc(33.4vw - 42px), 316px';
+const ILLUSTRATION_SIZES = '(max-width: 1074px) calc(100vw - 86px), 988px';
+const thumbnailSizes = computed<string>(() =>
+  isIllustration.value ? ILLUSTRATION_SIZES : CARD_SIZES
+);
 
 const handleImageError = (e: Event): void => {
   const target = e.target as HTMLImageElement;

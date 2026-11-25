@@ -11,6 +11,31 @@
 - 参照は `new URL('@/assets/foo.webp', import.meta.url).href` を使用。命名は用途別ディレクトリ + ハイフン区切り。
 - `public/favicon.ico` と `public/ogp.webp` はキャッシュ更新時にバージョン付けを検討。
 
+### microCMS 画像（images.microcms-assets.io）
+- URL は `src/composables/useCreativesAPI.ts` の `getOptimizedImageUrl` / `getMicroCMSSrcset` で組み立てる。
+  各コンポーネントで `?w=` を直書きしない。
+- `srcset` の候補幅は共通の `MICROCMS_SRCSET_WIDTHS`（320〜2000px、隣接比 1.2〜1.33 倍）。どの候補が
+  選ばれるかは `sizes` で決まるため、**`sizes` は実際の `<img>` の表示幅を実測して書く**。
+  旧実装は `(max-width: 640px) 400px, …, 1200px` と固定値で、PC の 316px のカードに 1200px の画像を
+  配っていた（Lighthouse `uses-responsive-images` で /creatives 1ページあたり約 2.4MB の無駄）。
+- 現在の `sizes`（レイアウトの余白・列数を変えたら測り直す）:
+
+| 箇所 | `sizes` の根拠 |
+|------|----------------|
+| `CreativeItem.vue` カード | 〜480px: 1列 `100vw - 86px` / 〜768px: 2列 `50vw - 53px` / 〜1074px: 3列 `33.4vw - 42px` / 以上: 316px |
+| `CreativeItem.vue` Illustration | 〜1074px: `100vw - 86px` / 以上: 988px。候補の上限 1280px（アニメーション WebP のため） |
+| `CreativeDetail.vue` ギャラリー | 〜480px: `100vw - 82px` / 〜768px: `100vw - 90px` / 〜874px: `50vw - 77px` / 以上: 360px |
+
+- `object-fit: cover` で切り抜く枠（Illustration 以外のカード＝16:9）は、`cropAspect` を渡して
+  `fit=crop&max-h=幅×9/16` で「16:9 より縦長な原画の上下」だけを中央で切り落として配る。cover の既定位置も
+  中央なので見た目は変わらず、縦長の原画でも見えない部分を転送しない。`h=` で 16:9 ちょうどに切ってはいけない。
+  枠は 2px の枠線ぶん 16:9 よりわずかに横長（約 1.79〜1.81）で、横長の原画を 16:9 に切ると cover の
+  表示範囲より狭くなり、拡大・位置ずれとして見た目が変わる。縦横比が原画に依存する枠（Illustration、
+  詳細ギャラリー）はトリミングせず `fit=max`（原寸を超えて拡大しない）にする。
+- 実測は Playwright で各ブレークポイント前後の `getBoundingClientRect().width` を取る。スクロールコンテナは
+  `window` ではなく `.app.glass` なので、遅延読み込みの画像を発火させるときはこちらをスクロールする。
+- アニメーション WebP は `fm=avif` にするとアニメーションが失われるため、`fm=webp` のままにする。
+
 ## Three.js / MetaBall
 - 動的 import 失敗時は `console.error` に詳細を残し、他 UI を阻害しない。
 - Three.js は `vendor_three` チャンクへ分割。OrbitControls 等は必要時のみ読み込み。
@@ -101,4 +126,4 @@ creation URL で Match Service Worker Registration を引き、消えた登録�
 
 ---
 
-最終更新日: 2026-09-07
+最終更新日: 2026-11-24

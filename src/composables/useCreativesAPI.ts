@@ -425,12 +425,40 @@ export function useCreativesAPI() {
 }
 
 /**
+ * srcset の候補幅（px）。
+ * 一覧カード（最大 316px）、イラスト枠（最大 988px）、詳細ギャラリー（最大 678px）を
+ * DPR 1〜3 で過不足なく覆えるよう、隣り合う候補の比が 1.2〜1.33 倍に収まる刻みにしている。
+ * 刻みが粗いと、表示幅を少し超えただけで倍近い画素数の候補が選ばれる。
+ */
+export const MICROCMS_SRCSET_WIDTHS: readonly number[] = [
+  320, 400, 480, 640, 800, 1000, 1280, 1600, 2000,
+];
+
+export interface OptimizedImageOptions {
+  /**
+   * 指定すると、高さが 幅 / cropAspect を超える部分だけを中央で切り落として返す
+   * （fit=crop + max-h）。原画がそれより横長なら切り抜かない。
+   * `object-fit: cover` で常にこの縦横比以上に横長な枠へ切り抜いて表示する画像専用。
+   * 枠より縦長な原画は cover でも上下が切り落とされ、その位置（中央）は imgix の fit=crop と
+   * 一致するため、見た目を変えずに「表示されない上下の画素」を配信しなくて済む。
+   * 横方向は切らない。枠の実際の縦横比は枠線ぶん cropAspect よりわずかに横長で、
+   * 横長の原画を cropAspect で切ると cover の表示範囲より狭くなってしまうため。
+   */
+  cropAspect?: number;
+}
+
+/**
  * microCMS Image API を使用して最適化された画像URLを生成
  * @param url - オリジナルの画像URL
  * @param width - 幅（px）
+ * @param options - トリミング指定
  * @returns 最適化された画像URL
  */
-export function getOptimizedImageUrl(url: string, width: number): string {
+export function getOptimizedImageUrl(
+  url: string,
+  width: number,
+  options: OptimizedImageOptions = {}
+): string {
   if (!url) return '';
 
   // microCMSの画像URLかチェック
@@ -438,7 +466,36 @@ export function getOptimizedImageUrl(url: string, width: number): string {
     return url;
   }
 
+  // トリミングしない場合は fit=max で原寸を超える拡大を止める。
+  // 拡大しても画質は上がらず、転送量だけが増えるため。
+  const { cropAspect } = options;
+  const fit = cropAspect ? `max-h=${Math.ceil(width / cropAspect)}&fit=crop` : 'fit=max';
+
   // URLにクエリパラメータを追加
   const separator = url.includes('?') ? '&' : '?';
-  return `${url}${separator}w=${width}&fm=webp&q=80`;
+  return `${url}${separator}w=${width}&${fit}&fm=webp&q=80`;
+}
+
+export interface MicroCMSSrcsetOptions extends OptimizedImageOptions {
+  /**
+   * 候補幅の上限（px）。これを超える候補は srcset に含めない。
+   * 高 DPR の端末で必要以上に大きい候補が選ばれるのを止めたいとき（アニメーション WebP など、
+   * 幅に対して転送量が極端に大きい画像）に使う。
+   */
+  maxWidth?: number;
+}
+
+/**
+ * microCMS 画像の srcset（w 記述子）を生成する。microCMS 以外のURLでは空文字を返す。
+ * どの候補が選ばれるかは呼び出し側の `sizes` で決まるため、必ず実際のレイアウト幅に
+ * 合わせた `sizes` と組み合わせること（docs/standards/performance-and-build.md）。
+ */
+export function getMicroCMSSrcset(url: string, options: MicroCMSSrcsetOptions = {}): string {
+  if (!url || !url.includes('images.microcms-assets.io')) {
+    return '';
+  }
+  const { maxWidth = Infinity, ...imageOptions } = options;
+  return MICROCMS_SRCSET_WIDTHS.filter((width) => width <= maxWidth)
+    .map((width) => `${getOptimizedImageUrl(url, width, imageOptions)} ${width}w`)
+    .join(', ');
 }

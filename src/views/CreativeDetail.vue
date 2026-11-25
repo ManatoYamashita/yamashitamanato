@@ -208,7 +208,7 @@ import {
   faArrowUpRightFromSquare,
   faRotateRight,
 } from '@fortawesome/free-solid-svg-icons';
-import { useCreativesAPI, getOptimizedImageUrl } from '@/composables/useCreativesAPI';
+import { useCreativesAPI, getMicroCMSSrcset } from '@/composables/useCreativesAPI';
 import Btn from '@/components/Btn.vue';
 import SkeletonBase from '@/components/SkeletonBase.vue';
 import type { Locale, CreativeDetail, CtaButton } from '@/types';
@@ -372,16 +372,16 @@ const hasYoutube = computed<boolean>(() => {
   return detailData.value.youtube !== null;
 });
 
-// 画像のレスポンシブ srcset を生成
-const getImageSrcset = (imageUrl: string): string => {
-  if (!imageUrl.includes('images.microcms-assets.io')) {
-    return '';
-  }
-  return `${getOptimizedImageUrl(imageUrl, 600)} 600w, ${getOptimizedImageUrl(imageUrl, 1200)} 1200w, ${getOptimizedImageUrl(imageUrl, 1800)} 1800w`;
-};
+// 画像のレスポンシブ srcset を生成（microCMS画像でない場合は空文字）。
+// ギャラリーは width: 100% / height: auto で原画の縦横比のまま表示するため、トリミングしない。
+const getImageSrcset = (imageUrl: string): string => getMicroCMSSrcset(imageUrl);
 
-// 画像の sizes 属性
-const imageSizes = '(max-width: 768px) 600px, (max-width: 1200px) 1200px, 1800px';
+// 画像の sizes 属性。.image-gallery 内 <img> の表示幅を実測した値に合わせる。
+//   〜480px: 1カラム（左右余白 82px）/ 481〜768px: 1カラム（左右余白 90px）
+//   769px〜: 2カラムの左列。#main-contents の max-width: 760px により 875px 以上は 360px で頭打ち
+// レイアウト側の余白やカラム構成を変えたら、この値も実測し直すこと。
+const imageSizes =
+  '(max-width: 480px) calc(100vw - 82px), (max-width: 768px) calc(100vw - 90px), (max-width: 874px) calc(50vw - 77px), 360px';
 
 // デスクトップ判定
 const isDesktop: Ref<boolean> = ref(false);
